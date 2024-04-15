@@ -1,0 +1,6 @@
+group = 'com.diligrp'
+archivesBaseName = 'uap-auth'
+
+dependencies {
+    api project(':uap-boss')
+}

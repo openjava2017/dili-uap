@@ -1,0 +1,15 @@
+group = 'com.diligrp'
+archivesBaseName = 'uap-boot'
+
+jar.enabled = false
+bootJar {
+    enabled = true
+    archiveBaseName = 'uap-boot'
+}
+
+dependencies {
+    implementation project(':uap-auth')
+    implementation project(':uap-boss')
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2022.0.0.0-RC2'
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2022.0.0.0-RC2'
+}
