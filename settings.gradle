@@ -1,5 +1,5 @@
 rootProject.name = 'dili-uap'
-include 'uap-sdk'
+include 'uap-security'
 include 'uap-shared'
 include 'uap-boss'
 include 'uap-auth'
