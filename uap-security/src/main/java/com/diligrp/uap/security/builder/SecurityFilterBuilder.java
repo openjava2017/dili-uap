@@ -1,9 +1,8 @@
 package com.diligrp.uap.security.builder;
 
-import jakarta.servlet.Filter;
+import com.diligrp.uap.security.filter.SecurityFilter;
 
-public interface SecurityFilterBuilder<T extends Filter> extends SecurityBuilder<T> {
-    T build();
+public abstract class SecurityFilterBuilder<T extends SecurityFilter> implements SecurityBuilder<T> {
 
-    int priority();
+    public abstract T build();
 }

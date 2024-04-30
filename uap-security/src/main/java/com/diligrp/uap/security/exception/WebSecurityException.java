@@ -3,7 +3,7 @@ package com.diligrp.uap.security.exception;
 import com.diligrp.uap.security.util.ErrorCode;
 
 public class WebSecurityException extends RuntimeException {
-    private int code = ErrorCode.SYSTEM_UNKNOWN_ERROR;
+    private int code = ErrorCode.UNKNOWN_SYSTEM_ERROR;
 
     private boolean stackTrace = true;
 

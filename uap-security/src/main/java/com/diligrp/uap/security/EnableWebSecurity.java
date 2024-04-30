@@ -7,6 +7,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({WebSecurityConfiguration.class, FilterChainConfiguration.class})
+@Import({WebSecurityConfiguration.class, SecurityBaseConfiguration.class})
 public @interface EnableWebSecurity {
 }

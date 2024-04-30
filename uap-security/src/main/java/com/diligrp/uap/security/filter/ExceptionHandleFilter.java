@@ -4,6 +4,7 @@ import com.diligrp.uap.security.exception.AccessDeniedException;
 import com.diligrp.uap.security.exception.AccessDeniedHandler;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.exception.AuthenticationHandler;
+import com.diligrp.uap.security.util.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -11,14 +12,13 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExceptionHandlerFilter extends GenericFilterBean {
+public class ExceptionHandleFilter extends AbstractSecurityFilter {
 
     private AuthenticationHandler authenticationHandler;
 
@@ -92,5 +92,10 @@ public class ExceptionHandlerFilter extends GenericFilterBean {
             }
         }
         return chain;
+    }
+
+    @Override
+    public int getPriority() {
+        return Constants.PRIORITY_EXCEPTION_HANDLE;
     }
 }

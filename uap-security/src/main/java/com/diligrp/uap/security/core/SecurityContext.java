@@ -1,9 +1,19 @@
 package com.diligrp.uap.security.core;
 
-public interface SecurityContext {
-    // 获取认证信息
-    Authentication getAuthentication();
+import com.diligrp.uap.security.filter.SecurityFilterChain;
+import org.springframework.beans.factory.BeanFactory;
 
-    // 设置认证信息
-    void setAuthentication(Authentication authentication);
+import java.util.List;
+
+public interface SecurityContext {
+
+    SecurityConfiguration getConfiguration();
+
+    void addSecurityFilterChain(SecurityFilterChain securityFilterChain);
+
+    List<SecurityFilterChain> getSecurityFilterChains();
+
+    Object autowireBean(Object object);
+
+    BeanFactory getBeanFactory();
 }

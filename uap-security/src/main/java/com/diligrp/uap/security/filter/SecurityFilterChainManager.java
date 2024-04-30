@@ -1,43 +1,31 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.core.SecurityContextHolder;
-import com.diligrp.uap.security.core.ThreadLocalSecurityContextHolder;
-import com.diligrp.uap.security.exception.SecurityExceptionHandler;
-import com.diligrp.uap.security.exception.SecurityExceptionHandlerImpl;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
+import com.diligrp.uap.security.exception.DefaultGlobalExceptionHandler;
+import com.diligrp.uap.security.exception.GlobalExceptionHandler;
 import com.diligrp.uap.security.exception.WebSecurityException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
-public class FilterChainManager extends GenericFilterBean {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FilterChainManager.class);
+public class SecurityFilterChainManager extends GenericFilterBean {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFilterChainManager.class);
 
-    private static final String FILTER_APPLIED = FilterChainManager.class.getName().concat(".APPLIED");
+    private static final String FILTER_APPLIED = SecurityFilterChainManager.class.getName().concat(".APPLIED");
 
-    private List<SecurityFilterChain> filterChains;
+    private final List<SecurityFilterChain> filterChains;
 
-    private SecurityContextHolder securityContextHolder;
+    private GlobalExceptionHandler exceptionHandler = new DefaultGlobalExceptionHandler();
 
-    private SecurityExceptionHandler exceptionHandler;
-
-    public FilterChainManager() {
-    }
-
-    public FilterChainManager(SecurityFilterChain chain) {
-        this(Arrays.asList(chain));
-    }
-
-    public FilterChainManager(List<SecurityFilterChain> filterChains) {
+    public SecurityFilterChainManager(List<SecurityFilterChain> filterChains) {
         this.filterChains = filterChains;
-        this.securityContextHolder = new ThreadLocalSecurityContextHolder();
-        this.exceptionHandler = new SecurityExceptionHandlerImpl();
     }
 
     @Override
@@ -59,13 +47,22 @@ public class FilterChainManager extends GenericFilterBean {
                 throw ex;
             }
         } finally {
-            this.securityContextHolder.clearContext();
+            SecuritySessionHolder.clearSession();
             request.removeAttribute(FILTER_APPLIED);
         }
     }
 
+    @Override
+    public void afterPropertiesSet() {
+        Assert.notNull(this.exceptionHandler, "exceptionHandler must be specified");
+    }
+
+    public void setExceptionHandler(GlobalExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+
     private void doInternalFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        List<Filter> filters = getFilters((HttpServletRequest)request);
+        List<SecurityFilter> filters = getFilters((HttpServletRequest) request);
         if (filters == null || filters.size() == 0) {
             chain.doFilter(request, response);
             return;
@@ -74,7 +71,7 @@ public class FilterChainManager extends GenericFilterBean {
         new FilterChainDecorator(chain, filters).doFilter(request, response);
     }
 
-    private List<Filter> getFilters(HttpServletRequest request) {
+    private List<SecurityFilter> getFilters(HttpServletRequest request) {
         int count = 0;
         for (SecurityFilterChain chain : this.filterChains) {
             if (LOGGER.isTraceEnabled()) {
@@ -90,13 +87,13 @@ public class FilterChainManager extends GenericFilterBean {
     private static class FilterChainDecorator implements FilterChain {
         private final FilterChain filterChain;
 
-        private final List<Filter> filters;
+        private final List<SecurityFilter> filters;
 
         private final int size;
 
         private int pointer;
 
-        public FilterChainDecorator(FilterChain filterChain, List<Filter> filters) {
+        public FilterChainDecorator(FilterChain filterChain, List<SecurityFilter> filters) {
             this.filterChain = filterChain;
             this.filters = filters;
             this.size = filters.size();
@@ -117,14 +114,5 @@ public class FilterChainManager extends GenericFilterBean {
             }
             nextFilter.doFilter(request, response, this);
         }
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        // TODO: check filters inside filter chain
-    }
-
-    public void setExceptionHandler(SecurityExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
 }

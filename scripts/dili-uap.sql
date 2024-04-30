@@ -39,9 +39,9 @@ CREATE TABLE `uap_department` (
 DROP TABLE IF EXISTS `uap_user`;
 CREATE TABLE `uap_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `name` VARCHAR(40) NOT NULL COMMENT '用户名',
-  `real_name` VARCHAR(40) COMMENT '真实姓名',
-  `telphone` VARCHAR(20) NOT NULL COMMENT '电话号码',
+  `user_name` VARCHAR(40) NOT NULL COMMENT '用户名',
+  `name` VARCHAR(40) COMMENT '真实姓名',
+  `telephone` VARCHAR(20) NOT NULL COMMENT '电话号码',
   `email` VARCHAR(40) NOT NULL COMMENT '邮箱地址',
   `gender` TINYINT UNSIGNED COMMENT '性别',
   `position` TINYINT UNSIGNED NOT NULL COMMENT '职位',
@@ -50,18 +50,18 @@ CREATE TABLE `uap_user` (
   `locked_time` DATETIME COMMENT '锁定时间',
   `online_time` DATETIME COMMENT '登陆时间',
   `session_id` VARCHAR(40) COMMENT '登录会话',
-  `state` TINYINT UNSIGNED NOT NULL COMMENT '账号状态',
   `dep_id` BIGINT COMMENT '部门ID',
   `superior_id` BIGINT COMMENT '上级用户',
   `mch_id` BIGINT NOT NULL COMMENT '商户ID',
+  `state` TINYINT UNSIGNED NOT NULL COMMENT '账号状态',
   `description` VARCHAR(128) COMMENT '备注',
   `version` INTEGER UNSIGNED NOT NULL COMMENT '数据版本号',
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_user_name` (`name`) USING BTREE,
-  KEY `idx_user_realName` (`real_name`) USING BTREE,
-  KEY `idx_user_telphone` (`telphone`) USING BTREE,
+  UNIQUE KEY `uk_user_name` (`user_name`) USING BTREE,
+  KEY `idx_user_realName` (`name`) USING BTREE,
+  KEY `idx_user_telephone` (`telephone`) USING BTREE,
   KEY `idx_user_email` (`email`) USING BTREE,
   KEY `idx_user_depId` (`dep_id`) USING BTREE,
   KEY `idx_user_createdTime` (`created_time`) USING BTREE
@@ -78,8 +78,8 @@ CREATE TABLE `uap_user_role` (
   KEY `idx_user_role_roleId` (`role_id`) USING BTREE
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `uap_user_resource`;
-CREATE TABLE `uap_user_resource` (
+DROP TABLE IF EXISTS `uap_user_permission`;
+CREATE TABLE `uap_user_permission` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
@@ -88,8 +88,8 @@ CREATE TABLE `uap_user_resource` (
   `permission` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_user_resource_userId` (`user_id`) USING BTREE,
-  KEY `idx_user_resource_resourceId` (`resource_id`) USING BTREE
+  KEY `idx_user_permission_userId` (`user_id`) USING BTREE,
+  KEY `idx_user_permission_resourceId` (`resource_id`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_role`;
@@ -105,8 +105,8 @@ CREATE TABLE `uap_role` (
   KEY `idx_role_name` (`name`, `mch_id`) USING BTREE
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `uap_role_resource`;
-CREATE TABLE `uap_role_resource` (
+DROP TABLE IF EXISTS `uap_role_permission`;
+CREATE TABLE `uap_role_permission` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `role_id` BIGINT NOT NULL COMMENT '角色ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
@@ -115,8 +115,8 @@ CREATE TABLE `uap_role_resource` (
   `permission` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_role_resource_roleId` (`role_id`) USING BTREE,
-  KEY `idx_role_resource_resourceId` (`resource_id`) USING BTREE
+  KEY `idx_role_permission_roleId` (`role_id`) USING BTREE,
+  KEY `idx_role_permission_resourceId` (`resource_id`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_menu_resource`;

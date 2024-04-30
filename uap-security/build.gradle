@@ -2,5 +2,5 @@ group = 'com.diligrp'
 archivesBaseName = 'uap-security'
 
 dependencies {
-    
+    api 'io.lettuce:lettuce-core'
 }

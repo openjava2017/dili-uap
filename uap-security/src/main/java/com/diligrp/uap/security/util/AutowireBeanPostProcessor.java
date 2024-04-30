@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.ObjectProvider;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public final class AutowireBeanPostProcessor implements ObjectPostProcessor<Object>, DisposableBean, SmartInitializingSingleton {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutowireBeanPostProcessor.class);
 
     private final AutowireCapableBeanFactory autowireBeanFactory;
 
@@ -41,8 +41,8 @@ public final class AutowireBeanPostProcessor implements ObjectPostProcessor<Obje
             Class<?> type = object.getClass();
             throw new RuntimeException("Could not postProcess " + object + " of type " + type, ex);
         }
-
         this.autowireBeanFactory.autowireBean(object);
+
         if (result instanceof DisposableBean) {
             this.disposableBeans.add((DisposableBean) result);
         }
@@ -83,7 +83,7 @@ public final class AutowireBeanPostProcessor implements ObjectPostProcessor<Obje
             try {
                 disposable.destroy();
             } catch (Exception ex) {
-                this.logger.error(ex);
+                LOGGER.error("destroy bean exception", ex);
             }
         }
     }
