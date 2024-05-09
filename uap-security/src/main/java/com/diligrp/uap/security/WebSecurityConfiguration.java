@@ -1,11 +1,15 @@
 package com.diligrp.uap.security;
 
-import com.diligrp.uap.security.builder.*;
+import com.diligrp.uap.security.builder.SecurityContextBuilder;
+import com.diligrp.uap.security.builder.SecurityContextConfigurer;
+import com.diligrp.uap.security.builder.SecurityContextCustomizer;
+import com.diligrp.uap.security.builder.SecurityCustomizer;
 import com.diligrp.uap.security.core.SecurityContext;
 import com.diligrp.uap.security.core.WebSecurityContext;
-import com.diligrp.uap.security.exception.GlobalExceptionHandler;
 import com.diligrp.uap.security.filter.SecurityFilterChain;
 import com.diligrp.uap.security.filter.SecurityFilterChainManager;
+import com.diligrp.uap.security.handler.DefaultGlobalExceptionHandler;
+import com.diligrp.uap.security.handler.GlobalExceptionHandler;
 import com.diligrp.uap.security.util.Constants;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +42,14 @@ public class WebSecurityConfiguration {
 
         if (this.securityFilterChains.isEmpty()) {
             // 添加默认的过滤器链
-            securityContextBuilder.fileChain(new SecurityFilterChainBuilder()
+            securityContextBuilder.fileChain(customizer -> customizer
                 .requestMatcher(SecurityCustomizer.withDefaults())
                 .exceptionHandle(SecurityCustomizer.withDefaults())
-                .build()
             );
         }
 
         this.securityFilterChains.forEach(securityFilterChain ->
-            securityContextBuilder.fileChain(securityFilterChain)
+            securityContextBuilder.fileChain(() -> securityFilterChain)
         );
 
         return securityContextBuilder.build();
@@ -56,10 +59,7 @@ public class WebSecurityConfiguration {
     public Filter webSecurityFilterChain(SecurityContext securityContext,
                                          @Autowired(required = false) GlobalExceptionHandler exceptionHandler) {
         SecurityFilterChainManager filterChainManager = new SecurityFilterChainManager(securityContext.getSecurityFilterChains());
-
-        if (exceptionHandler != null) {
-            filterChainManager.setExceptionHandler(exceptionHandler);
-        }
+        filterChainManager.setExceptionHandler(exceptionHandler == null ? new DefaultGlobalExceptionHandler() : exceptionHandler);
 
         return filterChainManager;
     }

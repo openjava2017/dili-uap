@@ -1,6 +1,7 @@
 package com.diligrp.uap.security;
 
 import com.diligrp.uap.security.builder.SecurityContextConfigurer;
+import com.diligrp.uap.security.core.SecurityConfiguration;
 import com.diligrp.uap.security.core.SecurityConfigurationImpl;
 import com.diligrp.uap.security.core.SecurityProperties;
 import com.diligrp.uap.security.exception.WebSecurityException;
@@ -29,21 +30,27 @@ public class SecurityBaseConfiguration {
 
     // 密钥等参数配置
     @Bean
-    public SecurityContextConfigurer securityContextConfigurer(@Autowired(required = false) SecurityProperties properties) {
-        return context -> {
-            SecurityConfigurationImpl configuration = new SecurityConfigurationImpl();
-            if (properties != null) {
-                try {
-                    // 解析私钥
-                    configuration.setPrivateKey(parsePrivateKey(properties.getPrivateKey()));
-                    // 解析公钥
-                    configuration.setPublicKey(parsePublicKey(properties.getPublicKey()));
-                    configuration.setSessionTimeout(parseSessionTimeout(properties.getSession().getSessionTimeout()));
-                } catch (Exception ex) {
-                    throw new WebSecurityException("Illegal Key Configuration", ex);
-                }
-            }
+    public SecurityConfiguration securityConfiguration(@Autowired(required = false) SecurityProperties properties) {
+        SecurityConfigurationImpl configuration = new SecurityConfigurationImpl();
 
+        if (properties != null) {
+            try {
+                // 解析私钥
+                configuration.setPrivateKey(parsePrivateKey(properties.getPrivateKey()));
+                // 解析公钥
+                configuration.setPublicKey(parsePublicKey(properties.getPublicKey()));
+                configuration.setSessionTimeout(parseSessionTimeout(properties.getSession().getSessionTimeout()));
+            } catch (Exception ex) {
+                throw new WebSecurityException("Illegal Context Configuration", ex);
+            }
+        }
+
+        return configuration;
+    }
+
+    @Bean
+    public SecurityContextConfigurer securityContextConfigurer(SecurityConfiguration configuration) {
+        return context -> {
             context.setConfiguration(configuration);
         };
     }

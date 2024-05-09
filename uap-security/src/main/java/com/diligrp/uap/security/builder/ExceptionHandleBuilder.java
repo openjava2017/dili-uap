@@ -1,16 +1,16 @@
 package com.diligrp.uap.security.builder;
 
-import com.diligrp.uap.security.exception.AccessDeniedHandler;
-import com.diligrp.uap.security.exception.AccessDeniedHandlerImpl;
-import com.diligrp.uap.security.exception.AuthenticationHandler;
-import com.diligrp.uap.security.exception.AuthenticationHandlerImpl;
 import com.diligrp.uap.security.filter.ExceptionHandleFilter;
+import com.diligrp.uap.security.handler.AccessDeniedHandler;
+import com.diligrp.uap.security.handler.AuthenticationHandler;
+import com.diligrp.uap.security.handler.DefaultAccessDeniedHandler;
+import com.diligrp.uap.security.handler.DefaultAuthenticationHandler;
 
 public class ExceptionHandleBuilder extends SecurityFilterBuilder<ExceptionHandleFilter> {
 
-    private AuthenticationHandler authenticationHandler = new AuthenticationHandlerImpl();
+    private AuthenticationHandler authenticationHandler;
 
-    private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
+    private AccessDeniedHandler accessDeniedHandler;
 
     public ExceptionHandleBuilder authenticationHandler(AuthenticationHandler authenticationHandler) {
         this.authenticationHandler = authenticationHandler;
@@ -25,8 +25,8 @@ public class ExceptionHandleBuilder extends SecurityFilterBuilder<ExceptionHandl
     @Override
     public ExceptionHandleFilter build() {
         ExceptionHandleFilter filter = new ExceptionHandleFilter();
-        filter.setAuthenticationHandler(authenticationHandler);
-        filter.setAccessDeniedHandler(accessDeniedHandler);
+        filter.setAuthenticationHandler(authenticationHandler == null ? new DefaultAuthenticationHandler() : authenticationHandler);
+        filter.setAccessDeniedHandler(accessDeniedHandler == null ? new DefaultAccessDeniedHandler() : accessDeniedHandler);
 
         return filter;
     }

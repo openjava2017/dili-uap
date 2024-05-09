@@ -12,26 +12,28 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
 
     private final LettuceConnectionFactory connectionFactory;
 
-    private StatefulRedisConnection<String, SecuritySession> connection;
+    private StatefulRedisConnection<String, Session> connection;
 
     public RedisSessionRepository(LettuceConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
     @Override
-    public SecuritySession loadSessionById(String sessionId, int expireInSeconds) {
+    public Session loadSessionById(String sessionId, int expireInSeconds) {
         // TODO: 是否有性能更优方案，一次性处理多个命令
         String key = Constants.SESSION_KEY_PREFIX + sessionId;
-        RedisCommands<String, SecuritySession> command = connection.sync();
-        SecuritySession session = command.get(key);
-        command.expire(key, Duration.ofSeconds(expireInSeconds));
+        RedisCommands<String, Session> command = connection.sync();
+        Session session = command.get(key);
+        if (session != null) {
+            command.expire(key, Duration.ofSeconds(expireInSeconds));
+        }
         return session;
     }
 
     @Override
-    public void saveSession(SecuritySession session, int expireInSeconds) {
+    public void saveSession(Session session, int expireInSeconds) {
         String key = Constants.SESSION_KEY_PREFIX + session.getSessionId();
-        RedisCommands<String, SecuritySession> command = connection.sync();
+        RedisCommands<String, Session> command = connection.sync();
         command.set(key, session);
         command.expire(key, Duration.ofSeconds(expireInSeconds));
     }
@@ -39,14 +41,14 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
     @Override
     public void removeSession(String sessionId) {
         String key = Constants.SESSION_KEY_PREFIX + sessionId;
-        RedisCommands<String, SecuritySession> command = connection.sync();
+        RedisCommands<String, Session> command = connection.sync();
         command.del(key);
     }
 
     @Override
     public boolean sessionExists(String sessionId) {
         String key = Constants.SESSION_KEY_PREFIX + sessionId;
-        RedisCommands<String, SecuritySession> command = connection.sync();
+        RedisCommands<String, Session> command = connection.sync();
         return command.exists(key) > 0;
     }
 

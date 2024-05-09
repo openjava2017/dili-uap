@@ -32,7 +32,7 @@ public class LettuceConnectionFactory implements InitializingBean, DisposableBea
         this.uri = uri;
     }
 
-    public StatefulRedisConnection<String, SecuritySession> getConnection() {
+    public StatefulRedisConnection<String, Session> getConnection() {
         return this.client.connect(new RedisSessionCodec());
     }
 
@@ -52,12 +52,17 @@ public class LettuceConnectionFactory implements InitializingBean, DisposableBea
         this.client.close();
     }
 
-    public class RedisSessionCodec implements RedisCodec<String, SecuritySession> {
+    public class RedisSessionCodec implements RedisCodec<String, Session> {
 
         @Override
         public String decodeKey(ByteBuffer bytes) {
             try {
-                return StringCodec.getDecoder().decode(bytes.array());
+                byte[] data = new byte[bytes.remaining()];
+                for (int i = 0; bytes.hasRemaining(); i++) {
+                    data[i] = bytes.get();
+                }
+
+                return data.length > 0 ? StringCodec.getDecoder().decode(data) : null;
             } catch (Exception ex) {
                 LOGGER.error("Redis key decode exception", ex);
                 throw new WebSecurityException(ErrorCode.UNKNOWN_SYSTEM_ERROR, "Redis key decode exception");
@@ -65,9 +70,14 @@ public class LettuceConnectionFactory implements InitializingBean, DisposableBea
         }
 
         @Override
-        public SecuritySession decodeValue(ByteBuffer bytes) {
+        public Session decodeValue(ByteBuffer bytes) {
             try {
-                return SecuritySessionCodec.getDecoder().decode(bytes.array());
+                byte[] data = new byte[bytes.remaining()];
+                for (int i = 0; bytes.hasRemaining(); i++) {
+                    data[i] = bytes.get();
+                }
+
+                return data.length > 0 ? SecuritySessionCodec.getDecoder().decode(data) : null;
             } catch (Exception ex) {
                 LOGGER.error("Redis value decode exception", ex);
                 throw new WebSecurityException(ErrorCode.UNKNOWN_SYSTEM_ERROR, "Redis value decode exception");
@@ -85,7 +95,7 @@ public class LettuceConnectionFactory implements InitializingBean, DisposableBea
         }
 
         @Override
-        public ByteBuffer encodeValue(SecuritySession value) {
+        public ByteBuffer encodeValue(Session value) {
             try {
                 return ByteBuffer.wrap(SecuritySessionCodec.getEncoder().encode(value));
             } catch (Exception ex) {

@@ -5,10 +5,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
 public class OpenApiController {
-    @RequestMapping(value = "/boss.do")
-    public String gateway(HttpServletRequest request) {
-        return "Here we go";
+    @RequestMapping(value = "/static/test.do")
+    public String staticTest(HttpServletRequest request) {
+        return "I'm static url";
+    }
+
+    @RequestMapping(value = "/permit/test.do")
+    public String permitTest(HttpServletRequest request) {
+        return "I'm permit url";
+    }
+
+    @RequestMapping(value = "/deny/test.do")
+    public String denyTest(HttpServletRequest request) {
+        return "I'm deny url";
+    }
+
+    @RequestMapping(value = "/permission/test.do")
+    public String permissionTest(HttpServletRequest request) {
+        return "I'm permission url";
+    }
+
+    @RequestMapping(value = "/nopermission/test.do")
+    public String nopermissionTest(HttpServletRequest request) {
+        return "I'm nopermission url";
     }
 }

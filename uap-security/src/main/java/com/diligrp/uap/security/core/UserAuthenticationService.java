@@ -1,8 +1,7 @@
 package com.diligrp.uap.security.core;
 
 import com.diligrp.uap.security.exception.AuthenticationException;
-import com.diligrp.uap.security.session.SecuritySession;
-import com.diligrp.uap.security.session.SecuritySessionHolder;
+import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.util.Constants;
 import com.diligrp.uap.security.util.ErrorCode;
 import com.diligrp.uap.security.util.HttpUtils;
@@ -12,10 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public abstract class UserAuthenticationService implements SecurityContextAware {
-    private static Logger LOGGER = LoggerFactory.getLogger(UserAuthenticationService.class);
+public abstract class UserAuthenticationService {
 
-    protected SecurityContext context;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthenticationService.class);
 
     public AuthenticationToken obtainAuthentication(HttpServletRequest request) throws AuthenticationException {
         String username = request.getParameter(Constants.FORM_USERNAME_KEY);
@@ -28,32 +26,30 @@ public abstract class UserAuthenticationService implements SecurityContextAware 
         return new AuthenticationToken(username, password);
     }
 
-    public abstract SecurityUser doAuthentication(AuthenticationToken authentication) throws AuthenticationException;
+    public abstract User doAuthentication(AuthenticationToken authentication) throws AuthenticationException;
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
-        SecuritySession session = SecuritySessionHolder.getSession();
-        SecuritySubject subject = session.getSubject();
-        SecurityAccessToken token = new SecurityAccessToken(subject.getPrincipal(), session.getSessionId(),
-            subject.getType(), System.currentTimeMillis());
-
-        try {
-            String accessToken = SecurityAccessToken.toAccessToken(token, context.getConfiguration().getPrivateKey());
-            String payload = String.format("{\"code\": 200, \"data\": \"%s\", \"message\": \"success\"}", accessToken);
-            response.addHeader(Constants.HEADER_AUTHORIZATION, accessToken);
+        if (!response.isCommitted()) {
+            String accessToken = response.getHeader(Constants.HEADER_AUTHORIZATION);
+            String payload = String.format(Constants.JSON_MESSAGE_SUCCESS_PAYLOAD, accessToken);
             HttpUtils.sendResponse(response, payload);
-        } catch (Exception iex) {
-            LOGGER.error("unknown system error", iex);
-            throw new AuthenticationException(ErrorCode.UNKNOWN_SYSTEM_ERROR, ErrorCode.MESSAGE_UNKNOWN_ERROR);
+        } else {
+            LOGGER.warn("Did not write to response since already committed");
         }
     }
 
-    public void onAuthenticationFailed(HttpServletRequest request, HttpServletResponse response, AuthenticationException ex) {
-        LOGGER.error(ex.getMessage(), ex);
-        String payload = String.format("{\"code\": %s, \"message\": \"%s\"}", ex.getCode(), ex.getMessage());
-        HttpUtils.sendResponse(response, payload);
-    }
-
-    public void setSecurityContext(SecurityContext context) {
-        this.context = context;
+    public void onAuthenticationFailed(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+        if (!response.isCommitted()) {
+            String payload;
+            if (ex instanceof WebSecurityException) {
+                WebSecurityException sex = (WebSecurityException) ex;
+                payload = String.format(Constants.JSON_MESSAGE_FAILED, sex.getCode(), sex.getMessage());
+            } else {
+                payload = String.format(Constants.JSON_MESSAGE_FAILED, ErrorCode.SUBJECT_AUTHENTICATED_FAILED, ErrorCode.MESSAGE_AUTHENTICATED_FAILED);
+            }
+            HttpUtils.sendResponse(response, payload);
+        } else {
+            LOGGER.warn("Did not write to response since already committed");
+        }
     }
 }

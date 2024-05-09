@@ -31,6 +31,11 @@ public class SecurityFilterChainBuilder implements SecurityBuilder<SecurityFilte
         return this;
     }
 
+    public SecurityFilterChainBuilder requestMatchers(String... patterns) {
+        requestMatcherBuilder.requestMatchers(patterns);
+        return this;
+    }
+
     public SecurityFilterChainBuilder login(SecurityCustomizer<UserAuthenticationBuilder> customizer) {
         UserAuthenticationBuilder builder = new UserAuthenticationBuilder();
         UserAuthenticationBuilder one = (UserAuthenticationBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
@@ -41,6 +46,20 @@ public class SecurityFilterChainBuilder implements SecurityBuilder<SecurityFilte
     public SecurityFilterChainBuilder exceptionHandle(SecurityCustomizer<ExceptionHandleBuilder> customizer) {
         ExceptionHandleBuilder builder = new ExceptionHandleBuilder();
         ExceptionHandleBuilder one = (ExceptionHandleBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
+        customizer.customize(one == null ? builder : one);
+        return this;
+    }
+
+    public SecurityFilterChainBuilder authorizeRequests(SecurityCustomizer<UserAuthorizationBuilder> customizer) {
+        UserAuthorizationBuilder builder = new UserAuthorizationBuilder();
+        UserAuthorizationBuilder one = (UserAuthorizationBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
+        customizer.customize(one == null ? builder : one);
+        return this;
+    }
+
+    public SecurityFilterChainBuilder logout(SecurityCustomizer<UserLogoutBuilder> customizer) {
+        UserLogoutBuilder builder = new UserLogoutBuilder();
+        UserLogoutBuilder one = (UserLogoutBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
         customizer.customize(one == null ? builder : one);
         return this;
     }

@@ -1,9 +1,10 @@
 package com.diligrp.uap.security.filter;
 
 import com.diligrp.uap.security.exception.AccessDeniedException;
-import com.diligrp.uap.security.exception.AccessDeniedHandler;
 import com.diligrp.uap.security.exception.AuthenticationException;
-import com.diligrp.uap.security.exception.AuthenticationHandler;
+import com.diligrp.uap.security.exception.WebSecurityException;
+import com.diligrp.uap.security.handler.AccessDeniedHandler;
+import com.diligrp.uap.security.handler.AuthenticationHandler;
 import com.diligrp.uap.security.util.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,23 +32,27 @@ public class ExceptionHandleFilter extends AbstractSecurityFilter {
         } catch (IOException ex) {
             throw ex;
         } catch (Exception ex) {
-            List<Throwable> causes = extractCauseChain(ex);
+            Throwable current = ex;
+            WebSecurityException securityException = null;
 
-            RuntimeException securityException = causes.stream().filter(cause -> cause instanceof AuthenticationException)
-                .map(cause -> (AuthenticationException) cause).findFirst().orElse(null);
-            if (securityException == null) {
-                securityException = causes.stream().filter(cause -> cause instanceof AccessDeniedException)
-                    .map(cause -> (AuthenticationException) cause).findFirst().orElse(null);
+            while (current != null) {
+                if (current instanceof AuthenticationException || current instanceof AccessDeniedException) {
+                    securityException = (WebSecurityException) current;
+                    break;
+                } else if (current instanceof InvocationTargetException) {
+                    current = ((InvocationTargetException) current).getTargetException();
+                } else if (current instanceof ServletException) {
+                    current = ((ServletException) current).getRootCause();
+                } else if (current instanceof Throwable) {
+                    current = current.getCause();
+                } else {
+                    break;
+                }
             }
 
             if (securityException == null) {
                 throw ex;
             }
-            if (response.isCommitted()) {
-                throw new ServletException("Unable to handle the Spring Security Exception "
-                    + "because the response is already committed.", ex);
-            }
-
             handleSecurityException((HttpServletRequest)request, (HttpServletResponse)response, securityException);
         }
     }
@@ -66,7 +71,7 @@ public class ExceptionHandleFilter extends AbstractSecurityFilter {
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
-    private void handleSecurityException(HttpServletRequest request, HttpServletResponse response, RuntimeException exception)
+    private void handleSecurityException(HttpServletRequest request, HttpServletResponse response, WebSecurityException exception)
         throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
             authenticationHandler.handle(request, response, (AuthenticationException) exception);

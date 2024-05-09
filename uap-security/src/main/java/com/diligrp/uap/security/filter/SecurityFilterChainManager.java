@@ -1,9 +1,8 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.session.SecuritySessionHolder;
-import com.diligrp.uap.security.exception.DefaultGlobalExceptionHandler;
-import com.diligrp.uap.security.exception.GlobalExceptionHandler;
 import com.diligrp.uap.security.exception.WebSecurityException;
+import com.diligrp.uap.security.handler.GlobalExceptionHandler;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ public class SecurityFilterChainManager extends GenericFilterBean {
 
     private final List<SecurityFilterChain> filterChains;
 
-    private GlobalExceptionHandler exceptionHandler = new DefaultGlobalExceptionHandler();
+    private GlobalExceptionHandler exceptionHandler;
 
     public SecurityFilterChainManager(List<SecurityFilterChain> filterChains) {
         this.filterChains = filterChains;
@@ -32,7 +31,7 @@ public class SecurityFilterChainManager extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         boolean filterApplied = request.getAttribute(FILTER_APPLIED) == null;
         if (!filterApplied) {
-            doInternalFilter(request, response, chain);
+            chain.doFilter(request, response);
             return;
         }
 
@@ -40,7 +39,6 @@ public class SecurityFilterChainManager extends GenericFilterBean {
             request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
             doInternalFilter(request, response, chain);
         } catch (Exception ex) {
-            // TODO:
             if (ex instanceof WebSecurityException) {
                 this.exceptionHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, (WebSecurityException) ex);
             } else {

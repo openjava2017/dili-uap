@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.codec;
 
-import com.diligrp.uap.security.session.SecuritySession;
+import com.diligrp.uap.security.session.Session;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,20 +9,20 @@ import java.io.ObjectOutputStream;
 
 public class SecuritySessionCodec {
 
-    public static ByteEncoder<SecuritySession> getEncoder() {
+    public static ByteEncoder<Session> getEncoder() {
         return SecuritySessionEncoder.INSTANCE;
     }
 
-    public static ByteDecoder<SecuritySession> getDecoder() {
+    public static ByteDecoder<Session> getDecoder() {
         return SecuritySessionDecoder.INSTANCE;
     }
 
-    static class SecuritySessionEncoder implements ByteEncoder<SecuritySession> {
+    static class SecuritySessionEncoder implements ByteEncoder<Session> {
 
-        static final ByteEncoder<SecuritySession> INSTANCE = new SecuritySessionEncoder();
+        static final ByteEncoder<Session> INSTANCE = new SecuritySessionEncoder();
 
         @Override
-        public byte[] encode(SecuritySession payload) throws Exception {
+        public byte[] encode(Session payload) throws Exception {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(buffer);
             os.writeObject(payload);
@@ -31,16 +31,16 @@ public class SecuritySessionCodec {
         }
     }
 
-    static class SecuritySessionDecoder implements ByteDecoder<SecuritySession> {
+    static class SecuritySessionDecoder implements ByteDecoder<Session> {
 
-        static final ByteDecoder<SecuritySession> INSTANCE = new SecuritySessionDecoder();
+        static final ByteDecoder<Session> INSTANCE = new SecuritySessionDecoder();
 
         @Override
-        public SecuritySession decode(byte[] payload) throws Exception {
+        public Session decode(byte[] payload) throws Exception {
             ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(payload));
-            SecuritySession securitySession = (SecuritySession)is.readObject();
+            Session session = (Session)is.readObject();
             is.close();
-            return securitySession;
+            return session;
         }
     }
 }

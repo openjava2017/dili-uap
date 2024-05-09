@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -32,18 +32,28 @@ public class AuthConfiguration {
     @Bean
     public SecurityContextCustomizer securityContextCustomizer() {
         return securityContextBuilder -> securityContextBuilder.ignoreRequest(customizer ->
-            customizer.requestMatchers("/test/**")
-        );
+            customizer.requestMatchers("/static/**")
+        ).ignoreRequests("/resource/**");
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain() {
         SecurityFilterChainBuilder builder = new SecurityFilterChainBuilder();
         builder.requestMatcher(customizer -> SecurityCustomizer.withDefaults())
-        .login(customizer -> {
-            customizer.requestMatcher(c -> c.requestMatchers("/login"));
-        })
-        .exceptionHandle(customizer -> SecurityCustomizer.withDefaults());
+        .login(customizer ->
+            customizer.requestMatchers("/login")
+        )
+        .exceptionHandle(customizer -> SecurityCustomizer.withDefaults())
+        .authorizeRequests(customizer ->
+            customizer.requestMatchers("/permit/**").permitAll()
+                .requestMatchers("/deny/**").denyAll()
+                .requestMatchers("/permission/**").hasPermission(new Permission("1-2-3-4", 1, 1 << 6))
+                .requestMatchers("/nopermission/**").hasPermission(new Permission("1-2-3-4", 1, 1 << 7))
+                .anyRequest().authenticated()
+        )
+        .logout(customizer ->
+            customizer.requestMatchers("/logout")
+        );
         return builder.build();
     }
 
@@ -51,38 +61,10 @@ public class AuthConfiguration {
     public UserAuthenticationService userAuthenticationService() {
         return new UserAuthenticationService() {
             @Override
-            public SecurityUser doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
-                return new SecurityUser() {
-                    @Override
-                    public Long getId() {
-                        return 100L;
-                    }
-
-                    @Override
-                    public String getUsername() {
-                        return "brenthuang";
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "黄刚";
-                    }
-
-                    @Override
-                    public List<SecurityPermission> getPermissions() {
-                        return Collections.EMPTY_LIST;
-                    }
-
-                    @Override
-                    public Long getMchId() {
-                        return 9L;
-                    }
-
-                    @Override
-                    public String getMchName() {
-                        return "沈阳地利";
-                    }
-                };
+            public User doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
+                List<Permission> permissions = new ArrayList<>();
+                permissions.add(new Permission("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
+                return new User(100L, "brenthuang", "黄刚", permissions, 9L, "沈阳市场");
             }
         };
     }

@@ -14,6 +14,11 @@ public class UserAuthenticationBuilder extends SecurityFilterBuilder<UserAuthent
         return this;
     }
 
+    public UserAuthenticationBuilder requestMatchers(String... patterns) {
+        requestMatcherBuilder.requestMatchers(patterns);
+        return this;
+    }
+
     @Override
     public UserAuthenticationFilter build() {
         HttpRequestMatcher requestMatcher = requestMatcherBuilder.build().orElse(

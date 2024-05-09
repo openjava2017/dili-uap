@@ -1,19 +1,44 @@
 package com.diligrp.uap.security.session;
 
-import com.diligrp.uap.security.core.SecuritySubject;
+import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.util.ErrorCode;
+import org.springframework.util.Assert;
 
-import java.io.Serializable;
+import java.util.UUID;
 
-public interface SecuritySession extends Serializable {
-    // session id
-    String getSessionId();
+public class SecuritySession implements Session {
 
-    // 主体
-    <T> T getSubject();
+    private final String sessionId;
 
-    // 认证
-    void setSubject(SecuritySubject subject);
+    private Object subject;
 
-    // 是否认证完成
-    boolean isAuthenticated();
+    public SecuritySession() {
+        // TODO: re-generate session id
+        this.sessionId = UUID.randomUUID().toString();
+    }
+
+    @Override
+    public String getSessionId() {
+        return this.sessionId;
+    }
+
+    @Override
+    public <T> T getSubject() {
+        if (this.subject == null) {
+            throw new AuthenticationException(ErrorCode.SUBJECT_NOT_AUTHENTICATED, ErrorCode.MESSAGE_NOT_AUTHENTICATED);
+        }
+
+        return (T) this.subject;
+    }
+
+    @Override
+    public void setSubject(Object subject) {
+        Assert.notNull(subject, "subject must be not null");
+        this.subject = subject;
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        return this.subject != null;
+    }
 }

@@ -1,6 +1,7 @@
 package com.diligrp.uap.security.builder;
 
 import com.diligrp.uap.security.util.AntPathRequestMatcher;
+import com.diligrp.uap.security.util.AnyRequestMatcher;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import com.diligrp.uap.security.util.OrRequestMatcher;
 import org.springframework.http.HttpMethod;
@@ -36,8 +37,14 @@ public class RequestMatcherBuilder implements SecurityBuilder<Optional<HttpReque
         return this;
     }
 
+    public RequestMatcherBuilder anyRequest() {
+        this.matchers.add(AnyRequestMatcher.INSTANCE);
+        return this;
+    }
+
     @Override
     public Optional<HttpRequestMatcher> build() {
-        return matchers.isEmpty() ? Optional.empty() : Optional.of(new OrRequestMatcher(matchers));
+        return matchers.isEmpty() ? Optional.empty() :
+            Optional.of(matchers.size() == 1 ? matchers.get(0) : new OrRequestMatcher(matchers));
     }
 }
