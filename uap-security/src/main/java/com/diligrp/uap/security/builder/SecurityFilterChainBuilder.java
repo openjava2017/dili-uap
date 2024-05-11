@@ -64,6 +64,20 @@ public class SecurityFilterChainBuilder implements SecurityBuilder<SecurityFilte
         return this;
     }
 
+    public SecurityFilterChainBuilder cors(SecurityCustomizer<CorsBuilder> customizer) {
+        CorsBuilder builder = new CorsBuilder();
+        CorsBuilder one = (CorsBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
+        customizer.customize(one == null ? builder : one);
+        return this;
+    }
+
+    public SecurityFilterChainBuilder cachedRequest(SecurityCustomizer<CachedRequestBuilder> customizer) {
+        CachedRequestBuilder builder = new CachedRequestBuilder();
+        CachedRequestBuilder one = (CachedRequestBuilder) this.builders.putIfAbsent(builder.getClass(), builder);
+        customizer.customize(one == null ? builder : one);
+        return this;
+    }
+
     @Override
     public SecurityFilterChain build() {
         this.requestMatcher = requestMatcherBuilder.build().orElse(this.requestMatcher);

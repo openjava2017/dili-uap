@@ -1,5 +1,7 @@
 package com.diligrp.uap.security.session;
 
+import com.diligrp.uap.security.codec.LettuceCodecs;
+import com.diligrp.uap.security.redis.LettuceConnectionFactory;
 import com.diligrp.uap.security.util.Constants;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -53,14 +55,14 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        this.connection = connectionFactory.getConnection();
+    public void afterPropertiesSet() {
+        this.connection = connectionFactory.getConnection(LettuceCodecs.SESSION_CODEC);
         // 多线程共用一个连接时，需设置自动提交命令，默认值为true
         this.connection.setAutoFlushCommands(true);
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         // TODO: 处理client先于connection关闭的情况
         this.connection.close();
     }

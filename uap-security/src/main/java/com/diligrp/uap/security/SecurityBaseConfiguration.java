@@ -1,11 +1,13 @@
 package com.diligrp.uap.security;
 
 import com.diligrp.uap.security.builder.SecurityContextConfigurer;
+import com.diligrp.uap.security.codec.LettuceCodecs;
 import com.diligrp.uap.security.core.SecurityConfiguration;
 import com.diligrp.uap.security.core.SecurityConfigurationImpl;
 import com.diligrp.uap.security.core.SecurityProperties;
 import com.diligrp.uap.security.exception.WebSecurityException;
-import com.diligrp.uap.security.session.LettuceConnectionFactory;
+import com.diligrp.uap.security.redis.LettuceConnectionFactory;
+import com.diligrp.uap.security.redis.LettuceTemplate;
 import com.diligrp.uap.security.session.RedisSessionRepository;
 import com.diligrp.uap.security.session.SessionRepository;
 import com.diligrp.uap.security.util.Constants;
@@ -66,6 +68,14 @@ public class SecurityBaseConfiguration {
     @ConditionalOnBean(LettuceConnectionFactory.class)
     public SessionRepository sessionRepository(LettuceConnectionFactory factory) {
         return new RedisSessionRepository(factory);
+    }
+
+    @Bean
+    @ConditionalOnBean(LettuceConnectionFactory.class)
+    public LettuceTemplate<String, String> lettuceTemplate(LettuceConnectionFactory factory) {
+        LettuceTemplate template = new LettuceTemplate(factory);
+        template.setRedisCodec(LettuceCodecs.STR_STR_CODEC);
+        return template;
     }
 
     private PrivateKey parsePrivateKey(String privateKey) throws Exception {

@@ -15,7 +15,7 @@ public final class ErrorCode {
 
     public static final int OPERATION_NOT_ALLOWED = 502000;
 
-    public static final String MESSAGE_UNKNOWN_ERROR = "权限系统未知异常，请联系管理员";
+    public static final String MESSAGE_UNKNOWN_ERROR = "系统未知异常，请联系管理员";
 
     public static final String MESSAGE_NOT_AUTHENTICATED = "用户未进行登陆认证";
 
@@ -26,4 +26,6 @@ public final class ErrorCode {
     public static final String MESSAGE_AUTHENTICATED_FAILED = "用户认证失败";
 
     public static final String MESSAGE_AUTHORIZATION_FAILED = "用户授权失败";
+
+    public static final String MESSAGE_RESUBMIT_REQUEST = "请求重复提交，访问被拒绝";
 }

@@ -7,14 +7,17 @@ public final class Constants {
     public static final int TYPE_SYSTEM_USER = 0; // 系统内部用户
 
     // 过滤器优先级列表
+    public static final int PRIORITY_CORS = 0; // 跨域处理过滤器
     public static final int PRIORITY_USER_LOGOUT = 10; // 用户登出过滤器
     public static final int PRIORITY_USER_AUTHENTICATION = 20; // 用户认证过滤器
     public static final int PRIORITY_EXCEPTION_HANDLE = 30; // 异常处理过滤器
     public static final int PRIORITY_USER_AUTHORIZATION = 40; // 用户授权过滤器
+    public static final int PRIORITY_CACHED_REQUEST = 50; // 请求可重复读过滤器
 
     // Session配置
     public static final int DEFAULT_SESSION_TIMEOUT = 20 * 60;
     public static final String SESSION_KEY_PREFIX = "uap:security:session:";
+    public static final String RESUBMIT_KEY_PREFIX = "uap:security:resubmit:";
 
     // HTTP常量列表
     public static final String HEADER_AUTHORIZATION = "Authorization";

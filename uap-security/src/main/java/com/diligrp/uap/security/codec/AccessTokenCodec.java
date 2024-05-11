@@ -2,10 +2,7 @@ package com.diligrp.uap.security.codec;
 
 import com.diligrp.uap.security.core.SecurityAccessToken;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 public class AccessTokenCodec {
 
@@ -22,7 +19,7 @@ public class AccessTokenCodec {
         static final ByteEncoder<SecurityAccessToken> INSTANCE = new AccessTokenEncoder();
 
         @Override
-        public byte[] encode(SecurityAccessToken payload) throws Exception {
+        public byte[] encode(SecurityAccessToken payload) throws IOException {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(buffer);
             os.writeObject(payload);
@@ -36,11 +33,12 @@ public class AccessTokenCodec {
         static final ByteDecoder<SecurityAccessToken> INSTANCE = new AccessTokenDecoder();
 
         @Override
-        public SecurityAccessToken decode(byte[] payload) throws Exception {
-            ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(payload));
-            SecurityAccessToken accessToken = (SecurityAccessToken)is.readObject();
-            is.close();
-            return accessToken;
+        public SecurityAccessToken decode(byte[] payload) throws IOException {
+            try (ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(payload))) {
+                return (SecurityAccessToken) is.readObject();
+            } catch (Exception ex) {
+                throw new IOException(ex);
+            }
         }
     }
 }

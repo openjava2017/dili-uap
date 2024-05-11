@@ -53,7 +53,9 @@ public class AuthConfiguration {
         )
         .logout(customizer ->
             customizer.requestMatchers("/logout")
-        );
+        )
+        .cors(customizer -> SecurityCustomizer.withDefaults())
+        .cachedRequest(customizer -> customizer.requestMatchers("/resubmit/**").forbidResubmit(10));
         return builder.build();
     }
 

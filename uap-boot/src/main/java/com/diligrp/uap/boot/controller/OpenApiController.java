@@ -30,4 +30,9 @@ public class OpenApiController {
     public String nopermissionTest(HttpServletRequest request) {
         return "I'm nopermission url";
     }
+
+    @RequestMapping(value = "/resubmit/test.do")
+    public String resubmit(HttpServletRequest request) {
+        return "I'm resubmit url";
+    }
 }

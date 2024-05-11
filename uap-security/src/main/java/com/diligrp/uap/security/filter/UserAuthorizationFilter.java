@@ -22,7 +22,7 @@ import java.security.PublicKey;
 
 public class UserAuthorizationFilter extends AbstractSecurityFilter implements SecurityContextAware {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(UserAuthorizationFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthorizationFilter.class);
 
     private SecurityContext securityContext;
 
@@ -73,7 +73,7 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
     }
 
     @Override
-    public void afterPropertiesSet() throws ServletException {
+    public void afterPropertiesSet() {
         PublicKey publicKey = this.securityContext.getConfiguration().getPublicKey();
         Assert.notNull(publicKey, "publicKey must be specified");
     }

@@ -4,22 +4,22 @@ import com.diligrp.uap.security.session.Session;
 
 import java.io.*;
 
-public class SecuritySessionCodec {
+public class ObjectCodec {
 
-    public static ByteEncoder<Session> getEncoder() {
-        return SecuritySessionEncoder.INSTANCE;
+    public static ByteEncoder<Object> getEncoder() {
+        return ObjectEncoder.INSTANCE;
     }
 
-    public static ByteDecoder<Session> getDecoder() {
-        return SecuritySessionDecoder.INSTANCE;
+    public static ByteDecoder<Object> getDecoder() {
+        return ObjectDecoder.INSTANCE;
     }
 
-    static class SecuritySessionEncoder implements ByteEncoder<Session> {
+    static class ObjectEncoder implements ByteEncoder<Object> {
 
-        static final ByteEncoder<Session> INSTANCE = new SecuritySessionEncoder();
+        static final ByteEncoder<Object> INSTANCE = new ObjectEncoder();
 
         @Override
-        public byte[] encode(Session payload) throws IOException {
+        public byte[] encode(Object payload) throws IOException {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(buffer);
             os.writeObject(payload);
@@ -28,9 +28,9 @@ public class SecuritySessionCodec {
         }
     }
 
-    static class SecuritySessionDecoder implements ByteDecoder<Session> {
+    static class ObjectDecoder implements ByteDecoder<Object> {
 
-        static final ByteDecoder<Session> INSTANCE = new SecuritySessionDecoder();
+        static final ByteDecoder<Object> INSTANCE = new ObjectDecoder();
 
         @Override
         public Session decode(byte[] payload) throws IOException {
