@@ -2,6 +2,9 @@ package com.diligrp.uap.security.exception;
 
 import com.diligrp.uap.security.util.ErrorCode;
 
+/**
+ * 过滤器通用异常
+ */
 public class WebSecurityException extends RuntimeException {
     private int code = ErrorCode.UNKNOWN_SYSTEM_ERROR;
 

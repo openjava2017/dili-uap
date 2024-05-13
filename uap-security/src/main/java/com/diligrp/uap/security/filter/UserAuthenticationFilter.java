@@ -8,20 +8,14 @@ import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.security.PrivateKey;
 
 public class UserAuthenticationFilter extends AbstractSecurityFilter implements SecurityContextAware {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthenticationFilter.class);
 
     private SecurityContext securityContext;
 
@@ -36,31 +30,29 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
     private UserAuthenticationService userAuthenticationService;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        if (!requiresAuthentication(httpRequest)) {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (!requiresAuthentication(request)) {
             chain.doFilter(request, response);
             return;
         }
 
         try {
-            User user = attemptAuthentication(httpRequest);
+            LOGGER.debug("{} filtered");
+            User user = attemptAuthentication(request);
             Subject subject = new Subject(String.valueOf(user.getId()), user.getUsername(),
                 user.getName(), user.getPermissions(), String.valueOf(user.getMchId()),
                 user.getMchName(), Constants.TYPE_SYSTEM_USER);
 
             Session session = SecuritySessionHolder.getSession();
             session.setSubject(subject);
-            sessionIdRepository.saveSessionId(session, httpResponse);
+            sessionIdRepository.saveSessionId(session, response);
             int sessionTimeout = securityContext.getConfiguration().getSessionTimeout();
             sessionRepository.saveSession(session, sessionTimeout);
 
-            userAuthenticationService.onAuthenticationSuccess(httpRequest, httpResponse);
+            userAuthenticationService.onAuthenticationSuccess(request, response);
         } catch (Exception ex) {
             LOGGER.error(ErrorCode.MESSAGE_AUTHENTICATED_FAILED, ex);
-            userAuthenticationService.onAuthenticationFailed(httpRequest, httpResponse, ex);
+            userAuthenticationService.onAuthenticationFailed(request, response, ex);
         }
     }
 

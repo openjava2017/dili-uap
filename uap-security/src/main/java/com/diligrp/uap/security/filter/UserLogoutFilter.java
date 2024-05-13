@@ -12,8 +12,6 @@ import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
@@ -31,25 +29,23 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
     private SessionRepository sessionRepository;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        if (!requestMatcher.matches(httpRequest)) {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (!requestMatcher.matches(request)) {
             chain.doFilter(request, response);
             return;
         }
 
         try {
-            String sessionId = sessionIdRepository.loadSessionId(httpRequest);
+            LOGGER.debug("{} filtered");
+            String sessionId = sessionIdRepository.loadSessionId(request);
             if (sessionId == null) {
                 throw new AuthenticationException(ErrorCode.SUBJECT_NOT_AUTHENTICATED, ErrorCode.MESSAGE_NOT_AUTHENTICATED);
             }
             sessionRepository.removeSession(sessionId);
 
-            logoutHandler.onLogoutSuccess(httpResponse);
+            logoutHandler.onLogoutSuccess(response);
         } catch (Exception ex) {
-            logoutHandler.onLogoutFailed(httpResponse, ex);
+            logoutHandler.onLogoutFailed(response, ex);
         }
     }
 

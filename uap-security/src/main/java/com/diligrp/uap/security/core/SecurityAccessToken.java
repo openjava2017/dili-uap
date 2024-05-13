@@ -51,7 +51,7 @@ public class SecurityAccessToken implements Serializable {
     public static String toAccessToken(SecurityAccessToken accessToken, PrivateKey privateKey) {
         try {
             byte[] data = AccessTokenCodec.getEncoder().encode(accessToken);
-            Signature signature = Signature.getInstance(Constants.SIGN_ALGORITHMS);
+            Signature signature = Signature.getInstance(Constants.SIGN_ALGORITHM);
             signature.initSign(privateKey, new SecureRandom());
             signature.update(data);
             byte[] sign = signature.sign();
@@ -70,7 +70,7 @@ public class SecurityAccessToken implements Serializable {
         byte[] sign = Base64.getDecoder().decode(tokenizer.nextToken());
 
         try {
-            Signature signature = Signature.getInstance(Constants.SIGN_ALGORITHMS);
+            Signature signature = Signature.getInstance(Constants.SIGN_ALGORITHM);
             signature.initVerify(publicKey);
             signature.update(data);
             boolean result = signature.verify(sign);

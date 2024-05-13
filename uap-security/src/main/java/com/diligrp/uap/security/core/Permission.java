@@ -16,6 +16,10 @@ public class Permission implements Serializable {
     // 资源权限
     private final int permission;
 
+    public Permission(String code, int type) {
+        this(code, type, 0);
+    }
+
     public Permission(String code, int type, int permission) {
         this.code = code;
         this.type = type;

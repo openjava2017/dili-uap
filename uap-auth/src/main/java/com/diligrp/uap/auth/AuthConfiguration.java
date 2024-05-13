@@ -47,7 +47,7 @@ public class AuthConfiguration {
         .authorizeRequests(customizer ->
             customizer.requestMatchers("/permit/**").permitAll()
                 .requestMatchers("/deny/**").denyAll()
-                .requestMatchers("/permission/**").hasPermission(new Permission("1-2-3-4", 1, 1 << 6))
+                .requestMatchers("/permission/**").hasPermission(new Permission("1-2-3-4", 1))
                 .requestMatchers("/nopermission/**").hasPermission(new Permission("1-2-3-4", 1, 1 << 7))
                 .anyRequest().authenticated()
         )
@@ -55,7 +55,10 @@ public class AuthConfiguration {
             customizer.requestMatchers("/logout")
         )
         .cors(customizer -> SecurityCustomizer.withDefaults())
-        .cachedRequest(customizer -> customizer.requestMatchers("/resubmit/**").forbidResubmit(10));
+        .cachedRequest(customizer ->
+            customizer.requestMatchers("/resubmit/**").forbidResubmit(10)
+                .requestMatchers("cached/**").cached()
+        );
         return builder.build();
     }
 

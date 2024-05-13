@@ -28,11 +28,11 @@ public class UrlAuthorizationManager implements AuthorizationManager {
     public static class UrlAuthorization {
         private final HttpRequestMatcher requestMatcher;
 
-        private final AuthorizationChecker authorizationChecker;
+        private final AuthorizationHandler authorizationChecker;
 
-        public UrlAuthorization(HttpRequestMatcher requestMatcher, AuthorizationChecker authorizationChecker) {
+        public UrlAuthorization(HttpRequestMatcher requestMatcher, AuthorizationHandler authorizationHandler) {
             this.requestMatcher = requestMatcher;
-            this.authorizationChecker = authorizationChecker;
+            this.authorizationChecker = authorizationHandler;
         }
 
         public void authorize(Session session) {
@@ -41,14 +41,14 @@ public class UrlAuthorizationManager implements AuthorizationManager {
     }
 
     @FunctionalInterface
-    public interface AuthorizationChecker {
+    public interface AuthorizationHandler {
         void check(Session session);
     }
 
-    public static class PermissionChecker implements AuthorizationChecker {
+    public static class PermissionHandler implements AuthorizationHandler {
         private final Permission permission;
 
-        public PermissionChecker(Permission permission) {
+        public PermissionHandler(Permission permission) {
             this.permission = permission;
         }
 

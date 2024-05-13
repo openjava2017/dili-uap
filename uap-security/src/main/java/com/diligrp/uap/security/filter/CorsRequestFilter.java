@@ -4,8 +4,6 @@ import com.diligrp.uap.security.core.SecurityContext;
 import com.diligrp.uap.security.util.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
@@ -27,12 +25,10 @@ public class CorsRequestFilter extends AbstractSecurityFilter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        boolean accepted = this.processor.processRequest(corsConfiguration, httpRequest, httpResponse);
-        if (!accepted || CorsUtils.isPreFlightRequest((HttpServletRequest) request)) {
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        LOGGER.debug("{} filtered");
+        boolean accepted = this.processor.processRequest(corsConfiguration, request, response);
+        if (!accepted || CorsUtils.isPreFlightRequest(request)) {
             return;
         }
         chain.doFilter(request, response);

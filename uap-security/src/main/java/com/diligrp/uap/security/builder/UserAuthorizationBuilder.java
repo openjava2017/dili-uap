@@ -52,8 +52,8 @@ public class UserAuthorizationBuilder extends SecurityFilterBuilder<UserAuthoriz
         public UserAuthorizationBuilder hasPermission(Permission permission) {
             Assert.notNull(permission, "permission must be specified");
 
-            UrlAuthorizationManager.AuthorizationChecker checker = new UrlAuthorizationManager.PermissionChecker(permission);
-            UserAuthorizationBuilder.this.addUserAuthorization(new UrlAuthorizationManager.UrlAuthorization(requestMatcher, checker));
+            UrlAuthorizationManager.AuthorizationHandler handler = new UrlAuthorizationManager.PermissionHandler(permission);
+            UserAuthorizationBuilder.this.addUserAuthorization(new UrlAuthorizationManager.UrlAuthorization(requestMatcher, handler));
             return UserAuthorizationBuilder.this;
         }
 

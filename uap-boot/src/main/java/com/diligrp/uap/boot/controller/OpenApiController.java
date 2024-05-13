@@ -35,4 +35,9 @@ public class OpenApiController {
     public String resubmit(HttpServletRequest request) {
         return "I'm resubmit url";
     }
+
+    @RequestMapping(value = "/cached/test.do")
+    public String cached(HttpServletRequest request) {
+        return "I'm cached url";
+    }
 }

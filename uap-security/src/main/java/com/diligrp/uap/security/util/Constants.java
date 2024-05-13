@@ -22,6 +22,7 @@ public final class Constants {
     // HTTP常量列表
     public static final String HEADER_AUTHORIZATION = "Authorization";
     public final static String CONTENT_TYPE_JSON = "application/json;charset=UTF-8";
+    public final static String URL_PARAM_SEPARATOR = "?";
     public static final String URL_USER_AUTHENTICATION = "/login"; // 登陆认证URL
     public static final String URL_USER_LOGOUT = "/logout"; // 登出URL
     public static final String FORM_USERNAME_KEY = "username";
@@ -30,7 +31,8 @@ public final class Constants {
 
     // 数据安全常量列表
     public static final String KEY_ALGORITHM = "RSA";
-    public static final String SIGN_ALGORITHMS = "SHA1WithRSA";
+    public static final String SIGN_ALGORITHM = "SHA1WithRSA";
+    public static final String MD5_ALGORITHM = "MD5";
 
     // 权限常量列表
     public static final int ALL_PERMISSION = 0x0FFFFFFF;

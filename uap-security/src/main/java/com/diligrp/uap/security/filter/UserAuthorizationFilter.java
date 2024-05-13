@@ -10,9 +10,8 @@ import com.diligrp.uap.security.util.ErrorCode;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -38,11 +37,10 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            String sessionId = sessionIdRepository.loadSessionId(httpRequest);
+            LOGGER.debug("{} filtered");
+            String sessionId = sessionIdRepository.loadSessionId(request);
             if (sessionId != null) {
                 int sessionTimeout = securityContext.getConfiguration().getSessionTimeout();
                 Session session = sessionRepository.loadSessionById(sessionId, sessionTimeout);
@@ -51,7 +49,7 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
                 }
             }
 
-            authorizationManager.authorize(httpRequest, SecuritySessionHolder.getSession());
+            authorizationManager.authorize(request, SecuritySessionHolder.getSession());
         } catch (WebSecurityException sex) {
             throw sex;
         } catch (Exception ex) {

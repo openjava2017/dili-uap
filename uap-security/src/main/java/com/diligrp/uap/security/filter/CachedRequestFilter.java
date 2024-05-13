@@ -8,8 +8,6 @@ import com.diligrp.uap.security.util.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
@@ -18,41 +16,41 @@ import org.springframework.util.ObjectUtils;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.List;
 
 public class CachedRequestFilter extends AbstractSecurityFilter {
 
-    private final HttpRequestMatcher requestMatcher;
-
-    private boolean allowResubmit = true;
-
-    private int duration = 1;
+    private final List<CachedRequestMapping> mappings;
 
     @Resource
     private LettuceTemplate<String, String> lettuceTemplate;
 
-    public CachedRequestFilter(HttpRequestMatcher requestMatcher) {
-        this.requestMatcher = requestMatcher;
+    public CachedRequestFilter(List<CachedRequestMapping> mappings) {
+        this.mappings = mappings;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        for (CachedRequestMapping mapping : this.mappings) {
+            if (mapping.match(request)) {
+                LOGGER.debug("{} filtered");
+                request = new CachedHttpServletRequest(request);
+                if (!mapping.allowResubmit) {
+                    String requestId = requestId(request);
+                    String requestKey = Constants.RESUBMIT_KEY_PREFIX + requestId;
+                    int duration = mapping.duration;
+                    if (lettuceTemplate.get(requestKey, duration) == null) {
+                        lettuceTemplate.set(requestKey, String.valueOf(duration), duration);
+                    } else {
 
-        if (this.requestMatcher.matches(httpRequest)) {
-            httpRequest = new CachedHttpServletRequest(httpRequest);
-            if (!allowResubmit) {
-                String requestId = requestId(httpRequest);
-                String requestKey = Constants.RESUBMIT_KEY_PREFIX + requestId;
-                if (lettuceTemplate.get(requestKey, duration) == null) {
-                    lettuceTemplate.set(requestKey, String.valueOf(duration), duration);
-                } else {
-                    throw new WebSecurityException(ErrorCode.OPERATION_NOT_ALLOWED, ErrorCode.MESSAGE_RESUBMIT_REQUEST);
+                        throw new WebSecurityException(ErrorCode.OPERATION_NOT_ALLOWED, ErrorCode.MESSAGE_RESUBMIT_REQUEST);
+                    }
                 }
+                break;
             }
         }
 
-        chain.doFilter(httpRequest, httpResponse);
+        chain.doFilter(request, response);
     }
 
     @Override
@@ -62,16 +60,7 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
 
     @Override
     public void afterPropertiesSet() {
-        Assert.notNull(requestMatcher, "requestMatcher must be specified");
-        Assert.isTrue(duration > 0, "Invalid expireInSeconds parameter");
-    }
-
-    public void setAllowResubmit(boolean allowResubmit) {
-        this.allowResubmit = allowResubmit;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
+        Assert.notEmpty(mappings, "cached request setting must be specified");
     }
 
     @Override
@@ -79,11 +68,37 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
         return Constants.PRIORITY_CACHED_REQUEST;
     }
 
+    public static class CachedRequestMapping {
+        private final HttpRequestMatcher requestMatcher;
+
+        private boolean allowResubmit;
+
+        private int duration;
+
+        public CachedRequestMapping(HttpRequestMatcher requestMatcher) {
+            this.requestMatcher = requestMatcher;
+            this.allowResubmit = true;
+            this.duration = 1;
+        }
+
+        public boolean match(HttpServletRequest request) {
+            return this.requestMatcher.matches(request);
+        }
+
+        public void setAllowResubmit(boolean allowResubmit) {
+            this.allowResubmit = allowResubmit;
+        }
+
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
+    }
+
     private String requestId(HttpServletRequest request) throws IOException {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         if (!ObjectUtils.isEmpty(queryString)) {
-            requestURI.concat("?").concat(queryString);
+            requestURI.concat(Constants.URL_PARAM_SEPARATOR).concat(queryString);
         }
 
         byte[] uri = StringCodec.getEncoder().encode(requestURI);
@@ -95,7 +110,7 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
         System.arraycopy(body, 0, data, uri.length, body.length);
 
         try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            MessageDigest md5 = MessageDigest.getInstance(Constants.MD5_ALGORITHM);
             md5.update(data);
             return Base64.getEncoder().encodeToString(md5.digest());
         } catch (Exception ex) {
