@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.core;
 
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.session.Session;
 import com.diligrp.uap.security.util.ErrorCode;
@@ -68,7 +68,7 @@ public class UrlAuthorizationManager implements AuthorizationManager {
                 }
             }
 
-            throw new AccessDeniedException(ErrorCode.SUBJECT_NOT_AUTHORIZATION, ErrorCode.MESSAGE_NOT_AUTHORIZATION);
+            throw new AuthorizationException(ErrorCode.ACCESS_DENIED_ERROR, ErrorCode.MESSAGE_ACCESS_DENIED);
         }
     }
 }

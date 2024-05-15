@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.handler;
 
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.util.Constants;
 import com.diligrp.uap.security.util.HttpUtils;
@@ -26,9 +26,9 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void onAuthorizationFailed(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) {
+    public void onAuthorizationFailed(HttpServletRequest request, HttpServletResponse response, AuthorizationException authorizationException) {
         if (!response.isCommitted()) {
-            String payload = String.format(Constants.JSON_MESSAGE_FAILED, accessDeniedException.getCode(), accessDeniedException.getMessage());
+            String payload = String.format(Constants.JSON_MESSAGE_FAILED, authorizationException.getCode(), authorizationException.getMessage());
             HttpUtils.sendResponse(response, payload);
         } else {
             LOGGER.warn("Did not write to response since already committed");

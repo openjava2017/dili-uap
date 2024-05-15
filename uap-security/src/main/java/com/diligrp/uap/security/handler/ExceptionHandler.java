@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.handler;
 
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,5 +20,5 @@ public interface ExceptionHandler {
     /**
      * 用户无资源权限时回调
      */
-    void onAuthorizationFailed(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException;
+    void onAuthorizationFailed(HttpServletRequest request, HttpServletResponse response, AuthorizationException authorizationException) throws IOException, ServletException;
 }

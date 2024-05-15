@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.core;
 
 import com.diligrp.uap.security.codec.AccessTokenCodec;
-import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.util.Constants;
 import com.diligrp.uap.security.util.ErrorCode;
 
@@ -14,6 +14,8 @@ import java.util.Base64;
 import java.util.StringTokenizer;
 
 public class SecurityAccessToken implements Serializable {
+    private static final long serialVersionUID = 8108687186195591559L;
+
     private String principal;
 
     private int type;
@@ -21,9 +23,6 @@ public class SecurityAccessToken implements Serializable {
     private String sessionId;
 
     private long issueTime;
-
-    public SecurityAccessToken() {
-    }
 
     public SecurityAccessToken(String principal, String sessionId, int type, long issueTime) {
         this.principal = principal;
@@ -57,14 +56,14 @@ public class SecurityAccessToken implements Serializable {
             byte[] sign = signature.sign();
             return String.format("%s.%s", Base64.getEncoder().encodeToString(data), Base64.getEncoder().encodeToString(sign));
         } catch (Exception ex) {
-            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "accessToken sign failed");
+            throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "accessToken sign failed");
         }
     }
 
     public static SecurityAccessToken fromAccessToken(String accessToken, PublicKey publicKey) {
         StringTokenizer tokenizer = new StringTokenizer(accessToken, ".");
         if (tokenizer.countTokens() != 2) {
-            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken format");
+            throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken format");
         }
         byte[] data = Base64.getDecoder().decode(tokenizer.nextToken());
         byte[] sign = Base64.getDecoder().decode(tokenizer.nextToken());
@@ -75,11 +74,11 @@ public class SecurityAccessToken implements Serializable {
             signature.update(data);
             boolean result = signature.verify(sign);
             if (!result) {
-                throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken data");
+                throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken data");
             }
             return AccessTokenCodec.getDecoder().decode(data);
         } catch (Exception ex) {
-            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken data");
+            throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "Invalid accessToken data");
         }
     }
 }

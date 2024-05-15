@@ -1,5 +1,9 @@
 package com.diligrp.uap.boot.controller;
 
+import com.diligrp.uap.security.core.Subject;
+import com.diligrp.uap.security.core.User;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
+import com.diligrp.uap.security.util.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +27,8 @@ public class OpenApiController {
 
     @RequestMapping(value = "/permission/test.do")
     public String permissionTest(HttpServletRequest request) {
-        return "I'm permission url";
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        return "I'm permission url: " + subject.getPrincipal();
     }
 
     @RequestMapping(value = "/nopermission/test.do")
@@ -38,6 +43,7 @@ public class OpenApiController {
 
     @RequestMapping(value = "/cached/test.do")
     public String cached(HttpServletRequest request) {
+        System.out.println(HttpUtils.httpBody(request));
         return "I'm cached url";
     }
 }

@@ -26,7 +26,7 @@ public class CorsRequestFilter extends AbstractSecurityFilter {
 
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        LOGGER.debug("{} filtered");
+        LOGGER.debug("{} filtered", this.getClass().getSimpleName());
         boolean accepted = this.processor.processRequest(corsConfiguration, request, response);
         if (!accepted || CorsUtils.isPreFlightRequest(request)) {
             return;

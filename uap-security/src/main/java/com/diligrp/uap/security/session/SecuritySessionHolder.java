@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 public final class SecuritySessionHolder {
     private static final ThreadLocal<Supplier<Session>> sessionHolder = new ThreadLocal<>();
 
+    private static final SessionFactory sessionFactory = new SecuritySessionFactory();
+
     // 清理上下文
     public static void clearSession() {
         sessionHolder.remove();
@@ -14,7 +16,7 @@ public final class SecuritySessionHolder {
     public static Session getSession() {
         Supplier<Session> result = sessionHolder.get();
         if (result == null) {
-            Session session = createEmptySession();
+            Session session = sessionFactory.newSession();
             result = () -> session;
             sessionHolder.set(result);
             return session;
@@ -23,10 +25,10 @@ public final class SecuritySessionHolder {
     }
 
     public static void createSession(Supplier<Session> supplier) {
+        Session session = supplier.get();
+        if (session == null) {
+            supplier = () -> sessionFactory.newSession();
+        }
         sessionHolder.set(supplier);
-    }
-
-    private static Session createEmptySession() {
-        return new SecuritySession();
     }
 }

@@ -16,11 +16,13 @@ public final class Constants {
 
     // Session配置
     public static final int DEFAULT_SESSION_TIMEOUT = 20 * 60;
+    public static final String REQUEST_SESSION_TOKEN = "uap.authentication.session";
+    public static final String REQUEST_ACCESS_TOKEN = "uap.authentication.accessToken";
     public static final String SESSION_KEY_PREFIX = "uap:security:session:";
     public static final String RESUBMIT_KEY_PREFIX = "uap:security:resubmit:";
 
     // HTTP常量列表
-    public static final String HEADER_AUTHORIZATION = "Authorization";
+    public static final String HEADER_AUTHORIZATION = "Uap-Authorization";
     public final static String CONTENT_TYPE_JSON = "application/json;charset=UTF-8";
     public final static String URL_PARAM_SEPARATOR = "?";
     public static final String URL_USER_AUTHENTICATION = "/login"; // 登陆认证URL

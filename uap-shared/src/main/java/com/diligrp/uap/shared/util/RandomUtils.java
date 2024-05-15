@@ -99,8 +99,7 @@ public final class RandomUtils {
         return min + (int)(Math.random() * (max + 1 - min));
     }
 
-    private static String digits(long val, int digits)
-    {
+    private static String digits(long val, int digits) {
         long hi = 1L << (digits * 4);
         return Long.toHexString(hi | (val & (hi - 1))).substring(1).toUpperCase();
     }

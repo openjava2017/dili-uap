@@ -60,14 +60,14 @@ public class SnowflakeKeyManager {
         /**
          * Customer based epoch, unit as second. until 2020-08-08 00:00:00
          */
-        private long epochSeconds = LocalDateTime.of(2020, 8, 8, 0, 0, 0)
+        private final long epochSeconds = LocalDateTime.of(2020, 8, 8, 0, 0, 0)
                 .toEpochSecond(ZoneOffset.of("+8"));
 
         /**
          * Stable fields after spring bean initializing
          */
-        private BitsAllocator bitsAllocator;
-        private long workerId;
+        private final BitsAllocator bitsAllocator;
+        private final long workerId;
 
         /**
          * Volatile fields caused by nextId()

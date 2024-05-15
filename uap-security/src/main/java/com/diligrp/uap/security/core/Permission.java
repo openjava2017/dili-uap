@@ -1,12 +1,14 @@
 package com.diligrp.uap.security.core;
 
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.util.ErrorCode;
 import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
 
 public class Permission implements Serializable {
+    private static final long serialVersionUID = 8108687186195591559L;
+
     // 资源编码
     private final String code;
 
@@ -44,7 +46,7 @@ public class Permission implements Serializable {
             if ((this.permission & permission.permission) == permission.permission) {
                 return true;
             } else {
-                throw new AccessDeniedException(ErrorCode.SUBJECT_NOT_AUTHORIZATION, ErrorCode.MESSAGE_NOT_AUTHORIZATION);
+                throw new AuthorizationException(ErrorCode.ACCESS_DENIED_ERROR, ErrorCode.MESSAGE_ACCESS_DENIED);
             }
         } else {
             return false;

@@ -1,8 +1,6 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.core.AuthorizationManager;
-import com.diligrp.uap.security.core.SecurityContext;
-import com.diligrp.uap.security.core.SecurityContextAware;
+import com.diligrp.uap.security.core.*;
 import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.session.*;
 import com.diligrp.uap.security.util.Constants;
@@ -39,35 +37,31 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            LOGGER.debug("{} filtered");
-            String sessionId = sessionIdRepository.loadSessionId(request);
-            if (sessionId != null) {
-                int sessionTimeout = securityContext.getConfiguration().getSessionTimeout();
-                Session session = sessionRepository.loadSessionById(sessionId, sessionTimeout);
-                if (session != null) {
-                    SecuritySessionHolder.createSession(() -> session);
-                }
+            LOGGER.debug("{} filtered", this.getClass().getSimpleName());
+            // 请求中获取AccessToken
+            String accessTokenId = sessionIdRepository.loadSessionId(request);
+            if (accessTokenId != null) {
+                SecurityConfiguration configuration = securityContext.getConfiguration();
+                SecurityAccessToken accessToken = SecurityAccessToken.fromAccessToken(accessTokenId, configuration.getPublicKey());
+                Session session = sessionRepository.loadSessionById(accessToken.getSessionId(), configuration.getSessionTimeout());
+                // SecurityFilterChainManager中执行了线程资源清理SecuritySessionHolder.clearSession
+                SecuritySessionHolder.createSession(() -> session);
             }
-
             authorizationManager.authorize(request, SecuritySessionHolder.getSession());
         } catch (WebSecurityException sex) {
             throw sex;
         } catch (Exception ex) {
             LOGGER.error("User authorization failed", ex);
-            throw new WebSecurityException(ErrorCode.SUBJECT_AUTHORIZATION_FAILED, ErrorCode.MESSAGE_AUTHENTICATED_FAILED);
+            throw new WebSecurityException(ErrorCode.SUBJECT_AUTHORIZATION_FAILED, ErrorCode.MESSAGE_AUTHORIZATION_FAILED);
         }
 
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            SecuritySessionHolder.clearSession();
-        }
+        chain.doFilter(request, response);
     }
 
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository(context.getConfiguration());
+        this.sessionIdRepository = new HttpRequestIdRepository();
     }
 
     @Override

@@ -7,6 +7,8 @@ import java.util.List;
  * 系统内部用户模型
  */
 public class User implements Serializable {
+    private static final long serialVersionUID = 8108687186195591559L;
+    
     // 用户ID
     private final Long id;
     // 用户登陆账号

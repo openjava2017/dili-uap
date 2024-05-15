@@ -3,7 +3,7 @@ package com.diligrp.uap.security.builder;
 import com.diligrp.uap.security.core.AuthorizationManager;
 import com.diligrp.uap.security.core.Permission;
 import com.diligrp.uap.security.core.UrlAuthorizationManager;
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.filter.UserAuthorizationFilter;
 import com.diligrp.uap.security.util.AnyRequestMatcher;
@@ -64,7 +64,7 @@ public class UserAuthorizationBuilder extends SecurityFilterBuilder<UserAuthoriz
 
         public UserAuthorizationBuilder denyAll() {
             UserAuthorizationBuilder.this.addUserAuthorization(new UrlAuthorizationManager.UrlAuthorization(requestMatcher, (session) -> {
-                throw new AccessDeniedException(ErrorCode.OPERATION_NOT_ALLOWED, ErrorCode.MESSAGE_NOT_ALLOWED);
+                throw new AuthorizationException(ErrorCode.OPERATION_NOT_ALLOWED, ErrorCode.MESSAGE_NOT_ALLOWED);
             }));
             return UserAuthorizationBuilder.this;
         }

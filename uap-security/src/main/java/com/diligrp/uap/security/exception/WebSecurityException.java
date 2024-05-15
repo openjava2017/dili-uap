@@ -3,7 +3,8 @@ package com.diligrp.uap.security.exception;
 import com.diligrp.uap.security.util.ErrorCode;
 
 /**
- * 过滤器通用异常
+ * 除用户认证和授权之外的通用异常
+ * 通常此类异常将跳转到错误页面，或向调用方返回错误信息
  */
 public class WebSecurityException extends RuntimeException {
     private int code = ErrorCode.UNKNOWN_SYSTEM_ERROR;

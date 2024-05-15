@@ -3,6 +3,7 @@ package com.diligrp.uap.security.session;
 import com.diligrp.uap.security.codec.LettuceCodecs;
 import com.diligrp.uap.security.redis.LettuceConnectionFactory;
 import com.diligrp.uap.security.util.Constants;
+import io.lettuce.core.TransactionResult;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.springframework.beans.factory.DisposableBean;
@@ -22,22 +23,23 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
 
     @Override
     public Session loadSessionById(String sessionId, int expireInSeconds) {
-        // TODO: 是否有性能更优方案，一次性处理多个命令
         String key = Constants.SESSION_KEY_PREFIX + sessionId;
         RedisCommands<String, Session> command = connection.sync();
-        Session session = command.get(key);
-        if (session != null) {
-            command.expire(key, Duration.ofSeconds(expireInSeconds));
-        }
-        return session;
+        command.multi();
+        command.get(key);
+        command.expire(key, Duration.ofSeconds(expireInSeconds));
+        TransactionResult result = command.exec();
+        return result.get(0);
     }
 
     @Override
     public void saveSession(Session session, int expireInSeconds) {
         String key = Constants.SESSION_KEY_PREFIX + session.getSessionId();
         RedisCommands<String, Session> command = connection.sync();
+        command.multi();
         command.set(key, session);
         command.expire(key, Duration.ofSeconds(expireInSeconds));
+        command.exec();
     }
 
     @Override
@@ -63,7 +65,6 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
 
     @Override
     public void destroy() {
-        // TODO: 处理client先于connection关闭的情况
         this.connection.close();
     }
 }

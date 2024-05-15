@@ -37,18 +37,29 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
         }
 
         try {
-            LOGGER.debug("{} filtered");
+            LOGGER.debug("{} filtered", this.getClass().getSimpleName());
             User user = attemptAuthentication(request);
+
+            // 创建Session
             Subject subject = new Subject(String.valueOf(user.getId()), user.getUsername(),
                 user.getName(), user.getPermissions(), String.valueOf(user.getMchId()),
                 user.getMchName(), Constants.TYPE_SYSTEM_USER);
-
             Session session = SecuritySessionHolder.getSession();
             session.setSubject(subject);
-            sessionIdRepository.saveSessionId(session, response);
-            int sessionTimeout = securityContext.getConfiguration().getSessionTimeout();
-            sessionRepository.saveSession(session, sessionTimeout);
 
+            // 生成accessToken
+            SecurityAccessToken token = new SecurityAccessToken(subject.getPrincipal(), session.getSessionId(),
+                subject.getType(), System.currentTimeMillis());
+            SecurityConfiguration configuration = securityContext.getConfiguration();
+            String accessToken = SecurityAccessToken.toAccessToken(token, configuration.getPrivateKey());
+
+            // 存储session至redis中，并将accessToken存储至response
+            sessionRepository.saveSession(session, configuration.getSessionTimeout());
+            sessionIdRepository.saveSessionId(response, accessToken);
+            request.setAttribute(Constants.REQUEST_SESSION_TOKEN, session);
+            request.setAttribute(Constants.REQUEST_ACCESS_TOKEN, accessToken);
+
+            // 用户认证成功回调
             userAuthenticationService.onAuthenticationSuccess(request, response);
         } catch (Exception ex) {
             LOGGER.error(ErrorCode.MESSAGE_AUTHENTICATED_FAILED, ex);
@@ -59,7 +70,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository(context.getConfiguration());
+        this.sessionIdRepository = new HttpRequestIdRepository();
     }
 
     @Override

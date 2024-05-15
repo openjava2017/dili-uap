@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface SessionIdRepository {
 
-    void saveSessionId(Session session, HttpServletResponse response);
+    void saveSessionId(HttpServletResponse response, String sessionId);
 
     String loadSessionId(HttpServletRequest request);
 }

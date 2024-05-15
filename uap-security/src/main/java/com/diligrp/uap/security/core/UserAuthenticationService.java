@@ -21,7 +21,7 @@ public abstract class UserAuthenticationService {
 
 
         if (!StringUtils.hasText(username)) {
-            throw new AuthenticationException(ErrorCode.UNKNOWN_SYSTEM_ERROR, "username missed");
+            throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "username missed");
         }
         return new AuthenticationToken(username, password);
     }
@@ -30,7 +30,7 @@ public abstract class UserAuthenticationService {
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
         if (!response.isCommitted()) {
-            String accessToken = response.getHeader(Constants.HEADER_AUTHORIZATION);
+            String accessToken = request.getAttribute(Constants.REQUEST_ACCESS_TOKEN).toString();
             String payload = String.format(Constants.JSON_MESSAGE_SUCCESS_PAYLOAD, accessToken);
             HttpUtils.sendResponse(response, payload);
         } else {

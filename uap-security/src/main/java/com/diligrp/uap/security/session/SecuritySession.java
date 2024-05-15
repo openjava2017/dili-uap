@@ -4,17 +4,15 @@ import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.util.ErrorCode;
 import org.springframework.util.Assert;
 
-import java.util.UUID;
-
 public class SecuritySession implements Session {
+    private static final long serialVersionUID = 8108687186195591559L;
 
     private final String sessionId;
 
     private Object subject;
 
-    public SecuritySession() {
-        // TODO: re-generate session id
-        this.sessionId = UUID.randomUUID().toString();
+    public SecuritySession(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     @Override

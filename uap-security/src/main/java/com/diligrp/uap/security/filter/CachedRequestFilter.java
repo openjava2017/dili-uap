@@ -33,16 +33,16 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         for (CachedRequestMapping mapping : this.mappings) {
             if (mapping.match(request)) {
-                LOGGER.debug("{} filtered");
+                LOGGER.debug("{} filtered", this.getClass().getSimpleName());
                 request = new CachedHttpServletRequest(request);
                 if (!mapping.allowResubmit) {
                     String requestId = requestId(request);
                     String requestKey = Constants.RESUBMIT_KEY_PREFIX + requestId;
                     int duration = mapping.duration;
-                    if (lettuceTemplate.get(requestKey, duration) == null) {
-                        lettuceTemplate.set(requestKey, String.valueOf(duration), duration);
+                    String value = lettuceTemplate.getAndExpire(requestKey, duration);
+                    if (value == null) {
+                        lettuceTemplate.setAndExpire(requestKey, String.valueOf(duration), duration);
                     } else {
-
                         throw new WebSecurityException(ErrorCode.OPERATION_NOT_ALLOWED, ErrorCode.MESSAGE_RESUBMIT_REQUEST);
                     }
                 }
@@ -98,7 +98,7 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         if (!ObjectUtils.isEmpty(queryString)) {
-            requestURI.concat(Constants.URL_PARAM_SEPARATOR).concat(queryString);
+            requestURI = requestURI.concat(Constants.URL_PARAM_SEPARATOR).concat(queryString);
         }
 
         byte[] uri = StringCodec.getEncoder().encode(requestURI);
@@ -108,7 +108,6 @@ public class CachedRequestFilter extends AbstractSecurityFilter {
         byte[] data = new byte[uri.length + body.length];
         System.arraycopy(uri, 0, data, 0, uri.length);
         System.arraycopy(body, 0, data, uri.length, body.length);
-
         try {
             MessageDigest md5 = MessageDigest.getInstance(Constants.MD5_ALGORITHM);
             md5.update(data);

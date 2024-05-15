@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.exception.AccessDeniedException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.handler.ExceptionHandler;
@@ -21,7 +21,7 @@ public class ExceptionHandleFilter extends AbstractSecurityFilter {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            LOGGER.debug("{} filtered");
+            LOGGER.debug("{} filtered", this.getClass().getSimpleName());
             chain.doFilter(request, response);
         } catch (IOException ex) {
             throw ex;
@@ -30,7 +30,7 @@ public class ExceptionHandleFilter extends AbstractSecurityFilter {
             WebSecurityException securityException = null;
 
             while (current != null) {
-                if (current instanceof AuthenticationException || current instanceof AccessDeniedException) { // 用户认证失败, 无资源权限时
+                if (current instanceof AuthenticationException || current instanceof AuthorizationException) { // 用户认证失败, 无资源权限时
                     securityException = (WebSecurityException) current;
                     break;
                 } else if (current instanceof InvocationTargetException) {
@@ -64,8 +64,8 @@ public class ExceptionHandleFilter extends AbstractSecurityFilter {
         throws IOException, ServletException {
         if (exception instanceof AuthenticationException) { // 用户认证失败时，如：用户不存在，用户名/密码错误等
             exceptionHandler.onAuthenticationFailed(request, response, (AuthenticationException) exception);
-        } else if (exception instanceof AccessDeniedException) { // 用户无资源权限时触发
-            exceptionHandler.onAuthorizationFailed(request, response, (AccessDeniedException) exception);
+        } else if (exception instanceof AuthorizationException) { // 用户无资源权限时触发
+            exceptionHandler.onAuthorizationFailed(request, response, (AuthorizationException) exception);
         } else {
             throw exception;
         }

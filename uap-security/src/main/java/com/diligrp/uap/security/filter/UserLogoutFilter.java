@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.filter;
 
 import com.diligrp.uap.security.core.SecurityContext;
-import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.handler.LogoutHandler;
 import com.diligrp.uap.security.session.HttpRequestIdRepository;
 import com.diligrp.uap.security.session.SessionIdRepository;
@@ -36,10 +36,10 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
         }
 
         try {
-            LOGGER.debug("{} filtered");
+            LOGGER.debug("{} filtered", this.getClass().getSimpleName());
             String sessionId = sessionIdRepository.loadSessionId(request);
             if (sessionId == null) {
-                throw new AuthenticationException(ErrorCode.SUBJECT_NOT_AUTHENTICATED, ErrorCode.MESSAGE_NOT_AUTHENTICATED);
+                throw new WebSecurityException(ErrorCode.SUBJECT_NOT_AUTHENTICATED, ErrorCode.MESSAGE_NOT_AUTHENTICATED);
             }
             sessionRepository.removeSession(sessionId);
 
@@ -52,7 +52,7 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository(context.getConfiguration());
+        this.sessionIdRepository = new HttpRequestIdRepository();
     }
 
     @Override

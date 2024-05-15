@@ -42,6 +42,10 @@
         <logger name="com.diligrp.uap" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE" />
         </logger>
+
+        <logger name="com.alibaba" level="ERROR" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
     </springProfile>
 
     <!-- 测试环境 -->
@@ -54,12 +58,10 @@
             <appender-ref ref="FILE" />
         </logger>
 
-        <!--  单独给子模块指定日志配置时，请注意additivity的使用
-        <logger name="com.diligrp.uap.boss" level="debug" additivity="false">
+        <logger name="com.alibaba" level="ERROR" additivity="false">
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE" />
         </logger>
-        -->
     </springProfile>
 
     <!-- 灰度、生产环境 -->
@@ -69,6 +71,11 @@
         </root>
 
         <logger name="com.diligrp.uap" level="DEBUG">
+            <appender-ref ref="FILE" />
+        </logger>
+
+        <logger name="com.alibaba" level="ERROR" additivity="false">
+            <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE" />
         </logger>
 

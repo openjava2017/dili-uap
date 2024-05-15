@@ -41,7 +41,9 @@ public class SecurityBaseConfiguration {
                 configuration.setPrivateKey(parsePrivateKey(properties.getPrivateKey()));
                 // 解析公钥
                 configuration.setPublicKey(parsePublicKey(properties.getPublicKey()));
-                configuration.setSessionTimeout(parseSessionTimeout(properties.getSession().getSessionTimeout()));
+                if (properties.getSession() != null) {
+                    configuration.setSessionTimeout(parseSessionTimeout(properties.getSession().getSessionTimeout()));
+                }
             } catch (Exception ex) {
                 throw new WebSecurityException("Illegal Context Configuration", ex);
             }
