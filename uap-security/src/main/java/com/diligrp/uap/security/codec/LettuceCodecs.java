@@ -1,8 +1,8 @@
 package com.diligrp.uap.security.codec;
 
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.session.Session;
-import com.diligrp.uap.security.util.ErrorCode;
 import io.lettuce.core.codec.RedisCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

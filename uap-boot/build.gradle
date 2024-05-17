@@ -8,6 +8,7 @@ bootJar {
 }
 
 dependencies {
+    implementation project(':uap-rpc')
     implementation project(':uap-auth')
     implementation project(':uap-boss')
     implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2022.0.0.0-RC2'

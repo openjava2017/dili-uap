@@ -1,4 +1,4 @@
-package com.diligrp.uap.security.util;
+package com.diligrp.uap.security;
 
 public final class ErrorCode {
     public static final int UNKNOWN_SYSTEM_ERROR = 500000; // 未知系统异常

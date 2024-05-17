@@ -1,9 +1,9 @@
 package com.diligrp.uap.security.core;
 
-import com.diligrp.uap.security.exception.AuthorizationException;
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.session.Session;
-import com.diligrp.uap.security.util.ErrorCode;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -45,11 +45,11 @@ public class UrlAuthorizationManager implements AuthorizationManager {
         void check(Session session);
     }
 
-    public static class PermissionHandler implements AuthorizationHandler {
-        private final Permission permission;
+    public static class AuthorityHandler implements AuthorizationHandler {
+        private final Authority authority;
 
-        public PermissionHandler(Permission permission) {
-            this.permission = permission;
+        public AuthorityHandler(Authority authority) {
+            this.authority = authority;
         }
 
         @Override
@@ -59,10 +59,10 @@ public class UrlAuthorizationManager implements AuthorizationManager {
             }
 
             Subject subject = session.getSubject();
-            List<Permission> permissions = subject.getPermissions();
-            if (permissions != null && !permissions.isEmpty()) {
-                for (Permission permission : permissions) {
-                    if (permission.check(this.permission)) {
+            List<Authority> authorities = subject.getAuthorities();
+            if (authorities != null && !authorities.isEmpty()) {
+                for (Authority authority : authorities) {
+                    if (authority.check(this.authority)) {
                         return;
                     }
                 }

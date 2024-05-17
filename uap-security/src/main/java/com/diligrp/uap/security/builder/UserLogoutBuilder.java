@@ -1,10 +1,10 @@
 package com.diligrp.uap.security.builder;
 
+import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.filter.UserLogoutFilter;
 import com.diligrp.uap.security.handler.DefaultLogoutHandler;
 import com.diligrp.uap.security.handler.LogoutHandler;
 import com.diligrp.uap.security.util.AntPathRequestMatcher;
-import com.diligrp.uap.security.util.Constants;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 
 public class UserLogoutBuilder extends SecurityFilterBuilder<UserLogoutFilter> {

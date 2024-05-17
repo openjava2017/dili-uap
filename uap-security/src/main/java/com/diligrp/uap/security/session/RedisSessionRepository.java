@@ -1,8 +1,8 @@
 package com.diligrp.uap.security.session;
 
+import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.codec.LettuceCodecs;
 import com.diligrp.uap.security.redis.LettuceConnectionFactory;
-import com.diligrp.uap.security.util.Constants;
 import io.lettuce.core.TransactionResult;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;

@@ -1,0 +1,8 @@
+group = 'com.diligrp'
+archivesBaseName = 'uap-rpc'
+
+dependencies {
+    implementation project(':uap-shared')
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+}

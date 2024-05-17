@@ -1,4 +1,6 @@
-package com.diligrp.uap.shared.exception;
+package com.diligrp.uap.rpc.exception;
+
+import com.diligrp.uap.shared.exception.PlatformServiceException;
 
 /**
  * 远程服务访问异常

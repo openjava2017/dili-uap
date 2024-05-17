@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.handler;
 
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.WebSecurityException;
-import com.diligrp.uap.security.util.ErrorCode;
 import com.diligrp.uap.security.util.HttpUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;

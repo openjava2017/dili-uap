@@ -1,4 +1,4 @@
-package com.diligrp.uap.security.util;
+package com.diligrp.uap.security;
 
 public final class Constants {
     public static final String WEB_SECURITY_FILTER_CHAIN_NAME = "webSecurityFilterChain";

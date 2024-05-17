@@ -1,9 +1,9 @@
 package com.diligrp.uap.security.core;
 
+import com.diligrp.uap.security.Constants;
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.codec.AccessTokenCodec;
 import com.diligrp.uap.security.exception.WebSecurityException;
-import com.diligrp.uap.security.util.Constants;
-import com.diligrp.uap.security.util.ErrorCode;
 
 import java.io.Serializable;
 import java.security.PrivateKey;

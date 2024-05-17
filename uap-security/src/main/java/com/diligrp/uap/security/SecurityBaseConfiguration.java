@@ -10,7 +10,6 @@ import com.diligrp.uap.security.redis.LettuceConnectionFactory;
 import com.diligrp.uap.security.redis.LettuceTemplate;
 import com.diligrp.uap.security.session.RedisSessionRepository;
 import com.diligrp.uap.security.session.SessionRepository;
-import com.diligrp.uap.security.util.Constants;
 import io.lettuce.core.RedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

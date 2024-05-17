@@ -1,8 +1,8 @@
-package com.diligrp.uap.shared.service;
+package com.diligrp.uap.rpc.service;
 
-import com.diligrp.uap.shared.exception.ServiceAccessException;
-import com.diligrp.uap.shared.exception.ServiceConnectException;
-import com.diligrp.uap.shared.exception.ServiceTimeoutException;
+import com.diligrp.uap.rpc.exception.ServiceAccessException;
+import com.diligrp.uap.rpc.exception.ServiceConnectException;
+import com.diligrp.uap.rpc.exception.ServiceTimeoutException;
 import com.diligrp.uap.shared.util.ObjectUtils;
 
 import javax.net.ssl.SSLContext;

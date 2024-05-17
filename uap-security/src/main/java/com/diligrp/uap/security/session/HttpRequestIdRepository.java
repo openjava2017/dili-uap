@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.session;
 
-import com.diligrp.uap.security.util.Constants;
+import com.diligrp.uap.security.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

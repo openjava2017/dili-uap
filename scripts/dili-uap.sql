@@ -8,7 +8,7 @@ CREATE TABLE `uap_merchant` (
   `name` VARCHAR(80) NOT NULL COMMENT '商户名称',
   `address` VARCHAR(128) COMMENT '商户地址',
   `linkman` VARCHAR(40) COMMENT '联系人',
-  `telphone` VARCHAR(20) COMMENT '电话号码',
+  `telephone` VARCHAR(20) COMMENT '电话号码',
   `state` TINYINT UNSIGNED NOT NULL COMMENT '商户状态',
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
@@ -45,15 +45,15 @@ CREATE TABLE `uap_user` (
   `email` VARCHAR(40) NOT NULL COMMENT '邮箱地址',
   `gender` TINYINT UNSIGNED COMMENT '性别',
   `position` TINYINT UNSIGNED NOT NULL COMMENT '职位',
+  `department_id` BIGINT COMMENT '部门ID',
+  `superior_id` BIGINT COMMENT '上级用户',
   `password` VARCHAR(40) NOT NULL COMMENT '交易密码',
   `secret_key` VARCHAR(60) NOT NULL COMMENT '安全密钥',
   `locked_time` DATETIME COMMENT '锁定时间',
-  `online_time` DATETIME COMMENT '登陆时间',
   `session_id` VARCHAR(40) COMMENT '登录会话',
-  `dep_id` BIGINT COMMENT '部门ID',
-  `superior_id` BIGINT COMMENT '上级用户',
-  `mch_id` BIGINT NOT NULL COMMENT '商户ID',
+  `online_time` DATETIME COMMENT '登陆时间',
   `state` TINYINT UNSIGNED NOT NULL COMMENT '账号状态',
+  `mch_id` BIGINT NOT NULL COMMENT '商户ID',
   `description` VARCHAR(128) COMMENT '备注',
   `version` INTEGER UNSIGNED NOT NULL COMMENT '数据版本号',
   `created_time` DATETIME COMMENT '创建时间',
@@ -63,7 +63,7 @@ CREATE TABLE `uap_user` (
   KEY `idx_user_realName` (`name`) USING BTREE,
   KEY `idx_user_telephone` (`telephone`) USING BTREE,
   KEY `idx_user_email` (`email`) USING BTREE,
-  KEY `idx_user_depId` (`dep_id`) USING BTREE,
+  KEY `idx_user_departmentId` (`department_id`) USING BTREE,
   KEY `idx_user_createdTime` (`created_time`) USING BTREE
 ) ENGINE=InnoDB;
 
@@ -85,7 +85,7 @@ CREATE TABLE `uap_user_permission` (
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
   `code` VARCHAR(20) COMMENT '资源编码', --冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
-  `permission` INTEGER NOT NULL COMMENT '资源权限',
+  `authority` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_permission_userId` (`user_id`) USING BTREE,
@@ -112,7 +112,7 @@ CREATE TABLE `uap_role_permission` (
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
   `code` VARCHAR(20) COMMENT '资源编码', --冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
-  `permission` INTEGER NOT NULL COMMENT '资源权限',
+  `authority` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_role_permission_roleId` (`role_id`) USING BTREE,
@@ -143,7 +143,7 @@ CREATE TABLE `uap_page_element` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
-  `permission` TINYINT UNSIGNED NOT NULL COMMENT '权限掩码',
+  `authority` TINYINT UNSIGNED NOT NULL COMMENT '权限掩码',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   PRIMARY KEY (`id`),
   KEY `idx_page_element_menuId` (`menu_id`, `sequence`) USING BTREE

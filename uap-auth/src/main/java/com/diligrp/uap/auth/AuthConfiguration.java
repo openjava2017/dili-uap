@@ -7,6 +7,7 @@ import com.diligrp.uap.security.builder.SecurityFilterChainBuilder;
 import com.diligrp.uap.security.core.*;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.filter.SecurityFilterChain;
+import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -45,10 +46,10 @@ public class AuthConfiguration {
         )
         .exceptionHandle(customizer -> SecurityCustomizer.withDefaults())
         .authorizeRequests(customizer ->
-            customizer.requestMatchers("/permit/**").permitAll()
+            customizer.requestMatchers("/api/**").permitAll()
                 .requestMatchers("/deny/**").denyAll()
-                .requestMatchers("/permission/**").hasPermission(new Permission("1-2-3-4", 1))
-                .requestMatchers("/nopermission/**").hasPermission(new Permission("1-2-3-4", 1, 1 << 7))
+                .requestMatchers("/authority/**").hasPermission(new Authority("1-2-3-4", 1))
+                .requestMatchers("/permission/**").hasPermission(new Authority("1-2-3-4", 1, 1 << 7))
                 .anyRequest().authenticated()
         )
         .logout(customizer ->
@@ -66,10 +67,11 @@ public class AuthConfiguration {
     public UserAuthenticationService userAuthenticationService() {
         return new UserAuthenticationService() {
             @Override
-            public User doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
-                List<Permission> permissions = new ArrayList<>();
-                permissions.add(new Permission("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
-                return new User(100L, "brenthuang", "黄刚", permissions, 9L, "沈阳市场");
+            public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
+                List<Authority> authorities = new ArrayList<>();
+                authorities.add(new Authority("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
+                Owner owner = new Owner("9", "沈阳地利", "10001");
+                return new Subject("1000", "brenthuang", "黄刚", authorities, owner, Constants.TYPE_SYSTEM_USER);
             }
         };
     }

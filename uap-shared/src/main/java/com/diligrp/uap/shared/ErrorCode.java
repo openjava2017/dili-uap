@@ -18,4 +18,6 @@ public class ErrorCode {
     public static final int OBJECT_ALREADY_EXISTS = 500005;
     // 访问未授权
     public static final int UNAUTHORIZED_ACCESS_ERROR = 501001;
+
+    public static final String MESSAGE_UNKNOWN_ERROR = "权限系统未知异常，请联系管理员";
 }

@@ -1,8 +1,8 @@
 package com.diligrp.uap.security.handler;
 
-import com.diligrp.uap.security.exception.AuthorizationException;
+import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.exception.AuthenticationException;
-import com.diligrp.uap.security.util.Constants;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.util.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

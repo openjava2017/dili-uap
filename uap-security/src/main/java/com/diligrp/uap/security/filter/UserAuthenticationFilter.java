@@ -2,8 +2,8 @@ package com.diligrp.uap.security.filter;
 
 import com.diligrp.uap.security.core.*;
 import com.diligrp.uap.security.session.*;
-import com.diligrp.uap.security.util.Constants;
-import com.diligrp.uap.security.util.ErrorCode;
+import com.diligrp.uap.security.Constants;
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -38,12 +38,8 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
 
         try {
             LOGGER.debug("{} filtered", this.getClass().getSimpleName());
-            User user = attemptAuthentication(request);
-
-            // 创建Session
-            Subject subject = new Subject(String.valueOf(user.getId()), user.getUsername(),
-                user.getName(), user.getPermissions(), String.valueOf(user.getMchId()),
-                user.getMchName(), Constants.TYPE_SYSTEM_USER);
+            // 主体认证并创建登陆Session
+            Subject subject = attemptAuthentication(request);
             Session session = SecuritySessionHolder.getSession();
             session.setSubject(subject);
 
@@ -84,7 +80,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
         return this.requestMatcher.matches(request);
     }
 
-    protected User attemptAuthentication(HttpServletRequest request) {
+    protected Subject attemptAuthentication(HttpServletRequest request) {
         AuthenticationToken authentication = userAuthenticationService.obtainAuthentication(request);
         return userAuthenticationService.doAuthentication(authentication);
     }

@@ -10,7 +10,6 @@ import com.diligrp.uap.security.filter.SecurityFilterChain;
 import com.diligrp.uap.security.filter.SecurityFilterChainManager;
 import com.diligrp.uap.security.handler.DefaultGlobalExceptionHandler;
 import com.diligrp.uap.security.handler.GlobalExceptionHandler;
-import com.diligrp.uap.security.util.Constants;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

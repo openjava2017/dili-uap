@@ -4,7 +4,7 @@ import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.exception.WebSecurityException;
 import com.diligrp.uap.security.handler.ExceptionHandler;
-import com.diligrp.uap.security.util.Constants;
+import com.diligrp.uap.security.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

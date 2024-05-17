@@ -1,7 +1,6 @@
 package com.diligrp.uap.boot.controller;
 
 import com.diligrp.uap.security.core.Subject;
-import com.diligrp.uap.security.core.User;
 import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.security.util.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,15 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class OpenApiController {
+public class TestOpenApiController {
     @RequestMapping(value = "/static/test.do")
     public String staticTest(HttpServletRequest request) {
         return "I'm static url";
     }
 
-    @RequestMapping(value = "/permit/test.do")
-    public String permitTest(HttpServletRequest request) {
-        return "I'm permit url";
+    @RequestMapping(value = "/api/test.do")
+    public String apiTest(HttpServletRequest request) {
+        return "I'm api url";
     }
 
     @RequestMapping(value = "/deny/test.do")
@@ -25,15 +24,15 @@ public class OpenApiController {
         return "I'm deny url";
     }
 
-    @RequestMapping(value = "/permission/test.do")
-    public String permissionTest(HttpServletRequest request) {
+    @RequestMapping(value = "/authority/test.do")
+    public String authorityTest(HttpServletRequest request) {
         Subject subject = SecuritySessionHolder.getSession().getSubject();
         return "I'm permission url: " + subject.getPrincipal();
     }
 
-    @RequestMapping(value = "/nopermission/test.do")
-    public String nopermissionTest(HttpServletRequest request) {
-        return "I'm nopermission url";
+    @RequestMapping(value = "/permission/test.do")
+    public String permissionTest(HttpServletRequest request) {
+        return "I'm permission url";
     }
 
     @RequestMapping(value = "/resubmit/test.do")

@@ -1,9 +1,9 @@
 package com.diligrp.uap.security.core;
 
+import com.diligrp.uap.security.Constants;
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.exception.WebSecurityException;
-import com.diligrp.uap.security.util.Constants;
-import com.diligrp.uap.security.util.ErrorCode;
 import com.diligrp.uap.security.util.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +26,7 @@ public abstract class UserAuthenticationService {
         return new AuthenticationToken(username, password);
     }
 
-    public abstract User doAuthentication(AuthenticationToken authentication) throws AuthenticationException;
+    public abstract Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException;
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
         if (!response.isCommitted()) {

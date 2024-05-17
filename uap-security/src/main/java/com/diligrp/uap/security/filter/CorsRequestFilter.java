@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.filter;
 
 import com.diligrp.uap.security.core.SecurityContext;
-import com.diligrp.uap.security.util.Constants;
+import com.diligrp.uap.security.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

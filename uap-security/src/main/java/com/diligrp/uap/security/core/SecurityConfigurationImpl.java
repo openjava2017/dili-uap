@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.core;
 
-import com.diligrp.uap.security.util.Constants;
+import com.diligrp.uap.security.Constants;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;

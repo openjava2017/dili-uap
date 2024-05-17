@@ -9,32 +9,27 @@ public class Subject implements Serializable {
     // 认证主体唯一标识 - 包含外部用户，使用文本类型
     private final String id;
 
-    // 认证主体登陆账号
+    // 认证主体凭证 - 登陆账号/手机号等
     private final String principal;
 
     // 认证主体名称
     private final String name;
 
     // 资源权限
-    private final List<Permission> permissions;
+    private final List<Authority> authorities;
 
     // 主体归属组织
-    private final String mchId;
-
-    // 组织名称
-    private final String mchName;
+    private final Owner owner;
 
     // 主体类型-系统用户或外部认证主体
-    private int type;
+    private final int type;
 
-    public Subject(String id, String principal, String name, List<Permission> permissions,
-                   String mchId, String mchName, int type) {
+    public Subject(String id, String principal, String name, List<Authority> authorities, Owner owner, int type) {
         this.id = id;
         this.principal = principal;
         this.name = name;
-        this.permissions = permissions;
-        this.mchId = mchId;
-        this.mchName = mchName;
+        this.authorities = authorities;
+        this.owner = owner;
         this.type = type;
     }
 
@@ -50,16 +45,12 @@ public class Subject implements Serializable {
         return name;
     }
 
-    public List<Permission> getPermissions() {
-        return permissions;
+    public List<Authority> getAuthorities() {
+        return authorities;
     }
 
-    public String getMchId() {
-        return mchId;
-    }
-
-    public String getMchName() {
-        return mchName;
+    public Owner getOwner() {
+        return owner;
     }
 
     public int getType() {

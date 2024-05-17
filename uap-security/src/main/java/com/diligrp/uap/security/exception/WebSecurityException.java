@@ -1,6 +1,6 @@
 package com.diligrp.uap.security.exception;
 
-import com.diligrp.uap.security.util.ErrorCode;
+import com.diligrp.uap.security.ErrorCode;
 
 /**
  * 除用户认证和授权之外的通用异常

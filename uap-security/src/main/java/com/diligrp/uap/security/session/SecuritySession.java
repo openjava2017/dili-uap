@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.session;
 
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.AuthenticationException;
-import com.diligrp.uap.security.util.ErrorCode;
 import org.springframework.util.Assert;
 
 public class SecuritySession implements Session {

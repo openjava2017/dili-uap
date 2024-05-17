@@ -1,4 +1,4 @@
-package com.diligrp.uap.shared.exception;
+package com.diligrp.uap.rpc.exception;
 
 /**
  * 远程服务连接异常

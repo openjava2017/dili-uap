@@ -1,13 +1,13 @@
 package com.diligrp.uap.security.builder;
 
+import com.diligrp.uap.security.ErrorCode;
+import com.diligrp.uap.security.core.Authority;
 import com.diligrp.uap.security.core.AuthorizationManager;
-import com.diligrp.uap.security.core.Permission;
 import com.diligrp.uap.security.core.UrlAuthorizationManager;
-import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.exception.AuthorizationException;
 import com.diligrp.uap.security.filter.UserAuthorizationFilter;
 import com.diligrp.uap.security.util.AnyRequestMatcher;
-import com.diligrp.uap.security.util.ErrorCode;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import org.springframework.util.Assert;
 
@@ -49,10 +49,10 @@ public class UserAuthorizationBuilder extends SecurityFilterBuilder<UserAuthoriz
             this.requestMatcher = requestMatcher;
         }
 
-        public UserAuthorizationBuilder hasPermission(Permission permission) {
-            Assert.notNull(permission, "permission must be specified");
+        public UserAuthorizationBuilder hasPermission(Authority authority) {
+            Assert.notNull(authority, "permission must be specified");
 
-            UrlAuthorizationManager.AuthorizationHandler handler = new UrlAuthorizationManager.PermissionHandler(permission);
+            UrlAuthorizationManager.AuthorizationHandler handler = new UrlAuthorizationManager.AuthorityHandler(authority);
             UserAuthorizationBuilder.this.addUserAuthorization(new UrlAuthorizationManager.UrlAuthorization(requestMatcher, handler));
             return UserAuthorizationBuilder.this;
         }

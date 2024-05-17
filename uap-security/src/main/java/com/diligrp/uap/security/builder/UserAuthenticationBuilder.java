@@ -1,8 +1,8 @@
 package com.diligrp.uap.security.builder;
 
+import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.filter.UserAuthenticationFilter;
 import com.diligrp.uap.security.util.AntPathRequestMatcher;
-import com.diligrp.uap.security.util.Constants;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 
 public class UserAuthenticationBuilder extends SecurityFilterBuilder<UserAuthenticationFilter> {

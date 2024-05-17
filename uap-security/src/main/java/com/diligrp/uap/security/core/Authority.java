@@ -1,12 +1,12 @@
 package com.diligrp.uap.security.core;
 
+import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.AuthorizationException;
-import com.diligrp.uap.security.util.ErrorCode;
 import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
 
-public class Permission implements Serializable {
+public class Authority implements Serializable {
     private static final long serialVersionUID = 8108687186195591559L;
 
     // 资源编码
@@ -18,11 +18,11 @@ public class Permission implements Serializable {
     // 资源权限
     private final int permission;
 
-    public Permission(String code, int type) {
+    public Authority(String code, int type) {
         this(code, type, 0);
     }
 
-    public Permission(String code, int type, int permission) {
+    public Authority(String code, int type, int permission) {
         this.code = code;
         this.type = type;
         this.permission = permission;
@@ -40,10 +40,10 @@ public class Permission implements Serializable {
         return permission;
     }
 
-    public boolean check(Permission permission) {
-        boolean matched = this.type == permission.type && ObjectUtils.nullSafeEquals(this.code, permission.code);
+    public boolean check(Authority authority) {
+        boolean matched = this.type == authority.type && ObjectUtils.nullSafeEquals(this.code, authority.code);
         if (matched) {
-            if ((this.permission & permission.permission) == permission.permission) {
+            if ((this.permission & authority.permission) == authority.permission) {
                 return true;
             } else {
                 throw new AuthorizationException(ErrorCode.ACCESS_DENIED_ERROR, ErrorCode.MESSAGE_ACCESS_DENIED);
