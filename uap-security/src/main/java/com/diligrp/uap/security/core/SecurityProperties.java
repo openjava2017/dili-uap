@@ -1,28 +1,31 @@
 package com.diligrp.uap.security.core;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 public class SecurityProperties {
     // 私钥
-    private String privateKey;
+    private PrivateKey privateKey;
     // 公钥
-    private String publicKey;
+    private PublicKey publicKey;
     // Session配置
     private Session session;
     // Redis配置
     private Redis redis;
 
-    public String getPrivateKey() {
+    public PrivateKey getPrivateKey() {
         return privateKey;
     }
 
-    public void setPrivateKey(String privateKey) {
+    public void setPrivateKey(PrivateKey privateKey) {
         this.privateKey = privateKey;
     }
 
-    public String getPublicKey() {
+    public PublicKey getPublicKey() {
         return publicKey;
     }
 
-    public void setPublicKey(String publicKey) {
+    public void setPublicKey(PublicKey publicKey) {
         this.publicKey = publicKey;
     }
 
@@ -43,13 +46,13 @@ public class SecurityProperties {
     }
 
     public static class Session {
-        private String sessionTimeout;
+        private Integer sessionTimeout;
 
-        public String getSessionTimeout() {
+        public Integer getSessionTimeout() {
             return sessionTimeout;
         }
 
-        public void setSessionTimeout(String sessionTimeout) {
+        public void setSessionTimeout(Integer sessionTimeout) {
             this.sessionTimeout = sessionTimeout;
         }
     }

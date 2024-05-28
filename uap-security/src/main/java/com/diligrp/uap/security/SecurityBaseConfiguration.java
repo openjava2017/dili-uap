@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.KeyFactory;
@@ -37,11 +40,14 @@ public class SecurityBaseConfiguration {
         if (properties != null) {
             try {
                 // 解析私钥
-                configuration.setPrivateKey(parsePrivateKey(properties.getPrivateKey()));
+                configuration.setPrivateKey(properties.getPrivateKey());
                 // 解析公钥
-                configuration.setPublicKey(parsePublicKey(properties.getPublicKey()));
+                configuration.setPublicKey(properties.getPublicKey());
                 if (properties.getSession() != null) {
-                    configuration.setSessionTimeout(parseSessionTimeout(properties.getSession().getSessionTimeout()));
+                    Integer sessionTimeout = properties.getSession().getSessionTimeout();
+                    if (sessionTimeout != null) {
+                        configuration.setSessionTimeout(sessionTimeout);
+                    }
                 }
             } catch (Exception ex) {
                 throw new WebSecurityException("Illegal Context Configuration", ex);
@@ -79,35 +85,42 @@ public class SecurityBaseConfiguration {
         return template;
     }
 
-    private PrivateKey parsePrivateKey(String privateKey) throws Exception {
-        if (StringUtils.hasText(privateKey)) {
-            byte[] keyBytes = Base64.getDecoder().decode(privateKey);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance(Constants.KEY_ALGORITHM);
-            return keyFactory.generatePrivate(keySpec);
-        }
+    @Component
+    @ConfigurationPropertiesBinding
+    public class PrivateKeyConverter implements Converter<String, PrivateKey> {
+        @Override
+        public PrivateKey convert(String source) {
+            try {
+                if (StringUtils.hasText(source)) {
+                    byte[] keyBytes = Base64.getDecoder().decode(source);
+                    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+                    KeyFactory keyFactory = KeyFactory.getInstance(Constants.KEY_ALGORITHM);
+                    return keyFactory.generatePrivate(keySpec);
+                }
+            } catch (Exception ex) {
+                throw new WebSecurityException("privateKey configuration failed", ex);
+            }
 
-        return null;
+            return null;
+        }
     }
 
-    private PublicKey parsePublicKey(String publicKey) throws Exception {
-        if (StringUtils.hasText(publicKey)) {
-            byte[] keyBytes = Base64.getDecoder().decode(publicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance(Constants.KEY_ALGORITHM);
-            return keyFactory.generatePublic(keySpec);
-        }
-
-        return null;
-    }
-
-    private int parseSessionTimeout(String sessionTimeout) {
-        try {
-            int timeout = Integer.parseInt(sessionTimeout);
-            return timeout > 0 ? timeout : Constants.DEFAULT_SESSION_TIMEOUT;
-        } catch (Exception ex) {
-            // Ignore it
-            return Constants.DEFAULT_SESSION_TIMEOUT;
+    @Component
+    @ConfigurationPropertiesBinding
+    public class PublicKeyConverter implements Converter<String, PublicKey> {
+        @Override
+        public PublicKey convert(String source) {
+            try {
+                if (StringUtils.hasText(source)) {
+                    byte[] keyBytes = Base64.getDecoder().decode(source);
+                    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+                    KeyFactory keyFactory = KeyFactory.getInstance(Constants.KEY_ALGORITHM);
+                    return keyFactory.generatePublic(keySpec);
+                }
+            } catch (Exception ex) {
+                throw new WebSecurityException("publicKey configuration failed", ex);
+            }
+            return null;
         }
     }
 }
