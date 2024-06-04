@@ -11,22 +11,30 @@ import com.diligrp.uap.security.filter.SecurityFilterChainManager;
 import com.diligrp.uap.security.handler.DefaultGlobalExceptionHandler;
 import com.diligrp.uap.security.handler.GlobalExceptionHandler;
 import jakarta.servlet.Filter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityConfiguration {
 
-    private List<SecurityFilterChain> securityFilterChains = Collections.emptyList();
+    private List<SecurityFilterChain> securityFilterChains;
 
-    private List<SecurityContextCustomizer> securityContextCustomizers = Collections.emptyList();
+    private List<SecurityContextCustomizer> securityContextCustomizers;
 
-    private List<SecurityContextConfigurer> securityContextConfigurers = Collections.emptyList();
+    private List<SecurityContextConfigurer> securityContextConfigurers;
+
+    public WebSecurityConfiguration(ObjectProvider<SecurityFilterChain> securityFilterChains,
+                                    ObjectProvider<SecurityContextCustomizer> securityContextCustomizers,
+                                    ObjectProvider<SecurityContextConfigurer> securityContextConfigurers) {
+        this.securityFilterChains = securityFilterChains.stream().toList();
+        this.securityContextCustomizers = securityContextCustomizers.stream().toList();
+        this.securityContextConfigurers = securityContextConfigurers.stream().toList();
+    }
 
     @Bean
     public SecurityContext webSecurityContext(AutowireCapableBeanFactory autowireBeanFactory) {
@@ -61,20 +69,5 @@ public class WebSecurityConfiguration {
         filterChainManager.setExceptionHandler(exceptionHandler == null ? new DefaultGlobalExceptionHandler() : exceptionHandler);
 
         return filterChainManager;
-    }
-
-    @Autowired(required = false)
-    public void setSecurityFilterChains(List<SecurityFilterChain> securityFilterChains) {
-        this.securityFilterChains = securityFilterChains;
-    }
-
-    @Autowired(required = false)
-    public void setWebSecurityCustomizers(List<SecurityContextCustomizer> securityContextCustomizers) {
-        this.securityContextCustomizers = securityContextCustomizers;
-    }
-
-    @Autowired(required = false)
-    public void setSecurityContextConfigurers(List<SecurityContextConfigurer> securityContextConfigurers) {
-        this.securityContextConfigurers = securityContextConfigurers;
     }
 }
