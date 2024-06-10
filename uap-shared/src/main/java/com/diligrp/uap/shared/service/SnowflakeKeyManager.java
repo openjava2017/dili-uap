@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SnowflakeKeyManager {
 
-    private Lock locker = new ReentrantLock();
+    private final Lock locker = new ReentrantLock();
 
     private final ConcurrentMap<String, IKeyGenerator> keyGenerators = new ConcurrentHashMap<>();
 
@@ -55,7 +55,7 @@ public class SnowflakeKeyManager {
     /**
      * 雪花算法ID生成器实现
      */
-    private class SnowflakeKeyGenerator implements IKeyGenerator {
+    private static class SnowflakeKeyGenerator implements IKeyGenerator {
 
         /**
          * Customer based epoch, unit as second. until 2020-08-08 00:00:00
@@ -158,7 +158,7 @@ public class SnowflakeKeyManager {
      * Allocate 64 bits for the UID(long)<br>
      * sign (fixed 1bit) -> deltaSecond -> workerId -> sequence(within the same second)
      */
-    private class BitsAllocator {
+    private static class BitsAllocator {
         /**
          * Total 64 bits
          */
@@ -167,7 +167,7 @@ public class SnowflakeKeyManager {
         /**
          * Bits for [sign-> second-> workId-> sequence]
          */
-        private int signBits = 1;
+        private final int signBits = 1;
         private final int timestampBits;
         private final int workerIdBits;
         private final int sequenceBits;
