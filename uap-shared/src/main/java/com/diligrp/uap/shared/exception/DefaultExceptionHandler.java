@@ -17,6 +17,12 @@ public class DefaultExceptionHandler {
         return Message.failure(ex.getCode(), ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public Message<?> illegalArgumentException(IllegalArgumentException ex) {
+        LOG.warn("assistant platform service exception", ex);
+        return Message.failure(ErrorCode.ILLEGAL_ARGUMENT_ERROR, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public Message<?> defaultExceptionHandler(Exception ex) {
         LOG.warn("uap platform service exception", ex);
