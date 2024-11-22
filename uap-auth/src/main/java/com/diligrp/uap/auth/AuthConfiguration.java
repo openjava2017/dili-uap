@@ -33,7 +33,7 @@ public class AuthConfiguration {
     @Bean
     public SecurityContextCustomizer securityContextCustomizer() {
         return securityContextBuilder -> securityContextBuilder.ignoreRequest(customizer ->
-            customizer.requestMatchers("/static/**")
+            customizer.requestMatchers("/static/**", "/favicon.ico")
         ).ignoreRequests("/resource/**");
     }
 

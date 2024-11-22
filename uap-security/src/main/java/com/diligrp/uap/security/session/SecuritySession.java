@@ -4,7 +4,10 @@ import com.diligrp.uap.security.ErrorCode;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
+
 public class SecuritySession implements Session {
+    @Serial
     private static final long serialVersionUID = 8108687186195591559L;
 
     private final String sessionId;

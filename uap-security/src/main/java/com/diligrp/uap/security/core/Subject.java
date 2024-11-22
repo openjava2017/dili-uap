@@ -1,9 +1,11 @@
 package com.diligrp.uap.security.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
 public class Subject implements Serializable {
+    @Serial
     private static final long serialVersionUID = 8108687186195591559L;
 
     // 认证主体唯一标识 - 包含外部用户，使用文本类型

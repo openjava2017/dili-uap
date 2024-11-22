@@ -4,11 +4,11 @@ import com.diligrp.uap.shared.domain.BaseDo;
 
 import java.time.LocalDateTime;
 
-public class User extends BaseDo {
+public class UserDO extends BaseDo {
     // 用户名
-    private String username;
-    // 真实姓名
     private String name;
+    // 真实姓名
+    private String username;
     // 电话号码
     private String telephone;
     // 邮箱地址
@@ -17,8 +17,8 @@ public class User extends BaseDo {
     private Integer gender;
     // 职位
     private Integer position;
-    // 部门ID
-    private Long departmentId;
+    // 分支机构ID
+    private Long branchId;
     // 上级用户
     private Long superiorId;
     // 交易密码
@@ -38,20 +38,20 @@ public class User extends BaseDo {
     // 备注
     private String description;
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getTelephone() {
@@ -86,12 +86,12 @@ public class User extends BaseDo {
         this.position = position;
     }
 
-    public Long getDepartmentId() {
-        return departmentId;
+    public Long getBranchId() {
+        return branchId;
     }
 
-    public void setDepartmentId(Long departmentId) {
-        this.departmentId = departmentId;
+    public void setBranchId(Long branchId) {
+        this.branchId = branchId;
     }
 
     public Long getSuperiorId() {
@@ -167,77 +167,77 @@ public class User extends BaseDo {
     }
 
     public static Builder builder() {
-        return new User().new Builder();
+        return new UserDO().new Builder();
     }
 
     public class Builder {
-        public Builder username(String username) {
-            User.this.username = username;
+        public Builder name(String name) {
+            UserDO.this.name = name;
             return this;
         }
 
-        public Builder name(String name) {
-            User.this.name = name;
+        public Builder username(String username) {
+            UserDO.this.username = username;
             return this;
         }
 
         public Builder telephone(String telephone) {
-            User.this.telephone = telephone;
+            UserDO.this.telephone = telephone;
             return this;
         }
 
         public Builder email(String email) {
-            User.this.email = telephone;
+            UserDO.this.email = telephone;
             return this;
         }
 
         public Builder gender(Integer gender) {
-            User.this.gender = gender;
+            UserDO.this.gender = gender;
             return this;
         }
 
         public Builder position(Integer position) {
-            User.this.position = position;
+            UserDO.this.position = position;
             return this;
         }
 
-        public Builder departmentId(Long departmentId) {
-            User.this.departmentId = departmentId;
+        public Builder branchId(Long branchId) {
+            UserDO.this.branchId = branchId;
             return this;
         }
 
         public Builder superiorId(Long superiorId) {
-            User.this.superiorId = superiorId;
+            UserDO.this.superiorId = superiorId;
             return this;
         }
 
         public Builder password(String password) {
-            User.this.password = password;
+            UserDO.this.password = password;
             return this;
         }
 
         public Builder secretKey(String secretKey) {
-            User.this.secretKey = secretKey;
+            UserDO.this.secretKey = secretKey;
             return this;
         }
 
         public Builder state(Integer state) {
-            User.this.state = state;
+            UserDO.this.state = state;
             return this;
         }
 
         public Builder mchId(Long mchId) {
-            User.this.mchId = mchId;
+            UserDO.this.mchId = mchId;
             return this;
         }
 
         public Builder description(String description) {
-            User.this.description = description;
+            UserDO.this.description = description;
             return this;
         }
 
-        public User build() {
-            return User.this;
+        public UserDO build() {
+            return UserDO.this;
         }
     }
 }

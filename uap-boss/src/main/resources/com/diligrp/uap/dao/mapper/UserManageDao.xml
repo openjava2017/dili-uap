@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IUserManagementDao">
+    <resultMap id="UserMap" type="com.diligrp.uap.boss.model.UserDO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="user_name" property="username"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <result column="gender" property="gender"/>
+        <result column="position" property="position"/>
+        <result column="branch_id" property="branchId"/>
+        <result column="superior_id" property="superiorId"/>
+        <result column="password" property="password"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="locked_time" property="lockedTime"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="online_time" property="onlineTime"/>
+        <result column="state" property="state"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="description" property="description"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.diligrp.uap.boss.model.UserDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO uap_user(`name`, `user_name`, `telephone`, `email`, `gender`, `position`, `branch_id`, `superior_id`,
+                             `password`, `secret_key`, `state`, `mch_id`, `description`, `version`, `created_time`, `modified_time`)
+        VALUES (#{name}, #{username}, #{telephone}, #{email}, #{gender}, #{position}, #{branchId}, #{superiorId},
+                #{password}, #{secretKey}, #{state}, #{mchId}, #{description}, #{version}, #{createdTime}, #{modifiedTime})
+    </insert>
+
+    <select id="findByName" parameterType="string" resultMap="UserMap">
+        SELECT * FROM product_category WHERE id = #{id} AND state &gt; 0
+    </select>
+
+    <update id="updateCategory" parameterType="com.diligrp.assistant.product.model.Category">
+        UPDATE product_category SET version = version + 1
+        <if test="name != null">
+            , name = #{name}
+        </if>
+        <if test="alias != null">
+            , alias = #{alias}
+        </if>
+        <if test="pyCode != null">
+            , py_code = #{pyCode}
+        </if>
+        <if test="shortCode != null">
+            , short_code = #{shortCode}
+        </if>
+        <if test="path != null">
+            , path = #{path}
+        </if>
+        <if test="icon != null">
+            , icon = #{icon}
+        </if>
+        <if test="state != null">
+            , state = #{state}
+        </if>
+        <if test="modifiedTime != null">
+            , modified_time = #{modifiedTime}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <select id="findParentCategoryById" parameterType="long" resultMap="CategoryMap">
+        SELECT
+            parent.*
+        FROM product_category self
+        INNER JOIN product_category parent ON self.parent_id = parent.id
+        WHERE self.id = #{id} AND self.state &gt; 0
+    </select>
+
+    <select id="findCategoriesByIds" resultMap="CategoryMap">
+        SELECT * FROM product_category WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND state &gt; 0 ORDER BY level DESC, id
+    </select>
+
+    <select id="listChildrenById" parameterType="com.diligrp.assistant.product.domain.CategoryPageQuery" resultMap="CategoryMap">
+        SELECT * FROM product_category WHERE parent_Id = #{id} AND state &gt; 0
+        ORDER BY ID LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="countChildrenById" parameterType="long" resultType="long">
+        SELECT COUNT(*) FROM product_category WHERE parent_Id = #{id} AND state &gt; 0
+    </select>
+
+    <select id="listCategoriesByLevel" parameterType="com.diligrp.assistant.product.domain.CategoryPageQuery" resultMap="CategoryMap">
+        SELECT * FROM product_category WHERE level = #{level} AND state &gt; 0
+        ORDER BY ID LIMIT #{start}, #{limit}
+    </select>
+</mapper>

@@ -1,8 +1,12 @@
 package com.diligrp.uap.security.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Owner implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 8108687186195591559L;
+
     // 所有者唯一标识 - 商户ID
     private final String id;
     // 所有者名称 - 商户名称
