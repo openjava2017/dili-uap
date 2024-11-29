@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IUserManageDao">
+    <resultMap id="UserMap" type="com.diligrp.uap.boss.model.UserDO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="user_name" property="userName"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <result column="gender" property="gender"/>
+        <result column="type" property="type"/>
+        <result column="position" property="position"/>
+        <result column="branch_id" property="branchId"/>
+        <result column="superior_id" property="superiorId"/>
+        <result column="password" property="password"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="locked_time" property="lockedTime"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="online_time" property="onlineTime"/>
+        <result column="state" property="state"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="description" property="description"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.diligrp.uap.boss.model.UserDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO uap_user(`name`, `user_name`, `telephone`, `email`, `gender`, `type`, `position`, `branch_id`, `superior_id`,
+                             `password`, `secret_key`, `state`, `mch_id`, `description`, `version`, `created_time`, `modified_time`)
+        VALUES (#{name}, #{username}, #{telephone}, #{email}, #{gender}, #{type}, #{position}, #{branchId}, #{superiorId},
+                #{password}, #{secretKey}, #{state}, #{mchId}, #{description}, #{version}, #{createdTime}, #{modifiedTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="UserMap">
+        SELECT * FROM uap_user WHERE id = #{id}
+    </select>
+
+    <select id="findByName" parameterType="string" resultMap="UserMap">
+        SELECT * FROM uap_user WHERE name = #{name}
+    </select>
+
+    <select id="listUsers" parameterType="com.diligrp.uap.boss.domain.UserQuery" resultType="com.diligrp.uap.boss.domain.UserListDTO">
+        SELECT
+            uu.id, uu.name, uu.user_name AS username, uu.telephone, uu.email, uu.gender, uu.type, uu.position, uu.branch_id AS branchId, ub.name AS branchName,
+            uu.superior_id AS superiorId, us.user_name AS superiorName, uu.locked_time AS lockedTime, uu.online_time AS onlineTime, uu.state, uu.mch_id AS mchId,
+            um.`name` AS mchName, uu.description, uu.created_time AS createdTime, uu.modified_time AS modifiedTime
+        FROM uap_user uu
+        LEFT JOIN uap_branch ub ON uu.branch_id = ub.id
+        LEFT JOIN uap_user us ON uu.superior_id = us.id
+        LEFT JOIN uap_merchant um ON uu.mch_id = um.id
+        <where>
+            <if test="name != null">
+                AND uu.name = #{name}
+            </if>
+            <if test="userName != null">
+                AND uu.user_name LIKE "%"#{userName}"%"
+            </if>
+            <if test="telephone != null">
+                AND uu.telephone = #{telephone}
+            </if>
+            <if test="email != null">
+                AND uu.email = #{email}
+            </if>
+            <if test="gender != null">
+                AND uu.gender = #{gender}
+            </if>
+            <if test="position != null">
+                AND uu.position = #{position}
+            </if>
+            <if test="branchId != null">
+                AND uu.branch_id = #{branchId}
+            </if>
+            <if test="type != null">
+                AND uu.type = #{type}
+            </if>
+            <if test="mchId != null">
+                AND uu.mch_id = #{mchId}
+            </if>
+            <if test="startTime != null">
+                <![CDATA[AND uu.createdTime >= #{startTime}]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[AND uu.createdTime <= #{endTime}]]>
+            </if>
+        </where>
+        ORDER BY id
+        LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="countUsers" parameterType="com.diligrp.uap.boss.domain.UserQuery" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM uap_user uu
+        <where>
+            <if test="name != null">
+                AND uu.name = #{name}
+            </if>
+            <if test="userName != null">
+                AND uu.user_name LIKE "%"#{userName}"%"
+            </if>
+            <if test="telephone != null">
+                AND uu.telephone = #{telephone}
+            </if>
+            <if test="email != null">
+                AND uu.email = #{email}
+            </if>
+            <if test="gender != null">
+                AND uu.gender = #{gender}
+            </if>
+            <if test="position != null">
+                AND uu.position = #{position}
+            </if>
+            <if test="branchId != null">
+                AND uu.branch_id = #{branchId}
+            </if>
+            <if test="type != null">
+                AND uu.type = #{type}
+            </if>
+            <if test="mchId != null">
+                AND uu.mch_id = #{mchId}
+            </if>
+            <if test="startTime != null">
+                <![CDATA[AND uu.createdTime >= #{startTime}]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[AND uu.createdTime <= #{endTime}]]>
+            </if>
+        </where>
+    </select>
+
+    <update id="updateUser" parameterType="com.diligrp.uap.boss.model.UserDO">
+        UPDATE uap_user SET version = version + 1
+        <if test="userName != null">
+            , user_name = #{userName}
+        </if>
+        <if test="telephone != null">
+            , telephone = #{telephone}
+        </if>
+        <if test="email != null">
+            , email = #{email}
+        </if>
+        <if test="gender != null">
+            , gender = #{gender}
+        </if>
+        <if test="position != null">
+            , position = #{position}
+        </if>
+        <if test="superiorId != null">
+            , superior_id = #{superiorId}
+        </if>
+        <if test="modifiedTime != null">
+            , modified_time = #{modifiedTime}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserPassword" parameterType="com.diligrp.uap.boss.domain.PasswordUpdateDTO">
+        UPDATE uap_user SET password = #{password}
+        <if test="state != null">
+            , state = #{state}
+        </if>
+        , modified_time = #{when}, version = version + 1
+        WHERE id = #{userId} AND version = #{version}
+    </update>
+
+    <delete id="deleteUser" parameterType="long">
+        DELETE FROM uap_user WHERE id = #{id}
+    </delete>
+
+    <select id="countBySuperiorId" parameterType="long" resultType="long">
+        SELECT COUNT(*) FROM uap_user WHERE superior_id = #{superiorId}
+    </select>
+</mapper>

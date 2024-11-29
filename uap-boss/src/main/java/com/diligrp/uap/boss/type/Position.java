@@ -8,7 +8,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum Position implements IEnumType {
-    STAFF("普通员工", 1),
+    STAFF("普通员工", 0),
+
+    EXECUTIVE("总经理", 1),
 
     MANAGER("部门经理", 2);
 
@@ -20,9 +22,13 @@ public enum Position implements IEnumType {
         this.code = code;
     }
 
-    public static Optional<Position> getPosition(int code) {
-        Stream<Position> GENDERS = Arrays.stream(values());
-        return GENDERS.filter((gender) -> gender.getCode() == code).findFirst();
+    public static Optional<Position> getPosition(Integer code) {
+        if (code == null) {
+            Stream<Position> positions = Arrays.stream(values());
+            return positions.filter(position -> position.getCode() == code.intValue()).findFirst();
+        } else {
+            return Optional.empty();
+        }
     }
 
     public static String getName(int code) {

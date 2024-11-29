@@ -31,7 +31,7 @@ CREATE TABLE `uap_branch` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_branch_code` (`code`) USING BTREE,
+  KEY `idx_branch_code` (`code`) USING BTREE, -- 不要使用唯一索引
   KEY `idx_branch_parentId` (`parent_id`, `state`) USING BTREE,
   KEY `idx_branch_name` (`name`) USING BTREE
 ) ENGINE=InnoDB;
@@ -39,13 +39,14 @@ CREATE TABLE `uap_branch` (
 DROP TABLE IF EXISTS `uap_user`;
 CREATE TABLE `uap_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `name` VARCHAR(40) NOT NULL COMMENT '用户名',
+  `name` VARCHAR(40) NOT NULL COMMENT '用户账号',
   `user_name` VARCHAR(40) NOT NULL COMMENT '真实姓名',
   `telephone` VARCHAR(20) NOT NULL COMMENT '电话号码',
   `email` VARCHAR(40) NOT NULL COMMENT '邮箱地址',
   `gender` TINYINT UNSIGNED COMMENT '性别',
-  `position` TINYINT UNSIGNED NOT NULL COMMENT '职位',
-  `branch_id` BIGINT COMMENT '分支机构ID',
+  `type` TINYINT UNSIGNED NOT NULL COMMENT '用户类型',
+  `position` TINYINT UNSIGNED COMMENT '职位',
+  `branch_id` BIGINT NOT NULL COMMENT '分支机构ID',
   `superior_id` BIGINT COMMENT '上级用户',
   `password` VARCHAR(40) NOT NULL COMMENT '交易密码',
   `secret_key` VARCHAR(60) NOT NULL COMMENT '安全密钥',
@@ -64,6 +65,7 @@ CREATE TABLE `uap_user` (
   KEY `idx_user_telephone` (`telephone`) USING BTREE,
   KEY `idx_user_email` (`email`) USING BTREE,
   KEY `idx_user_branchId` (`branch_id`) USING BTREE,
+  KEY `idx_user_superiorId` (`superior_id`) USING BTREE,
   KEY `idx_user_createdTime` (`created_time`) USING BTREE
 ) ENGINE=InnoDB;
 
@@ -83,9 +85,9 @@ CREATE TABLE `uap_user_authority` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
-  `code` VARCHAR(20) COMMENT '资源编码', --冗余
+  `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
-  `permission` INTEGER NOT NULL COMMENT '资源权限',
+  `bitmap` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_authority_userId` (`user_id`) USING BTREE,
@@ -110,7 +112,7 @@ CREATE TABLE `uap_role_authority` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `role_id` BIGINT NOT NULL COMMENT '角色ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
-  `code` VARCHAR(20) COMMENT '资源编码', --冗余
+  `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
   `permission` INTEGER NOT NULL COMMENT '资源权限',
   `created_time` DATETIME COMMENT '创建时间',
@@ -126,14 +128,14 @@ CREATE TABLE `uap_menu_resource` (
   `name` VARCHAR(60) NOT NULL COMMENT '菜单名称',
   `parent_id` BIGINT NOT NULL COMMENT '父菜单',
   `level` TINYINT UNSIGNED NOT NULL COMMENT '菜单层级',
-  `type` TINYINT UNSIGNED NOT NULL COMMENT '菜单类型-目录 页面', -- 是否有子节点
-  `uri` VARCHAR(60) NOT NULL COMMENT '相对路径', --/user/page.do
-  `icon` VARCHAR(60) COMMENT '菜单图标',
+  `children` TINYINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 用来标注目录/页面
+  `uri` VARCHAR(60) NOT NULL COMMENT '相对路径', -- /user/page.do
+  `icon` VARCHAR(60) COMMENT '菜单图标', -- DFS中的fileId
   `module_id` BIGINT NOT NULL COMMENT '所属模块ID',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_menu_resource_code` (`code`) USING BTREE,
+  KEY `idx_menu_resource_code` (`code`) USING BTREE, -- 不要使用唯一索引
   KEY `idx_menu_resource_moduleId` (`module_id`, `sequence`) USING BTREE,
   KEY `idx_menu_resource_parentId` (`parent_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;
@@ -144,7 +146,7 @@ CREATE TABLE `uap_page_element` (
   `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
   `code` VARCHAR(40) NOT NULL COMMENT '元素编码', -- Add Modify List
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
-  `offset` TINYINT UNSIGNED NOT NULL COMMENT '偏离量',
+  `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏离量',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   PRIMARY KEY (`id`),
   KEY `idx_page_element_menuId` (`menu_id`, `sequence`) USING BTREE
@@ -153,11 +155,11 @@ CREATE TABLE `uap_page_element` (
 DROP TABLE IF EXISTS `uap_module`;
 CREATE TABLE `uap_module` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `code` VARCHAR(60) NOT NULL COMMENT '模块编码',
+  `code` VARCHAR(60) NOT NULL COMMENT '模块编码', -- 可以用来做license
   `name` VARCHAR(60) NOT NULL COMMENT '模块名称',
-  `type` TINYINT UNSIGNED NOT NULL COMMENT '模块类型', -- Native App MiniPro
+  `type` TINYINT UNSIGNED NOT NULL COMMENT '模块类型', -- Platform Native PC App MiniPro
   `uri` VARCHAR(60) NOT NULL COMMENT '绝对路径',
-  `icon` VARCHAR(60) COMMENT '模块图标',
+  `icon` VARCHAR(60) COMMENT '模块图标', -- DFS中fileId
   `description` VARCHAR(128) COMMENT '备注',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   PRIMARY KEY (`id`),

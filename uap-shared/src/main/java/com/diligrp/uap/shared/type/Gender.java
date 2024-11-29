@@ -17,9 +17,13 @@ public enum Gender implements IEnumType {
         this.code = code;
     }
 
-    public static Optional<Gender> getGender(int code) {
-        Stream<Gender> GENDERS = Arrays.stream(values());
-        return GENDERS.filter((gender) -> gender.getCode() == code).findFirst();
+    public static Optional<Gender> getGender(Integer code) {
+        if (code != null) {
+            Stream<Gender> GENDERS = Arrays.stream(values());
+            return GENDERS.filter((gender) -> gender.getCode() == code.intValue()).findFirst();
+        } else {
+            return Optional.empty();
+        }
     }
 
     public static String getName(int code) {

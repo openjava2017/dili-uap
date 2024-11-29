@@ -70,8 +70,8 @@ public class AuthConfiguration {
             public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
                 List<Authority> authorities = new ArrayList<>();
                 authorities.add(new Authority("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
-                Owner owner = new Owner("9", "沈阳地利", "10001");
-                return new Subject("1000", "brenthuang", "黄刚", authorities, owner, Constants.TYPE_SYSTEM_USER);
+                Organization organization = new Organization(9L, "沈阳地利", 10001L, "部门名称");
+                return new Subject(1000L, "brenthuang", "黄刚", authorities, organization, Constants.TYPE_SYSTEM_USER);
             }
         };
     }

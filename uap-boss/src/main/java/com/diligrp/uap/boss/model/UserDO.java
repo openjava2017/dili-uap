@@ -1,20 +1,22 @@
 package com.diligrp.uap.boss.model;
 
-import com.diligrp.uap.shared.domain.BaseDo;
+import com.diligrp.uap.shared.domain.BaseDO;
 
 import java.time.LocalDateTime;
 
-public class UserDO extends BaseDo {
-    // 用户名
+public class UserDO extends BaseDO {
+    // 用户账号
     private String name;
     // 真实姓名
-    private String username;
+    private String userName;
     // 电话号码
     private String telephone;
     // 邮箱地址
     private String email;
     // 性别
     private Integer gender;
+    // 用户类型
+    private Integer type;
     // 职位
     private Integer position;
     // 分支机构ID
@@ -46,12 +48,12 @@ public class UserDO extends BaseDo {
         this.name = name;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getTelephone() {
@@ -76,6 +78,14 @@ public class UserDO extends BaseDo {
 
     public void setGender(Integer gender) {
         this.gender = gender;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Integer getPosition() {
@@ -171,13 +181,18 @@ public class UserDO extends BaseDo {
     }
 
     public class Builder {
+        public Builder id(Long id) {
+            UserDO.this.id = id;
+            return this;
+        }
+
         public Builder name(String name) {
             UserDO.this.name = name;
             return this;
         }
 
-        public Builder username(String username) {
-            UserDO.this.username = username;
+        public Builder userName(String userName) {
+            UserDO.this.userName = userName;
             return this;
         }
 
@@ -193,6 +208,11 @@ public class UserDO extends BaseDo {
 
         public Builder gender(Integer gender) {
             UserDO.this.gender = gender;
+            return this;
+        }
+
+        public Builder type(Integer type) {
+            UserDO.this.type = type;
             return this;
         }
 
@@ -233,6 +253,21 @@ public class UserDO extends BaseDo {
 
         public Builder description(String description) {
             UserDO.this.description = description;
+            return this;
+        }
+
+        public Builder version(Integer version) {
+            UserDO.this.version = version;
+            return this;
+        }
+
+        public Builder createdTime(LocalDateTime createdTime) {
+            UserDO.this.createdTime = createdTime;
+            return this;
+        }
+
+        public Builder modifiedTime(LocalDateTime modifiedTime) {
+            UserDO.this.modifiedTime = modifiedTime;
             return this;
         }
 

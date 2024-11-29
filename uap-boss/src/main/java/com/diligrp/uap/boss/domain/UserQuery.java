@@ -1,6 +1,15 @@
 package com.diligrp.uap.boss.domain;
 
-public class UserDTO {
+import com.diligrp.uap.shared.domain.PageQuery;
+
+import java.time.LocalDateTime;
+
+public class UserQuery extends PageQuery {
+    // 页号
+    private Integer pageNo = 1;
+    // 每页记录数
+    private Integer pageSize = 20;
+
     // 用户账号
     private String name;
     // 真实姓名
@@ -15,14 +24,30 @@ public class UserDTO {
     private Integer position;
     // 分支机构ID
     private Long branchId;
-    // 上级用户
-    private Long superiorId;
-    // 交易密码
-    private String password;
-    // 商户ID
+    // 用户类型 - 不需页面传递，固定逻辑：登录用户为超级管理员时用户类型为系统管理员
+    private Integer type;
+    // 归属商户 - 不需页面传递，固定逻辑：登录用户为超级管理员时不限制归属商户
     private Long mchId;
-    // 备注
-    private String description;
+    // 开始时间
+    private LocalDateTime startTime;
+    // 结束时间
+    private LocalDateTime endTime;
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 
     public String getName() {
         return name;
@@ -80,20 +105,12 @@ public class UserDTO {
         this.branchId = branchId;
     }
 
-    public Long getSuperiorId() {
-        return superiorId;
+    public Integer getType() {
+        return type;
     }
 
-    public void setSuperiorId(Long superiorId) {
-        this.superiorId = superiorId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Long getMchId() {
@@ -104,11 +121,19 @@ public class UserDTO {
         this.mchId = mchId;
     }
 
-    public String getDescription() {
-        return description;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 }

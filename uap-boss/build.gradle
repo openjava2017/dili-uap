@@ -4,4 +4,5 @@ archivesBaseName = 'uap-boss'
 dependencies {
     api project(':uap-shared')
     api project(':uap-rpc')
+    api project(':uap-security')
 }

@@ -1,9 +1,9 @@
 package com.diligrp.uap.boss.domain;
 
-public class UserDTO {
-    // 用户账号
-    private String name;
-    // 真实姓名
+public class UserUpdateDTO {
+    // 用户ID
+    private Long id;
+    // 真实名称
     private String userName;
     // 电话号码
     private String telephone;
@@ -13,23 +13,17 @@ public class UserDTO {
     private Integer gender;
     // 职位
     private Integer position;
-    // 分支机构ID
-    private Long branchId;
     // 上级用户
     private Long superiorId;
-    // 交易密码
-    private String password;
-    // 商户ID
-    private Long mchId;
-    // 备注
+    // 描述
     private String description;
 
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUserName() {
@@ -72,36 +66,12 @@ public class UserDTO {
         this.position = position;
     }
 
-    public Long getBranchId() {
-        return branchId;
-    }
-
-    public void setBranchId(Long branchId) {
-        this.branchId = branchId;
-    }
-
     public Long getSuperiorId() {
         return superiorId;
     }
 
     public void setSuperiorId(Long superiorId) {
         this.superiorId = superiorId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Long getMchId() {
-        return mchId;
-    }
-
-    public void setMchId(Long mchId) {
-        this.mchId = mchId;
     }
 
     public String getDescription() {

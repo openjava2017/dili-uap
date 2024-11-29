@@ -2,7 +2,7 @@ package com.diligrp.uap.shared.domain;
 
 import java.time.LocalDateTime;
 
-public class BaseDo {
+public class BaseDO {
     // 数据库主键
     protected Long id;
     // 数据版本

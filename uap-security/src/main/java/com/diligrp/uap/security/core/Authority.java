@@ -15,17 +15,17 @@ public class Authority implements Serializable {
     // 资源类型
     private final int type;
 
-    // 资源权限
-    private final int permission;
+    // 子权限位图
+    private final int bitmap;
 
     public Authority(String code, int type) {
         this(code, type, 0);
     }
 
-    public Authority(String code, int type, int permission) {
+    public Authority(String code, int type, int bitmap) {
         this.code = code;
         this.type = type;
-        this.permission = permission;
+        this.bitmap = bitmap;
     }
 
     public String getCode() {
@@ -36,14 +36,14 @@ public class Authority implements Serializable {
         return type;
     }
 
-    public int getPermission() {
-        return permission;
+    public int getBitmap() {
+        return bitmap;
     }
 
     public boolean check(Authority authority) {
         boolean matched = this.type == authority.type && ObjectUtils.nullSafeEquals(this.code, authority.code);
         if (matched) {
-            if ((this.permission & authority.permission) == authority.permission) {
+            if ((this.bitmap & authority.bitmap) == authority.bitmap) {
                 return true;
             } else {
                 throw new AuthorizationException(ErrorCode.ACCESS_DENIED_ERROR, ErrorCode.MESSAGE_ACCESS_DENIED);
