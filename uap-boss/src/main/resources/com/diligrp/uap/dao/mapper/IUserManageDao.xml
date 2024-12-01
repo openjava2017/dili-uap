@@ -157,13 +157,9 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateUserPassword" parameterType="com.diligrp.uap.boss.domain.PasswordUpdateDTO">
-        UPDATE uap_user SET password = #{password}
-        <if test="state != null">
-            , state = #{state}
-        </if>
-        , modified_time = #{when}, version = version + 1
-        WHERE id = #{userId} AND version = #{version}
+    <update id="compareAndSetState" parameterType="com.diligrp.uap.boss.domain.UserStateDTO">
+        UPDATE uap_user SET state = #{state}, modified_time = #{when}, version = version + 1
+        WHERE id = #{id} AND version = #{version}
     </update>
 
     <delete id="deleteUser" parameterType="long">

@@ -1,6 +1,44 @@
+plugins {
+    id 'maven-publish'
+}
+
 group = 'com.diligrp'
 archivesBaseName = 'uap-security'
 
 dependencies {
     api 'io.lettuce:lettuce-core'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'com.diligrp'
+            artifactId = 'uap-security'
+            version = '1.0.0'
+
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            allowInsecureProtocol = true
+            // credentials
+            credentials {
+                username 'admin'
+                password 'for211314'
+            }
+//            url = 'http://mvn2.diligrp.com/artifactory/webapp/home.html?0'
+            url = 'http://mvn2.diligrp.com/artifactory/libs-snapshot'
+        }
+    }
 }

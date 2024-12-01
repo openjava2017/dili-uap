@@ -2,10 +2,7 @@ package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.dao.IBranchManageDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
-import com.diligrp.uap.boss.domain.UserListDTO;
-import com.diligrp.uap.boss.domain.UserUpdateDTO;
-import com.diligrp.uap.boss.domain.UserDTO;
-import com.diligrp.uap.boss.domain.UserQuery;
+import com.diligrp.uap.boss.domain.*;
 import com.diligrp.uap.boss.exception.UserManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.UserDO;
@@ -99,6 +96,15 @@ public class UserManageServiceImpl implements IUserManageService {
     }
 
     /**
+     * 根据用户ID查询用户账号
+     */
+    @Override
+    public UserDO findUserById(Long id) {
+        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        return userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
+    }
+
+    /**
      * 分页查询系统用户
      * 登录用户为超级管理员时，查询所有系统管理员；登录用户为系统管理员或普通用户时，查询该商户下的普通用户(不包括系统管理员)
      */
@@ -142,6 +148,47 @@ public class UserManageServiceImpl implements IUserManageService {
         if(userManagementDao.updateUser(self) == 0) {
             throw new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "修改该用户信息失败：用户不存在");
         }
+    }
+
+    /**
+     * 禁用用户账号
+     * 锁定的用户账号不能被禁用，否则启用账号时状态将会直接变成正常
+     * 待激活状态的用户账号被禁用时，启用时将会直接变为正常，首次登陆时将不会要求强制修改密码
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void disableUser(Long id) {
+        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        UserDO user = userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
+        if (UserState.DISABLED.equalTo(user.getState())) {
+            return;
+        }
+        if (UserState.LOCKED.equalTo(user.getState())) {
+            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "禁用用户账号失败：用户账号已被锁定");
+        }
+
+        UserStateDTO userState = new UserStateDTO(id, UserState.DISABLED.getCode(), LocalDateTime.now(), user.getVersion());
+        userManagementDao.compareAndSetState(userState);
+    }
+
+    /**
+     * 启用用户账号
+     * 只有禁用的用户账号才能被启用，启用后状态将直接变更为正常
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void enableUser(Long id) {
+        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        UserDO user = userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
+        if (UserState.NORMAL.equalTo(user.getState())) {
+            return;
+        }
+        if (!UserState.DISABLED.equalTo(user.getState())) {
+            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "启用用户账号失败：用户账号未被禁用");
+        }
+
+        UserStateDTO userState = new UserStateDTO(id, UserState.NORMAL.getCode(), LocalDateTime.now(), user.getVersion());
+        userManagementDao.compareAndSetState(userState);
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.diligrp.uap.boss.dao;
 
-import com.diligrp.uap.boss.domain.PasswordUpdateDTO;
 import com.diligrp.uap.boss.domain.UserListDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
+import com.diligrp.uap.boss.domain.UserStateDTO;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
 import org.springframework.stereotype.Repository;
@@ -24,7 +24,7 @@ public interface IUserManageDao extends MybatisMapperSupport {
 
     int updateUser(UserDO user);
 
-    int updateUserPassword(PasswordUpdateDTO request);
+    int compareAndSetState(UserStateDTO state);
 
     int deleteUser(Long id);
 

@@ -1,8 +1,8 @@
-package com.diligrp.uap.boss.domain;
+package com.diligrp.uap.auth.domain;
 
 public class PasswordDTO {
     // 用户ID
-    private Long userId;
+    private Long id;
 
     // 用户密码
     private String password;
@@ -10,12 +10,12 @@ public class PasswordDTO {
     // 用户新密码
     private String newPassword;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getPassword() {

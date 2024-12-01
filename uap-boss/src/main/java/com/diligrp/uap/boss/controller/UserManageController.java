@@ -70,6 +70,18 @@ public class UserManageController {
         return Message.success();
     }
 
+    @RequestMapping(value = "/disable.do")
+    public Message<?> disableUser(@RequestParam(value = "id") Long id) {
+        userManageService.disableUser(id);
+        return Message.success();
+    }
+
+    @RequestMapping(value = "/enable.do")
+    public Message<?> enableUser(@RequestParam(value = "id") Long id) {
+        userManageService.enableUser(id);
+        return Message.success();
+    }
+
     @RequestMapping(value = "/delete.do")
     public Message<?> deleteUser(@RequestParam(value = "id") Long id) {
         userManageService.deleteUser(id);
