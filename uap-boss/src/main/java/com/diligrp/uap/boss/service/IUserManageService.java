@@ -3,7 +3,6 @@ package com.diligrp.uap.boss.service;
 import com.diligrp.uap.boss.domain.UserDTO;
 import com.diligrp.uap.boss.domain.UserListDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
-import com.diligrp.uap.boss.domain.UserUpdateDTO;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.shared.domain.PageMessage;
 
@@ -34,7 +33,7 @@ public interface IUserManageService {
     /**
      * 修改用户信息，为了简化功能暂时不允许修改分支机构（系统管理员不能修改分支机构）
      */
-    void updateUser(UserUpdateDTO user);
+    void updateUser(UserDTO user);
 
     /**
      * 禁用用户账号

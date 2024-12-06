@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IMerchantDao">
+    <resultMap id="MerchantMap" type="com.diligrp.uap.boss.model.MerchantDO">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="address" property="address"/>
+        <result column="linkman" property="linkman"/>
+        <result column="telephone" property="telephone"/>
+        <result column="params" property="params"/>
+        <result column="state" property="state"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <insert id="insertMerchant" parameterType="com.diligrp.uap.boss.model.MerchantDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO uap_merchant(`parent_id`, `code`, `name`, `address`, `linkman`, `telephone`, `params`, `state`, `created_time`, `modified_time`)
+        VALUES (#{parentId}, #{code}, #{name}, #{address}, #{linkman}, #{telephone}, #{params}, #{state}, #{createdTime}, #{modifiedTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="MerchantMap">
+        SELECT * FROM uap_merchant WHERE id = #{id}
+    </select>
+
+    <select id="findByCode" parameterType="string" resultMap="MerchantMap">
+        SELECT * FROM uap_merchant WHERE code = #{code}
+    </select>
+
+    <select id="listMerchants" parameterType="com.diligrp.uap.boss.domain.MerchantQuery" resultType="com.diligrp.uap.boss.domain.MerchantListDTO">
+        SELECT
+            um.id, um.code, um.name, um.address, um.linkman, um.telephone,
+            umt.name AS parentName, um.state, um.created_time AS createdTime, um.modified_time AS modifiedTime
+        FROM uap_merchant um
+        LEFT JOIN uap_merchant umt ON um.parent_id = umt.id
+        <where>
+            <if test="code != null">
+                AND um.code = #{code}
+            </if>
+            <if test="name != null">
+                AND um.name LIKE "%"#{name}"%"
+            </if>
+            <if test="address != null">
+                AND um.address LIKE "%"#{address}"%"
+            </if>
+            <if test="linkman != null">
+                AND um.linkman LIKE "%"#{linkman}"%"
+            </if>
+            <if test="telephone != null">
+                AND um.telephone = #{telephone}
+            </if>
+        </where>
+        ORDER BY um.name
+        LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="countMerchants" parameterType="com.diligrp.uap.boss.domain.MerchantQuery" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM uap_merchant um
+        <where>
+            <if test="code != null">
+                AND um.code = #{code}
+            </if>
+            <if test="name != null">
+                AND um.name LIKE "%"#{name}"%"
+            </if>
+            <if test="address != null">
+                AND um.address LIKE "%"#{address}"%"
+            </if>
+            <if test="linkman != null">
+                AND um.linkman LIKE "%"#{linkman}"%"
+            </if>
+            <if test="telephone != null">
+                AND um.telephone = #{telephone}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateMerchant" parameterType="com.diligrp.uap.boss.model.MerchantDO">
+        UPDATE uap_merchant SET modified_time = #{modifiedTime}
+        <if test="name != null">
+            , name = #{name}
+        </if>
+        <if test="address != null">
+            , address = #{address}
+        </if>
+        <if test="linkman != null">
+            , linkman = #{linkman}
+        </if>
+        <if test="telephone != null">
+            , telephone = #{telephone}
+        </if>
+        <if test="params != null">
+            , params = #{params}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_merchant WHERE id = #{id}
+    </delete>
+</mapper>

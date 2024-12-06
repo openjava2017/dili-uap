@@ -46,6 +46,16 @@ public class LettuceTemplate<K, V> implements InitializingBean, DisposableBean {
         return result.get(0);
     }
 
+    public void hset(K key, K key1, V value) {
+        RedisCommands<K, V> command = connection.sync();
+        command.hset(key, key1, value);
+    }
+
+    public V hget(K key, K key1) {
+        RedisCommands<K, V> command = connection.sync();
+        return command.hget(key, key1);
+    }
+
     public void expire(K key, int expireInSeconds) {
         RedisCommands<K, V> command = connection.sync();
         command.expire(key, Duration.ofSeconds(expireInSeconds));
@@ -60,9 +70,14 @@ public class LettuceTemplate<K, V> implements InitializingBean, DisposableBean {
         return result.get(0);
     }
 
-    public long remove(K... key) {
+    public long del(K... key) {
         RedisCommands<K, V> command = connection.sync();
         return command.del(key);
+    }
+
+    public void hdel(K key, K... keys) {
+        RedisCommands<K, V> command = connection.sync();
+        command.hdel(key, keys);
     }
 
     public void setRedisCodec(RedisCodec<K, V> redisCodec) {

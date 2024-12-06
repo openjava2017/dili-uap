@@ -1,9 +1,10 @@
 package com.diligrp.uap.auth.controller;
 
-import com.diligrp.uap.auth.Constants;
 import com.diligrp.uap.auth.domain.PasswordDTO;
 import com.diligrp.uap.auth.service.IUserPasswordService;
+import com.diligrp.uap.boss.model.Preference;
 import com.diligrp.uap.boss.model.UserDO;
+import com.diligrp.uap.boss.service.IPreferenceService;
 import com.diligrp.uap.boss.service.IUserManageService;
 import com.diligrp.uap.security.core.Subject;
 import com.diligrp.uap.security.session.SecuritySessionHolder;
@@ -24,6 +25,9 @@ public class UserPasswordController {
     @Resource
     private IUserPasswordService userPasswordService;
 
+    @Resource
+    private IPreferenceService preferenceService;
+
     @RequestMapping(value = "/update.do")
     public Message<?> update(@RequestBody PasswordDTO request) {
         AssertUtils.notEmpty(request.getPassword(), "password missed");
@@ -31,7 +35,8 @@ public class UserPasswordController {
 
         Subject subject = SecuritySessionHolder.getSession().getSubject();
         UserDO user = userManageService.findUserById(subject.getId());
-        userPasswordService.changeUserPassword(user, request, Constants.MAX_PASSWORD_ERRORS);
+        Preference preference = preferenceService.getPreferences(user.getMchId());
+        userPasswordService.changeUserPassword(user, request, preference.getMaxPasswordErrors());
         return Message.success();
     }
 

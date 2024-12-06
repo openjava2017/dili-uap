@@ -162,11 +162,20 @@
         WHERE id = #{id} AND version = #{version}
     </update>
 
-    <delete id="deleteUser" parameterType="long">
+    <delete id="deleteById" parameterType="long">
         DELETE FROM uap_user WHERE id = #{id}
     </delete>
 
-    <select id="countBySuperiorId" parameterType="long" resultType="long">
+    <select id="countBySuperiorId" parameterType="long" resultType="int">
         SELECT COUNT(*) FROM uap_user WHERE superior_id = #{superiorId}
     </select>
+
+    <select id="countByMchId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM uap_user WHERE mch_id = #{mchId}
+    </select>
+
+    <select id="countByBranchId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM uap_user WHERE branch_id = #{branchId}
+    </select>
+
 </mapper>

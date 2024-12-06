@@ -26,7 +26,11 @@ public interface IUserManageDao extends MybatisMapperSupport {
 
     int compareAndSetState(UserStateDTO state);
 
-    int deleteUser(Long id);
+    int deleteById(Long id);
 
     int countBySuperiorId(Long superiorId);
+
+    int countByMchId(Long mchId);
+
+    int countByBranchId(Long branchId);
 }

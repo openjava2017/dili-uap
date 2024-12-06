@@ -76,11 +76,11 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
             // 密码输入错误则增加当日密码错误次数，超出最大密码错误次数则不允许修改密码
             if (maxPwdErrors > 0 ) {
                 long errors = incPasswordErrors(userDailyKey);
-                if (maxPwdErrors > 0 && errors >= Constants.MAX_PASSWORD_ERRORS) {
+                if (errors >= maxPwdErrors) {
                     throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "修改密码失败：密码错误次数超过限制");
-                } else if (errors == Constants.MAX_PASSWORD_ERRORS - 2) {
+                } else if (errors == maxPwdErrors - 2) {
                     throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "修改密码失败：原密码错误，还剩2次机会");
-                } else if (errors == Constants.MAX_PASSWORD_ERRORS - 1) {
+                } else if (errors == maxPwdErrors - 1) {
                     throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "修改密码失败：原密码错误，还剩1次机会");
                 }
             }
@@ -178,7 +178,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
      */
     private void resetPasswordErrors(String cachedKey) {
         try {
-            lettuceTemplate.remove(cachedKey);
+            lettuceTemplate.del(cachedKey);
         } catch (Exception ex) {
             LOG.error("Failed to incAndGet password error times", ex);
         }

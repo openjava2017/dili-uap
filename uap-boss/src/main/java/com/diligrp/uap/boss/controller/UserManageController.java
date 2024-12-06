@@ -1,6 +1,5 @@
 package com.diligrp.uap.boss.controller;
 
-import com.diligrp.uap.boss.domain.UserUpdateDTO;
 import com.diligrp.uap.boss.domain.UserDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.service.IUserManageService;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/user")
 public class UserManageController {
@@ -28,7 +29,8 @@ public class UserManageController {
         AssertUtils.notEmpty(request.getUserName(), "username missed");
         AssertUtils.notEmpty(request.getTelephone(), "telephone missed");
         AssertUtils.notEmpty(request.getEmail(), "email missed");
-        Gender.getGender(request.getGender()).orElseThrow(() -> new IllegalArgumentException("Invalid gender"));
+        Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
         AssertUtils.notEmpty(request.getPassword(), "password missed");
         AssertUtils.notNull(request.getMchId(), "mchId missed");
 
@@ -42,10 +44,12 @@ public class UserManageController {
         AssertUtils.notEmpty(request.getUserName(), "username missed");
         AssertUtils.notEmpty(request.getTelephone(), "telephone missed");
         AssertUtils.notEmpty(request.getEmail(), "email missed");
-        Gender.getGender(request.getGender()).orElseThrow(() -> new IllegalArgumentException("Invalid gender"));
+        Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
         AssertUtils.notNull(request.getBranchId(), "branchId missed");
         AssertUtils.notEmpty(request.getPassword(), "password missed");
-        Position.getPosition(request.getPosition()).orElseThrow(() -> new IllegalArgumentException(("Invalid position")));
+        Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)
+            .orElseThrow(() -> new IllegalArgumentException(("Invalid position"))));
 
         userManageService.createUser(request);
         return Message.success();
@@ -63,27 +67,30 @@ public class UserManageController {
     }
 
     @RequestMapping(value = "/update.do")
-    public Message<?> updateUser(@RequestBody UserUpdateDTO request) {
-        Gender.getGender(request.getGender()).orElseThrow(() -> new IllegalArgumentException("Invalid gender"));
-        Position.getPosition(request.getPosition()).orElseThrow(() -> new IllegalArgumentException(("Invalid position")));
+    public Message<?> updateUser(@RequestBody UserDTO request) {
+        Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
+        Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)
+            .orElseThrow(() -> new IllegalArgumentException(("Invalid position"))));
+
         userManageService.updateUser(request);
         return Message.success();
     }
 
     @RequestMapping(value = "/disable.do")
-    public Message<?> disableUser(@RequestParam(value = "id") Long id) {
+    public Message<?> disableUser(@RequestParam("id") Long id) {
         userManageService.disableUser(id);
         return Message.success();
     }
 
     @RequestMapping(value = "/enable.do")
-    public Message<?> enableUser(@RequestParam(value = "id") Long id) {
+    public Message<?> enableUser(@RequestParam("id") Long id) {
         userManageService.enableUser(id);
         return Message.success();
     }
 
     @RequestMapping(value = "/delete.do")
-    public Message<?> deleteUser(@RequestParam(value = "id") Long id) {
+    public Message<?> deleteUser(@RequestParam("id") Long id) {
         userManageService.deleteUser(id);
         return Message.success();
     }

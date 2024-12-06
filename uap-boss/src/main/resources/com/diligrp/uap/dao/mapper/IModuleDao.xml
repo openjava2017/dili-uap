@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IModuleDao">
+    <resultMap id="ModuleMap" type="com.diligrp.uap.boss.model.ModuleDO">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="uri" property="uri"/>
+        <result column="icon" property="icon"/>
+        <result column="description" property="description"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <insert id="insertModule" parameterType="com.diligrp.uap.boss.model.ModuleDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO uap_module(`code`, `name`, `type`, `uri`, `icon`, `description`, `sequence`, `created_time`)
+        VALUES (#{code}, #{name}, #{type}, #{uri}, #{icon}, #{description}, #{sequence}, #{createdTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="ModuleMap">
+        SELECT * FROM uap_module WHERE id = #{id}
+    </select>
+
+    <select id="findByCode" parameterType="string" resultMap="ModuleMap">
+        SELECT * FROM uap_module WHERE code = #{code}
+    </select>
+
+    <select id="listModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultMap="ModuleMap">
+        SELECT
+        *
+        FROM uap_module
+        <where>
+            <if test="code != null">
+                AND code = #{code}
+            </if>
+            <if test="name != null">
+                AND name LIKE "%"#{name}"%"
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+        ORDER BY sequence
+        LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="countModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultMap="long">
+        SELECT
+            COUNT(*)
+        FROM uap_module
+        <where>
+            <if test="code != null">
+                AND code = #{code}
+            </if>
+            <if test="name != null">
+                AND name LIKE "%"#{name}"%"
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateModule" parameterType="com.diligrp.uap.boss.model.ModuleDO">
+        UPDATE uap_module
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="uri != null">
+                uri = #{uri},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="sequence != null">
+                sequence = #{sequence},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_module WHERE id = #{id}
+    </delete>
+</mapper>

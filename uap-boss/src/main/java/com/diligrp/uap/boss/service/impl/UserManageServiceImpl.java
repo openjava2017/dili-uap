@@ -1,8 +1,11 @@
 package com.diligrp.uap.boss.service.impl;
 
-import com.diligrp.uap.boss.dao.IBranchManageDao;
+import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
-import com.diligrp.uap.boss.domain.*;
+import com.diligrp.uap.boss.domain.UserDTO;
+import com.diligrp.uap.boss.domain.UserListDTO;
+import com.diligrp.uap.boss.domain.UserQuery;
+import com.diligrp.uap.boss.domain.UserStateDTO;
 import com.diligrp.uap.boss.exception.UserManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.UserDO;
@@ -31,7 +34,7 @@ public class UserManageServiceImpl implements IUserManageService {
     private IUserManageDao userManagementDao;
 
     @Resource
-    private IBranchManageDao branchManageDao;
+    private IBranchDao branchManageDao;
 
     /**
      * 创建系统管理员(非普通用户)
@@ -72,7 +75,7 @@ public class UserManageServiceImpl implements IUserManageService {
         // 校验系统用户的登录账号唯一
         Optional<UserDO> userOpt = userManagementDao.findByName(user.getName());
         userOpt.ifPresent(self -> {
-            throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + user.getName());
+            throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + self.getName());
         });
         // 校验分支部门
         Optional<BranchDO> branchOpt = branchManageDao.findById(user.getBranchId());
@@ -136,7 +139,7 @@ public class UserManageServiceImpl implements IUserManageService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateUser(UserUpdateDTO user) {
+    public void updateUser(UserDTO user) {
         if (Objects.nonNull(user.getSuperiorId())) { // 校验上级用户是否存在
             Optional<UserDO> superiorOpt = userManagementDao.findById(user.getSuperiorId());
             superiorOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "修改该用户信息失败：上级用户不存在"));
@@ -145,7 +148,7 @@ public class UserManageServiceImpl implements IUserManageService {
         UserDO self = UserDO.builder().id(user.getId()).userName(user.getUserName()).telephone(user.getTelephone())
             .email(user.getEmail()).gender(user.getGender()).position(user.getPosition()).superiorId(user.getSuperiorId())
             .description(user.getDescription()).modifiedTime(LocalDateTime.now()).build();
-        if(userManagementDao.updateUser(self) == 0) {
+        if (userManagementDao.updateUser(self) == 0) {
             throw new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "修改该用户信息失败：用户不存在");
         }
     }
@@ -206,7 +209,7 @@ public class UserManageServiceImpl implements IUserManageService {
             throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "此用户存在下级用户，不能被删除");
         }
 
-        users = userManagementDao.deleteUser(id);
+        users = userManagementDao.deleteById(id);
         if (users == 0) {
             throw new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "当前用户不存在");
         }

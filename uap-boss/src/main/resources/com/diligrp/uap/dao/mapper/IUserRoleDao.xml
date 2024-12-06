@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IUserRoleDao">
+    <resultMap id="RoleMap" type="com.diligrp.uap.boss.model.RoleDO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="description" property="description"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <insert id="insertRole" parameterType="com.diligrp.uap.boss.model.RoleDO">
+        INSERT INTO uap_role(name, mch_id, description, version, created_time, modified_time)
+        VALUES (#{name}, #{mchId}, #{description}, #{version}, #{createdTime}, #{modifiedTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="RoleMap">
+        SELECT * FROM uap_role WHERE id = #{id}
+    </select>
+
+    <select id="listRoles" parameterType="com.diligrp.uap.boss.domain.RoleQuery" resultMap="RoleMap">
+        SELECT * FROM uap_role
+        <where>
+            <if test="name != null">
+                AND name LIKE "%"#{name}"%"
+            </if>
+            <if test="mchId != null">
+                AND mch_id = #{mchId}
+            </if>
+            <if test="startTime != null">
+                <![CDATA[AND createdTime >= #{startTime}]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[AND createdTime <= #{endTime}]]>
+            </if>
+        </where>
+        ORDER BY id
+        LIMIT #{start}, #{limit}
+    </select>
+
+    <select id="countRoles" parameterType="com.diligrp.uap.boss.domain.RoleQuery" resultType="long">
+        SELECT COUNT(*) FROM uap_role
+        <where>
+            <if test="name != null">
+                AND name LIKE "%"#{name}"%"
+            </if>
+            <if test="mchId != null">
+                AND mch_id = #{mchId}
+            </if>
+            <if test="startTime != null">
+                <![CDATA[AND createdTime >= #{startTime}]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[AND createdTime <= #{endTime}]]>
+            </if>
+        </where>
+    </select>
+
+    <update id="updateRole" parameterType="com.diligrp.uap.boss.domain.RoleDTO">
+        UPDATE uap_role SET version = version + 1
+        <if test="name != null">
+            , name = #{name}
+        </if>
+        <if test="description != null">
+            , description = #{description}
+        </if>
+        <if test="modifiedTime != null">
+            , modified_time = #{modifiedTime}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <select id="countByMchId" parameterType="long" resultType="int">
+        SELECT * FROM uap_role WHERE mch_id = #{mchId}
+    </select>
+
+    <select id="countUsersById" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM uap_user_role WHERE role_id = #{id}
+    </select>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_role WHERE id = #{id}
+    </delete>
+</mapper>

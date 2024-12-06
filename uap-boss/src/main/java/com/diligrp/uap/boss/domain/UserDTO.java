@@ -1,6 +1,11 @@
 package com.diligrp.uap.boss.domain;
 
+/**
+ * 用于用户新增和修改的领域模型
+ */
 public class UserDTO {
+    // 用户ID
+    private Long id;
     // 用户账号
     private String name;
     // 真实姓名
@@ -23,6 +28,14 @@ public class UserDTO {
     private Long mchId;
     // 备注
     private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

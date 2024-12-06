@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IBranchDao">
+    <resultMap id="BranchMap" type="com.diligrp.uap.boss.model.BranchDO">
+        <id column="id" property="id"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="level" property="level"/>
+        <result column="children" property="children"/>
+        <result column="state" property="state"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <insert id="insertBranch" parameterType="com.diligrp.uap.boss.model.BranchDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO uap_branch(`mch_id`, `parent_id`, `code`, `name`, `type`, `level`, `children`, `state`, `version`, `created_time`, `modified_time`)
+        VALUES (#{mchId}, #{parentId}, #{code}, #{name}, #{type}, #{level}, #{children}, #{state}, #{version}, #{createdTime}, #{modifiedTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="BranchMap">
+        SELECT * FROM uap_branch WHERE id = #{id}
+    </select>
+
+    <select id="findTopBranch" parameterType="long" resultMap="BranchMap">
+        SELECT * FROM uap_branch WHERE mch_id = #{mchId} AND level = 0
+    </select>
+
+    <select id="listChildren" parameterType="long" resultMap="BranchMap">
+        SELECT * FROM uap_branch WHERE parent_id = #{id} ORDER BY id
+    </select>
+
+    <select id="listByIds" resultMap="BranchMap">
+        SELECT * FROM uap_branch WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY level DESC, id
+    </select>
+
+    <update id="updateBranch" parameterType="com.diligrp.uap.boss.model.BranchDO">
+        UPDATE uap_branch SET version = version + 1
+        <if test="name != null">
+            , name = #{name}
+        </if>
+        <if test="type != null">
+            , type = #{type}
+        </if>
+        <if test="modifiedTime != null">
+            , modified_time = #{modifiedTime}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCodeById">
+        UPDATE uap_branch SET code = #{code} WHERE id = #{id}
+    </update>
+
+    <update id="incChildrenById">
+        UPDATE uap_branch SET children = children + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decChildrenById">
+        UPDATE uap_branch SET children = children - 1 WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_branch WHERE id = #{id}
+    </delete>
+</mapper>

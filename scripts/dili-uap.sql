@@ -9,6 +9,7 @@ CREATE TABLE `uap_merchant` (
   `address` VARCHAR(128) COMMENT '商户地址',
   `linkman` VARCHAR(40) COMMENT '联系人',
   `telephone` VARCHAR(20) COMMENT '电话号码',
+  `params` JSON COMMENT '参数配置',
   `state` TINYINT UNSIGNED NOT NULL COMMENT '商户状态',
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
@@ -20,20 +21,20 @@ DROP TABLE IF EXISTS `uap_branch`;
 CREATE TABLE `uap_branch` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `mch_id` BIGINT NOT NULL COMMENT '商户ID',
-  `parent_id` BIGINT NOT NULL COMMENT '父节点ID',
-  `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: 分支机构ID-分支机构ID-分支机构ID
+  `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
+  `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
   `name` VARCHAR(80) NOT NULL COMMENT '名称',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '类型', -- 分公司，业务部门，行政部门等
   `level` TINYINT UNSIGNED NOT NULL COMMENT '层级', -- 分支机构树层级
   `children` SMALLINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 是否为叶子节点
-  `state` TINYINT UNSIGNED NOT NULL COMMENT '状态', -- 软删除
+  `state` TINYINT UNSIGNED NOT NULL COMMENT '状态', -- 保留字段
   `version` INTEGER UNSIGNED NOT NULL COMMENT '数据版本号',
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
   KEY `idx_branch_code` (`code`) USING BTREE, -- 不要使用唯一索引
   KEY `idx_branch_parentId` (`parent_id`, `state`) USING BTREE,
-  KEY `idx_branch_name` (`name`) USING BTREE
+  KEY `idx_branch_name` (`name`, `parent_id`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_user`;
@@ -148,6 +149,7 @@ CREATE TABLE `uap_page_element` (
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
   `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏离量',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
+  `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_page_element_menuId` (`menu_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;
@@ -162,6 +164,7 @@ CREATE TABLE `uap_module` (
   `icon` VARCHAR(60) COMMENT '模块图标', -- DFS中fileId
   `description` VARCHAR(128) COMMENT '备注',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
+  `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_module_code` (`code`) USING BTREE
 ) ENGINE=InnoDB;
@@ -172,5 +175,6 @@ CREATE TABLE `uap_scope_resource` (
   `code` VARCHAR(40) NOT NULL COMMENT '范围编码', -- 个人，所有
   `name` VARCHAR(60) NOT NULL COMMENT '范围名称', -- 个人，所有
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
+  `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
