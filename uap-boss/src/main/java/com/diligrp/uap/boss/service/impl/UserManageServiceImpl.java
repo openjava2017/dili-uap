@@ -3,17 +3,15 @@ package com.diligrp.uap.boss.service.impl;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.UserDTO;
-import com.diligrp.uap.boss.domain.UserListDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.domain.UserStateDTO;
+import com.diligrp.uap.boss.domain.UserVO;
 import com.diligrp.uap.boss.exception.UserManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.boss.service.IUserManageService;
 import com.diligrp.uap.boss.type.UserState;
 import com.diligrp.uap.boss.type.UserType;
-import com.diligrp.uap.security.core.Subject;
-import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.domain.PageMessage;
 import com.diligrp.uap.shared.security.PasswordUtils;
@@ -37,41 +35,13 @@ public class UserManageServiceImpl implements IUserManageService {
     private IBranchDao branchManageDao;
 
     /**
-     * 创建系统管理员(非普通用户)
-     * 系统管理员需指定商户ID，默认状态为"正常"；管理员归属于顶层分支机构且没有职位信息和上级用户信息
+     * 创建系统用户，默认状态为"待激活"
+     * 普通用户(非系统管理员)，不需指定商户ID，归属商户与登录用户相同
+     * 系统管理员需指定商户ID，归属于顶层分支机构且没有职位信息和上级用户信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createAdmin(UserDTO user) {
-        // 校验系统用户的登录账号唯一
-        Optional<UserDO> userOpt = userManagementDao.findByName(user.getName());
-        userOpt.ifPresent(self -> {
-            throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + user.getName());
-        });
-        // 校验分支部门
-        Optional<BranchDO> branchOpt = branchManageDao.findTopBranch(user.getMchId());
-        BranchDO branch = branchOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "顶层分支机构不存在"));
-
-        // 每个账户单独的密钥，保证密码安全
-        LocalDateTime now = LocalDateTime.now();
-        String secretKey = PasswordUtils.generateSecretKey();
-        String password = PasswordUtils.encrypt(user.getPassword(), secretKey);
-        UserDO userDO = UserDO.builder().name(user.getName()).userName(user.getUserName()).telephone(user.getTelephone())
-            .email(user.getEmail()).gender(user.getGender()).type(UserType.ADMIN.getCode()).branchId(branch.getId())
-            .password(password).secretKey(secretKey).state(UserState.NORMAL.getCode()).mchId(user.getMchId())
-            .description(user.getDescription()).version(0).createdTime(now).modifiedTime(now).build();
-        userManagementDao.insertUser(userDO);
-    }
-
-    /**
-     * 创建系统普通用户(非系统管理员)
-     * 普通用户不需指定商户ID，归属商户与登录用户相同，默认状态为"待激活"
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void createUser(UserDTO user) {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        Long mchId =  subject.getOrganization().getId();
+    public void createUser(UserDTO user, UserType type) {
         // 校验系统用户的登录账号唯一
         Optional<UserDO> userOpt = userManagementDao.findByName(user.getName());
         userOpt.ifPresent(self -> {
@@ -93,7 +63,7 @@ public class UserManageServiceImpl implements IUserManageService {
         UserDO userDO = UserDO.builder().name(user.getName()).userName(user.getUserName()).telephone(user.getTelephone())
             .email(user.getEmail()).gender(user.getGender()).type(UserType.USER.getCode()).position(user.getPosition())
             .branchId(user.getBranchId()).superiorId(user.getSuperiorId()).password(password).secretKey(secretKey)
-            .state(UserState.PENDING.getCode()).mchId(mchId).description(user.getDescription()).version(0)
+            .state(UserState.PENDING.getCode()).mchId(user.getMchId()).description(user.getDescription()).version(0)
             .createdTime(now).modifiedTime(now).build();
         userManagementDao.insertUser(userDO);
     }
@@ -109,24 +79,11 @@ public class UserManageServiceImpl implements IUserManageService {
 
     /**
      * 分页查询系统用户
-     * 登录用户为超级管理员时，查询所有系统管理员；登录用户为系统管理员或普通用户时，查询该商户下的普通用户(不包括系统管理员)
      */
     @Override
-    public PageMessage<UserListDTO> listUsers(UserQuery query) {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        Optional<UserDO> userOpt = userManagementDao.findById(subject.getId());
-        UserDO user = userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "当前登录用户不存在"));
-
-        if (UserType.ROOT.equalTo(user.getType())) { // 超级管理员查询所有商户下的系统管理员
-            query.setMchId(null);
-            query.setType(UserType.ADMIN.getCode());
-        } else { // 登录用户为系统管理员或系统用户时，查询该商户下的系统用户(不包括系统管理员)
-            query.setMchId(subject.getOrganization().getId());
-            query.setType(UserType.USER.getCode());
-        }
-
+    public PageMessage<UserVO> listUsers(UserQuery query) {
         long total = userManagementDao.countUsers(query);
-        List<UserListDTO> users = Collections.emptyList();
+        List<UserVO> users = Collections.emptyList();
         if (total > 0) {
             users = userManagementDao.listUsers(query);
         }
@@ -200,14 +157,11 @@ public class UserManageServiceImpl implements IUserManageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteUser(Long id) {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        if (subject.getId().equals(id)) {
-            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除当前登录用户");
-        }
         int users = userManagementDao.countBySuperiorId(id);
         if (users > 0) {
             throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "此用户存在下级用户，不能被删除");
         }
+        // TODO: 删除用户时应删除用户权限和用户角色
 
         users = userManagementDao.deleteById(id);
         if (users == 0) {

@@ -42,7 +42,7 @@
         SELECT * FROM uap_user WHERE name = #{name}
     </select>
 
-    <select id="listUsers" parameterType="com.diligrp.uap.boss.domain.UserQuery" resultType="com.diligrp.uap.boss.domain.UserListDTO">
+    <select id="listUsers" parameterType="com.diligrp.uap.boss.domain.UserQuery" resultType="com.diligrp.uap.boss.domain.UserVO">
         SELECT
             uu.id, uu.name, uu.user_name AS username, uu.telephone, uu.email, uu.gender, uu.type, uu.position, uu.branch_id AS branchId, ub.name AS branchName,
             uu.superior_id AS superiorId, us.user_name AS superiorName, uu.locked_time AS lockedTime, uu.online_time AS onlineTime, uu.state, uu.mch_id AS mchId,

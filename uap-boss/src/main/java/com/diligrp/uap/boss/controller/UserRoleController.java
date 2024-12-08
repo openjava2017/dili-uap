@@ -2,7 +2,6 @@ package com.diligrp.uap.boss.controller;
 
 import com.diligrp.uap.boss.domain.RoleDTO;
 import com.diligrp.uap.boss.domain.RoleQuery;
-import com.diligrp.uap.boss.model.RoleDO;
 import com.diligrp.uap.boss.service.IUserRoleService;
 import com.diligrp.uap.shared.domain.Message;
 import com.diligrp.uap.shared.domain.PageMessage;
@@ -30,9 +29,8 @@ public class UserRoleController {
 
     @RequestMapping(value = "/findById.do")
     public Message<RoleDTO> findById(@RequestParam("id") Long id) {
-        RoleDO role = userRoleService.findRoleById(id);
-        return Message.success(RoleDTO.of(role.getId(), role.getName(), role.getDescription(),
-            role.getCreatedTime(), role.getModifiedTime()));
+        RoleDTO role = userRoleService.findRoleById(id);
+        return Message.success(role);
     }
 
     @RequestMapping(value = "/list.do")

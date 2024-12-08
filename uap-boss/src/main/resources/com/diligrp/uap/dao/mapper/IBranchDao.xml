@@ -27,10 +27,6 @@
         SELECT * FROM uap_branch WHERE id = #{id}
     </select>
 
-    <select id="findTopBranch" parameterType="long" resultMap="BranchMap">
-        SELECT * FROM uap_branch WHERE mch_id = #{mchId} AND level = 0
-    </select>
-
     <select id="listChildren" parameterType="long" resultMap="BranchMap">
         SELECT * FROM uap_branch WHERE parent_id = #{id} ORDER BY id
     </select>
@@ -41,6 +37,15 @@
             #{id}
         </foreach>
         ORDER BY level DESC, id
+    </select>
+
+    <select id="listByMchId" parameterType="long" resultMap="BranchMap">
+        SELECT * FROM uap_branch WHERE mch_id = #{mchId} AND level = #{level}
+        ORDER BY id
+    </select>
+
+    <select id="countByMchId" parameterType="long" resultType="long">
+        SELECT * FROM uap_branch WHERE mch_id = #{mchId}
     </select>
 
     <update id="updateBranch" parameterType="com.diligrp.uap.boss.model.BranchDO">

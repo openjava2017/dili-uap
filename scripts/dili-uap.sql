@@ -34,6 +34,7 @@ CREATE TABLE `uap_branch` (
   PRIMARY KEY (`id`),
   KEY `idx_branch_code` (`code`) USING BTREE, -- 不要使用唯一索引
   KEY `idx_branch_parentId` (`parent_id`, `state`) USING BTREE,
+  KEY `idx_branch_mchId` (`mch_id`, `level`) USING BTREE,
   KEY `idx_branch_name` (`name`, `parent_id`) USING BTREE
 ) ENGINE=InnoDB;
 
@@ -125,19 +126,20 @@ CREATE TABLE `uap_role_authority` (
 DROP TABLE IF EXISTS `uap_menu_resource`;
 CREATE TABLE `uap_menu_resource` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `parent_id` BIGINT NOT NULL COMMENT '父菜单',
   `code` VARCHAR(40) NOT NULL COMMENT '菜单编码', -- 格式：父菜单编码1-父菜单编码2-编码
   `name` VARCHAR(60) NOT NULL COMMENT '菜单名称',
-  `parent_id` BIGINT NOT NULL COMMENT '父菜单',
   `level` TINYINT UNSIGNED NOT NULL COMMENT '菜单层级',
   `children` TINYINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 用来标注目录/页面
   `uri` VARCHAR(60) NOT NULL COMMENT '相对路径', -- /user/page.do
   `icon` VARCHAR(60) COMMENT '菜单图标', -- DFS中的fileId
   `module_id` BIGINT NOT NULL COMMENT '所属模块ID',
+  `description` VARCHAR(128) COMMENT '备注',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_menu_resource_code` (`code`) USING BTREE, -- 不要使用唯一索引
-  KEY `idx_menu_resource_moduleId` (`module_id`, `sequence`) USING BTREE,
+  KEY `idx_menu_resource_moduleId` (`module_id`, `level`) USING BTREE,
   KEY `idx_menu_resource_parentId` (`parent_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;
 
@@ -148,6 +150,7 @@ CREATE TABLE `uap_page_element` (
   `code` VARCHAR(40) NOT NULL COMMENT '元素编码', -- Add Modify List
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
   `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏离量',
+  `description` VARCHAR(128) COMMENT '备注',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),

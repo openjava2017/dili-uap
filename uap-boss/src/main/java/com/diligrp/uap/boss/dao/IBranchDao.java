@@ -14,14 +14,13 @@ public interface IBranchDao extends MybatisMapperSupport {
 
     Optional<BranchDO> findById(Long id);
 
-    /**
-     * 获取指定商户的最顶层分支机构（level=0）
-     */
-    Optional<BranchDO> findTopBranch(Long mchId);
-
     List<BranchDO> listChildren(Long id);
 
     List<BranchDO> listByIds(List<Long> ids);
+
+    List<BranchDO> listByMchId(@Param("mchId") Long mchId, @Param("level") Integer level);
+
+    long countByMchId(Long mchId);
 
     int updateBranch(BranchDO branch);
 

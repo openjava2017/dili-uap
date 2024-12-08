@@ -1,6 +1,6 @@
 package com.diligrp.uap.boss.dao;
 
-import com.diligrp.uap.boss.domain.UserListDTO;
+import com.diligrp.uap.boss.domain.UserVO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.domain.UserStateDTO;
 import com.diligrp.uap.boss.model.UserDO;
@@ -18,7 +18,7 @@ public interface IUserManageDao extends MybatisMapperSupport {
 
     Optional<UserDO> findByName(String name);
 
-    List<UserListDTO> listUsers(UserQuery query);
+    List<UserVO> listUsers(UserQuery query);
 
     long countUsers(UserQuery query);
 

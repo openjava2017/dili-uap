@@ -30,7 +30,7 @@
         SELECT * FROM uap_merchant WHERE code = #{code}
     </select>
 
-    <select id="listMerchants" parameterType="com.diligrp.uap.boss.domain.MerchantQuery" resultType="com.diligrp.uap.boss.domain.MerchantListDTO">
+    <select id="listMerchants" parameterType="com.diligrp.uap.boss.domain.MerchantQuery" resultType="com.diligrp.uap.boss.domain.MerchantVO">
         SELECT
             um.id, um.code, um.name, um.address, um.linkman, um.telephone,
             umt.name AS parentName, um.state, um.created_time AS createdTime, um.modified_time AS modifiedTime

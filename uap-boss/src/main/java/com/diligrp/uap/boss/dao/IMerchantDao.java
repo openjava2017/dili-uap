@@ -1,6 +1,6 @@
 package com.diligrp.uap.boss.dao;
 
-import com.diligrp.uap.boss.domain.MerchantListDTO;
+import com.diligrp.uap.boss.domain.MerchantVO;
 import com.diligrp.uap.boss.domain.MerchantQuery;
 import com.diligrp.uap.boss.model.MerchantDO;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
@@ -17,7 +17,7 @@ public interface IMerchantDao extends MybatisMapperSupport {
 
     Optional<MerchantDO> findByCode(String code);
 
-    List<MerchantListDTO> listMerchants(MerchantQuery query);
+    List<MerchantVO> listMerchants(MerchantQuery query);
 
     long countMerchants(MerchantQuery query);
 

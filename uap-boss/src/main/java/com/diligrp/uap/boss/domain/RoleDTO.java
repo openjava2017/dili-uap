@@ -14,17 +14,6 @@ public class RoleDTO {
     // 修改时间
     private LocalDateTime modifiedTime;
 
-    public static RoleDTO of(Long id, String name, String description,
-                             LocalDateTime createdTime, LocalDateTime modifiedTime) {
-        RoleDTO role = new RoleDTO();
-        role.setId(id);
-        role.setName(name);
-        role.setDescription(description);
-        role.setCreatedTime(createdTime);
-        role.setModifiedTime(modifiedTime);
-        return role;
-    }
-
     public Long getId() {
         return id;
     }

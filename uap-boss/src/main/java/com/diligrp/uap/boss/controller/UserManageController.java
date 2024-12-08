@@ -2,8 +2,14 @@ package com.diligrp.uap.boss.controller;
 
 import com.diligrp.uap.boss.domain.UserDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
+import com.diligrp.uap.boss.exception.UserManageException;
+import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.boss.service.IUserManageService;
 import com.diligrp.uap.boss.type.Position;
+import com.diligrp.uap.boss.type.UserType;
+import com.diligrp.uap.security.core.Subject;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
+import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.domain.Message;
 import com.diligrp.uap.shared.domain.PageMessage;
 import com.diligrp.uap.shared.type.Gender;
@@ -32,9 +38,10 @@ public class UserManageController {
         Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
             .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
         AssertUtils.notEmpty(request.getPassword(), "password missed");
+        AssertUtils.notNull(request.getBranchId(), "branchId missed");
         AssertUtils.notNull(request.getMchId(), "mchId missed");
 
-        userManageService.createAdmin(request);
+        userManageService.createUser(request, UserType.ADMIN);
         return Message.success();
     }
 
@@ -46,12 +53,15 @@ public class UserManageController {
         AssertUtils.notEmpty(request.getEmail(), "email missed");
         Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
             .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
-        AssertUtils.notNull(request.getBranchId(), "branchId missed");
         AssertUtils.notEmpty(request.getPassword(), "password missed");
+        AssertUtils.notNull(request.getBranchId(), "branchId missed");
         Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)
             .orElseThrow(() -> new IllegalArgumentException(("Invalid position"))));
 
-        userManageService.createUser(request);
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        request.setMchId(subject.getOrganization().getId());
+
+        userManageService.createUser(request, UserType.USER);
         return Message.success();
     }
 
@@ -62,7 +72,17 @@ public class UserManageController {
         AssertUtils.isTrue(request.getPageNo() > 0, "invalid pageNo");
         AssertUtils.isTrue(request.getPageSize() > 0, "invalid pageSize");
 
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        UserDO user = userManageService.findUserById(subject.getId());
+        if (UserType.ROOT.equalTo(user.getType())) { // 超级管理员查询所有商户下的系统管理员
+            request.setMchId(null);
+            request.setType(UserType.ADMIN.getCode());
+        } else { // 登录用户为系统管理员或系统用户时，查询该商户下的系统用户(不包括系统管理员)
+            request.setMchId(subject.getOrganization().getId());
+            request.setType(UserType.USER.getCode());
+        }
         request.from(request.getPageNo(), request.getPageSize());
+
         return userManageService.listUsers(request);
     }
 
@@ -91,6 +111,11 @@ public class UserManageController {
 
     @RequestMapping(value = "/delete.do")
     public Message<?> deleteUser(@RequestParam("id") Long id) {
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        if (subject.getId().equals(id)) {
+            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除当前登录用户");
+        }
+
         userManageService.deleteUser(id);
         return Message.success();
     }

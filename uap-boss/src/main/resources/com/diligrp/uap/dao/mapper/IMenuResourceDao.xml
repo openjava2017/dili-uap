@@ -4,7 +4,85 @@
 
 <mapper namespace="com.diligrp.uap.boss.dao.IMenuResourceDao">
 
+    <resultMap id="MenuResourceMap" type="com.diligrp.uap.boss.model.MenuResourceDO">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="level" property="level"/>
+        <result column="children" property="children"/>
+        <result column="uri" property="uri"/>
+        <result column="icon" property="icon"/>
+        <result column="module_id" property="moduleId"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <insert id="insertMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">
+        INSERT INTO uap_menu_resource(parent_id, code, name, level, children, uri, icon, module_id, sequence, created_time)
+        VALUES (#{parentId}, #{code}, #{name}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource WHERE id = #{id}
+    </select>
+
+    <select id="listChildren" parameterType="long" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource WHERE parent_id = #{id} ORDER BY sequence
+    </select>
+
+    <select id="listByIds" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY level DESC, sequence
+    </select>
+
+    <select id="listByModuleId" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource WHERE module_id = #{moduleId} AND level = #{level}
+        ORDER BY sequence
+    </select>
+
+    <update id="updateMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">
+        UPDATE uap_menu_resource
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="uri != null">
+                uri = #{uri},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="sequence != null">
+                sequence = #{sequence},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
     <select id="countByModuleId" parameterType="long" resultType="int">
         SELECT COUNT(*) FROM uap_menu_resource WHERE module_id = #{moduleId}
     </select>
+
+    <update id="updateCodeById">
+        UPDATE uap_menu_resource SET code = #{code} WHERE id = #{id}
+    </update>
+
+    <update id="incChildrenById">
+        UPDATE uap_menu_resource SET children = children + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decChildrenById">
+        UPDATE uap_menu_resource SET children = children - 1 WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_menu_resource WHERE id = #{id}
+    </delete>
 </mapper>

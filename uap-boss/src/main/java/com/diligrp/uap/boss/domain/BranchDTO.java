@@ -1,7 +1,7 @@
 package com.diligrp.uap.boss.domain;
 
 /**
- * 用于新增和修改的分支机构领域模型
+ * 用于分支机构新增和修改的领域模型
  */
 public class BranchDTO {
     // ID
@@ -12,6 +12,8 @@ public class BranchDTO {
     private String name;
     // 分支机构类型
     private Integer type;
+    // 归属商户
+    private Long mchId;
 
     public Long getId() {
         return id;
@@ -43,5 +45,13 @@ public class BranchDTO {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 }

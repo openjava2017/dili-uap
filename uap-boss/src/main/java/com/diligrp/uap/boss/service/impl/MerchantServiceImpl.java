@@ -5,13 +5,11 @@ import com.diligrp.uap.boss.dao.IMerchantDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.dao.IUserRoleDao;
 import com.diligrp.uap.boss.domain.MerchantDTO;
-import com.diligrp.uap.boss.domain.MerchantListDTO;
 import com.diligrp.uap.boss.domain.MerchantQuery;
+import com.diligrp.uap.boss.domain.MerchantVO;
 import com.diligrp.uap.boss.exception.BossManageException;
-import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.MerchantDO;
 import com.diligrp.uap.boss.service.IMerchantService;
-import com.diligrp.uap.boss.type.BranchType;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.domain.PageMessage;
 import jakarta.annotation.Resource;
@@ -39,7 +37,7 @@ public class MerchantServiceImpl implements IMerchantService {
     private IUserRoleDao userRoleDao;
 
     /**
-     * 创建商户，并自动为该商户创建顶级分支机构
+     * 创建商户
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -58,13 +56,6 @@ public class MerchantServiceImpl implements IMerchantService {
             .name(merchant.getName()).address(merchant.getAddress()).linkman(merchant.getLinkman())
             .telephone(merchant.getTelephone()).state(1).createdTime(when).modifiedTime(when).build();
         merchantDao.insertMerchant(self);
-
-        // 创建该商户最顶层分支机构，名称使用商户名称，类型为Branch
-        BranchDO branch = BranchDO.builder().mchId(self.getId()).parentId(0L).code("*").name(self.getName())
-            .type(BranchType.BRANCH.getCode()).level(0).children(0).state(1).build();
-        branchDao.insertBranch(branch); // 插入并返回自身ID
-        // 根据ID更新编码，商户最顶层分支机构的编码为:ID，其他分支机构编码为：父级编码,ID
-        branchDao.updateCodeById(branch.getId(), String.valueOf(branch.getId()));
     }
 
     /**
@@ -79,9 +70,9 @@ public class MerchantServiceImpl implements IMerchantService {
      * 分页查询系统商户
      */
     @Override
-    public PageMessage<MerchantListDTO> listMerchants(MerchantQuery query) {
+    public PageMessage<MerchantVO> listMerchants(MerchantQuery query) {
         long total = merchantDao.countMerchants(query);
-        List<MerchantListDTO> merchants = Collections.emptyList();
+        List<MerchantVO> merchants = Collections.emptyList();
         if (total > 0) {
             merchants = merchantDao.listMerchants(query);
         }
@@ -113,14 +104,10 @@ public class MerchantServiceImpl implements IMerchantService {
         if (userRoleDao.countByMchId(mchId) > 0) {
             throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除商户失败：该商户下存在系统角色");
         }
-        // 除了顶层组织机构外，不能存在其他新建的组织机构
-        branchDao.findTopBranch(mchId).ifPresent(branch -> {
-            if (branch.getChildren() > 0) {
-                throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除商户失败：该商户下存在分支机构");
-            } else {
-                branchDao.deleteById(branch.getId()); // 删除自动创建的顶层组织机构
-            }
-        });
+        if (branchDao.countByMchId(mchId) > 0) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除商户失败：该商户下存在分支机构");
+        }
+
         merchantDao.deleteById(mchId);
     }
 }

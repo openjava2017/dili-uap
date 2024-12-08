@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * 列表使用的商户数据传输模型
  */
-public class MerchantListDTO {
+public class MerchantVO {
     // 商户ID
     private Long id;
     // 商户编码

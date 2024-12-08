@@ -1,14 +1,13 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.converter.BossConverters;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.BranchDTO;
-import com.diligrp.uap.boss.domain.BranchListDTO;
+import com.diligrp.uap.boss.domain.BranchVO;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.service.IBranchService;
-import com.diligrp.uap.security.core.Subject;
-import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.ErrorCode;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -28,21 +27,34 @@ public class BranchServiceImpl implements IBranchService {
     private IUserManageDao userManageDao;
 
     /**
-     * 创建分支机构
+     * 创建商户第一级根分支机构
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createRootBranch(BranchDTO branch) {
+        LocalDateTime when = LocalDateTime.now();
+        String code = String.format("%s,%s", branch.getMchId(), "*");
+        BranchDO self = BranchDO.builder().mchId(branch.getMchId()).parentId(0L).code(code).name(branch.getName())
+            .type(branch.getType()).level(1).children(0).state(1).version(0).createdTime(when).modifiedTime(when).build();
+        branchDao.insertBranch(self);
+        // 根据ID更新编码
+        branchDao.updateCodeById(self.getId(), String.valueOf(self.getId()));
+    }
+
+    /**
+     * 创建非根分支机构
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createBranch(BranchDTO branch) {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        Long mchId = subject.getOrganization().getId();
         BranchDO parent = branchDao.findById(branch.getParentId())
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级分支机构不存在"));
 
         LocalDateTime when = LocalDateTime.now();
-        BranchDO self = BranchDO.builder().mchId(mchId).parentId(branch.getParentId())
-            .code(String.format("%s,%s", parent.getCode(), "*")).name(branch.getName())
-            .type(branch.getType()).level(parent.getLevel() + 1).children(0).state(1)
-            .version(0).createdTime(when).modifiedTime(when).build();
+        String code = String.format("%s,%s", parent.getCode(), "*");
+        BranchDO self = BranchDO.builder().mchId(branch.getMchId()).parentId(branch.getParentId())
+            .code(code).name(branch.getName()).type(branch.getType()).level(parent.getLevel() + 1).children(0)
+            .state(1).version(0).createdTime(when).modifiedTime(when).build();
         branchDao.insertBranch(self);
         // 根据ID更新编码，格式：父级编码,ID
         branchDao.updateCodeById(self.getId(), String.format("%s,%s", parent.getCode(), self.getId()));
@@ -54,11 +66,10 @@ public class BranchServiceImpl implements IBranchService {
      * 查询指定的分支机构信息
      */
     @Override
-    public BranchListDTO findBranchById(Long id) {
-        BranchDO branch = branchDao.findById(id).orElseThrow(() ->
+    public BranchVO findBranchById(Long id) {
+        Optional<BranchDO> branchOpt = branchDao.findById(id);
+        return branchOpt.map(BossConverters.BRANCH_DO2VO::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "分支机构不存在"));
-        return BranchListDTO.of(branch.getId(), branch.getParentId(), branch.getCode(), branch.getName(),
-            branch.getType(), branch.getLevel(), branch.getChildren());
     }
 
     /**
@@ -75,20 +86,28 @@ public class BranchServiceImpl implements IBranchService {
     }
 
     /**
+     * 查询商户下的所有一级分支机构
+     */
+    @Override
+    public List<BranchVO> listRoots(Long mchId) {
+        List<BranchDO> branches = branchDao.listByMchId(mchId, 1);
+        return branches.stream().map(BossConverters.BRANCH_DO2VO::convert).collect(Collectors.toList());
+    }
+
+    /**
      *  查询指定节点的子节点
      */
     @Override
-    public List<BranchListDTO> listChildren(Long id) {
+    public List<BranchVO> listChildren(Long id) {
         List<BranchDO> branches = branchDao.listChildren(id);
-        return branches.stream().map(branch -> BranchListDTO.of(branch.getId(), branch.getParentId(), branch.getCode(),
-            branch.getName(), branch.getType(), branch.getLevel(), branch.getChildren())).collect(Collectors.toList());
+        return branches.stream().map(BossConverters.BRANCH_DO2VO::convert).collect(Collectors.toList());
     }
 
     /**
      * 查找指定节点的所有父亲/祖先节点
      */
     @Override
-    public List<BranchListDTO> listParents(Long id) {
+    public List<BranchVO> listParents(Long id) {
         BranchDO self = branchDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的分支机构不存在"));
         String path = self.getCode();
@@ -105,12 +124,9 @@ public class BranchServiceImpl implements IBranchService {
                 ids.add(id);
             }
 
-            return branchDao.listByIds(ids).stream().map(branch ->
-                BranchListDTO.of(branch.getId(), branch.getParentId(), branch.getCode(), branch.getName(),
-                    branch.getType(), branch.getLevel(), branch.getChildren())).collect(Collectors.toList());
+            return branchDao.listByIds(ids).stream().map(BossConverters.BRANCH_DO2VO::convert).collect(Collectors.toList());
         } else {
-            return Collections.singletonList(BranchListDTO.of(self.getId(), self.getParentId(), self.getCode(),
-                self.getName(), self.getType(), self.getLevel(), self.getChildren()));
+            return Collections.singletonList(BossConverters.BRANCH_DO2VO.convert(self));
         }
     }
 
@@ -122,7 +138,7 @@ public class BranchServiceImpl implements IBranchService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteBranch(Long id) {
         BranchDO self = branchDao.findById(id).orElseThrow(() ->
-            new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的分支机构不存在"));
+            new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "当前分支机构不存在"));
         if (self.getChildren() > 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "删除分支机构失败：当前节点存在子节点");
         }

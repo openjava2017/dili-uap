@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.converter.BossConverters;
 import com.diligrp.uap.boss.dao.IUserRoleDao;
 import com.diligrp.uap.boss.domain.RoleDTO;
 import com.diligrp.uap.boss.domain.RoleQuery;
@@ -42,9 +43,10 @@ public class UserRoleServiceImpl implements IUserRoleService {
      * 查找指定的系统角色
      */
     @Override
-    public RoleDO findRoleById(Long id) {
+    public RoleDTO findRoleById(Long id) {
         Optional<RoleDO> roleOpt = userRoleDao.findById(id);
-        return roleOpt.orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统角色不存在"));
+        return roleOpt.map(BossConverters.ROLE_DO2DTO::convert).orElseThrow(() ->
+            new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统角色不存在"));
     }
 
     /**
@@ -59,8 +61,7 @@ public class UserRoleServiceImpl implements IUserRoleService {
         long total = userRoleDao.countRoles(query);
         List<RoleDTO> roles = Collections.emptyList();
         if (total > 0) {
-            roles = userRoleDao.listRoles(query).stream().map(role -> RoleDTO.of(role.getId(), role.getName(),
-                role.getDescription(), role.getCreatedTime(), role.getModifiedTime())).collect(Collectors.toList());
+            roles = userRoleDao.listRoles(query).stream().map(BossConverters.ROLE_DO2DTO::convert).collect(Collectors.toList());
         }
 
         return PageMessage.success(total, roles);

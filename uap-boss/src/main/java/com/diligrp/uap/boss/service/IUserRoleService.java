@@ -14,7 +14,7 @@ public interface IUserRoleService {
     /**
      * 查找指定的系统角色
      */
-    RoleDO findRoleById(Long id);
+    RoleDTO findRoleById(Long id);
 
     /**
      * 分页查询系统角色

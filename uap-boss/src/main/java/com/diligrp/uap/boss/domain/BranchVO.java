@@ -3,7 +3,7 @@ package com.diligrp.uap.boss.domain;
 /**
  * 用户列表展现的领域模型
  */
-public class BranchListDTO {
+public class BranchVO {
     // ID
     private Long id;
     // 父级ID
@@ -18,19 +18,6 @@ public class BranchListDTO {
     private Integer level;
     // 子节点数量
     private Integer children;
-
-    public static BranchListDTO of(Long id, Long parentId, String code, String name, Integer type,
-                                   Integer level, Integer children) {
-        BranchListDTO branch = new BranchListDTO();
-        branch.id = id;
-        branch.parentId = parentId;
-        branch.code = code;
-        branch.name = name;
-        branch.type = type;
-        branch.level = level;
-        branch.children = children;
-        return branch;
-    }
 
     public Long getId() {
         return id;

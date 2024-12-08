@@ -1,14 +1,14 @@
 package com.diligrp.uap.boss.service;
 
 import com.diligrp.uap.boss.domain.MerchantDTO;
-import com.diligrp.uap.boss.domain.MerchantListDTO;
+import com.diligrp.uap.boss.domain.MerchantVO;
 import com.diligrp.uap.boss.domain.MerchantQuery;
 import com.diligrp.uap.boss.model.MerchantDO;
 import com.diligrp.uap.shared.domain.PageMessage;
 
 public interface IMerchantService {
     /**
-     * 创建商户，并自动为该商户创建顶级分支机构
+     * 创建商户
      */
     void createMerchant(MerchantDTO merchant);
 
@@ -20,7 +20,7 @@ public interface IMerchantService {
     /**
      * 分页查询系统商户
      */
-    PageMessage<MerchantListDTO> listMerchants(MerchantQuery query);
+    PageMessage<MerchantVO> listMerchants(MerchantQuery query);
 
     /**
      * 修改商户信息

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * 列表使用的系统用户数据传输模型
  */
-public class UserListDTO {
+public class UserVO {
     // 用户ID
     private Long id;
     // 用户账号
