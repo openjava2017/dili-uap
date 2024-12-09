@@ -32,4 +32,8 @@ public interface IMenuResourceDao extends MybatisMapperSupport {
     int decChildrenById(Long id);
 
     int deleteById(Long id);
+
+    int deleteRoleAuthority(Long menuId);
+
+    int deleteUserAuthority(Long menuId);
 }

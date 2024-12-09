@@ -23,11 +23,6 @@ public interface IMenuResourceService {
     MenuResourceVO findMenuById(Long id);
 
     /**
-     * 修改系统菜单
-     */
-    void updateMenuResource(MenuResourceDTO menu);
-
-    /**
      * 查询系统模块下的所有一级菜单
      */
     List<MenuResourceVO> listRoots(Long moduleId);
@@ -41,6 +36,11 @@ public interface IMenuResourceService {
      * 查找指定菜单的所有父亲/祖先菜单
      */
     List<MenuResourceVO> listParents(Long id);
+
+    /**
+     * 修改系统菜单
+     */
+    void updateMenuResource(MenuResourceDTO menu);
 
     /**
      * 删除指定的菜单

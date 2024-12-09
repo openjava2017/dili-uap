@@ -1,11 +1,11 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.converter.BossConverters;
+import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.domain.MenuResourceDTO;
 import com.diligrp.uap.boss.domain.MenuResourceVO;
 import com.diligrp.uap.boss.exception.BossManageException;
-import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.MenuResourceDO;
 import com.diligrp.uap.boss.service.IMenuResourceService;
 import com.diligrp.uap.shared.ErrorCode;
@@ -22,6 +22,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
 
     @Resource
     private IMenuResourceDao menuResourceDao;
+
+    @Resource
+    private IMenuElementDao menuElementDao;
 
     /**
      * 创建系统模块下第一级根菜单资源，需指定系统模块
@@ -60,7 +63,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         menuResourceDao.updateCodeById(self.getId(), String.format("%s,%s", parent.getCode(), self.getId()));
         // 增加父级节点的子节点数量
         menuResourceDao.incChildrenById(parent.getId());
-        // TODO:在已被分配权限的末级菜单下，建子菜单时如何处理
+        // 如果父级菜单作为叶子节点已被分配给角色或用户，添加子菜单会导致权限分配失效
     }
 
     /**
@@ -70,19 +73,6 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     public MenuResourceVO findMenuById(Long id) {
         return menuResourceDao.findById(id).map(BossConverters.MENU_DO2VO::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "菜单不存在"));
-    }
-
-    /**
-     * 修改系统菜单
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void updateMenuResource(MenuResourceDTO menu) {
-        MenuResourceDO self = MenuResourceDO.builder().id(menu.getId()).name(menu.getName()).uri(menu.getUri())
-            .icon(menu.getIcon()).description(menu.getDescription()).sequence(menu.getSequence()).build();
-        if (menuResourceDao.updateMenuResource(self) == 0) {
-            throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "修改系统菜单失败：菜单不存在");
-        }
     }
 
     /**
@@ -131,6 +121,19 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     }
 
     /**
+     * 修改系统菜单
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateMenuResource(MenuResourceDTO menu) {
+        MenuResourceDO self = MenuResourceDO.builder().id(menu.getId()).name(menu.getName()).uri(menu.getUri())
+            .icon(menu.getIcon()).description(menu.getDescription()).sequence(menu.getSequence()).build();
+        if (menuResourceDao.updateMenuResource(self) == 0) {
+            throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "修改系统菜单失败：菜单不存在");
+        }
+    }
+
+    /**
      * 删除指定的菜单
      */
     @Override
@@ -141,10 +144,17 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         if (menu.getChildren() > 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "删除系统菜单失败：当前菜单存在子菜单");
         }
+        if (menuElementDao.countByMenuId(id) > 0) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除系统菜单失败：当前菜单存在页面元素");
+        }
 
-        // TODO: 删除已分配权限的菜单
-
+        // 删除角色-菜单的关联
+        menuResourceDao.deleteRoleAuthority(id);
+        // 删除用户-菜单的关联
+        menuResourceDao.deleteUserAuthority(id);
+        // 删除菜单
         if (menuResourceDao.deleteById(id) > 0) { // 防止并发删除时将父节点的children修改成负数
+            // 父节点的子节点数-1
             menuResourceDao.decChildrenById(menu.getParentId());
         }
     }

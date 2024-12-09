@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.boss.dao.IMenuElementDao">
+
+    <resultMap id="MenuElementMap" type="com.diligrp.uap.boss.model.MenuElementDO">
+        <id column="id" property="id"/>
+        <result column="menu_id" property="menuId"/>
+        <result column="name" property="name"/>
+        <result column="offset" property="offset"/>
+        <result column="description" property="description"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <insert id="insertMenuElement" parameterType="com.diligrp.uap.boss.model.MenuElementDO">
+        INSERT INTO uap_menu_element(menu_id, name, offset, description, sequence, created_time)
+        VALUES (#{menuId}, #{name}, #{offset}, #{description}, #{sequence}, #{createdTime})
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="MenuElementMap">
+        SELECT * FROM uap_menu_element WHERE id = #{id}
+    </select>
+
+    <select id="listByMenuId" parameterType="long" resultMap="MenuElementMap">
+        SELECT * FROM uap_menu_element WHERE menu_id = #{menuId} ORDER BY sequence
+    </select>
+
+    <update id="updateMenuElement" parameterType="com.diligrp.uap.boss.model.MenuElementDO">
+        UPDATE uap_menu_element
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="offset != null">
+                offset = #{offset},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="sequence != null">
+                sequence = #{sequence},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="countByMenuId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM uap_menu_element WHERE menu_id = #{menuId}
+    </select>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM uap_menu_element WHERE id = #{id}
+    </delete>
+</mapper>

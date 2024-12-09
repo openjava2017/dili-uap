@@ -93,7 +93,7 @@ CREATE TABLE `uap_user_authority` (
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_authority_userId` (`user_id`) USING BTREE,
-  KEY `idx_user_authority_resourceId` (`resource_id`) USING BTREE
+  KEY `idx_user_authority_resourceId` (`resource_id`, `type`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_role`;
@@ -120,7 +120,7 @@ CREATE TABLE `uap_role_authority` (
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_role_authority_roleId` (`role_id`) USING BTREE,
-  KEY `idx_role_authority_resourceId` (`resource_id`) USING BTREE
+  KEY `idx_role_authority_resourceId` (`resource_id`, `type`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_menu_resource`;
@@ -143,13 +143,12 @@ CREATE TABLE `uap_menu_resource` (
   KEY `idx_menu_resource_parentId` (`parent_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `uap_page_element`;
-CREATE TABLE `uap_page_element` (
+DROP TABLE IF EXISTS `uap_menu_element`;
+CREATE TABLE `uap_menu_element` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
-  `code` VARCHAR(40) NOT NULL COMMENT '元素编码', -- Add Modify List
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
-  `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏离量',
+  `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏移量',
   `description` VARCHAR(128) COMMENT '备注',
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',

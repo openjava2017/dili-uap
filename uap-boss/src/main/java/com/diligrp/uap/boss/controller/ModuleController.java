@@ -55,8 +55,11 @@ public class ModuleController {
     @RequestMapping(value = "/update.do")
     public Message<?> update(@RequestBody ModuleDTO request) {
         AssertUtils.notNull(request.getId(), "id missed");
+        // 传入名称防止没有修改任何属性导致sql异常
+        AssertUtils.notEmpty(request.getName(), "name missed");
         Optional.ofNullable(request.getType()).ifPresent(code -> ModuleType.getType(code).orElseThrow(
             () -> new IllegalArgumentException("Invalid type")));
+
         moduleService.updateModule(request);
         return Message.success();
     }
