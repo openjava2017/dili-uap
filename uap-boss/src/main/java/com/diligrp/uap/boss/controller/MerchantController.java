@@ -28,7 +28,9 @@ public class MerchantController {
 
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody MerchantDTO request) {
-        AssertUtils.notEmpty(request.getCode(), "code missed");
+        AssertUtils.notNull(request.getMchId(), "mchId missed");
+        AssertUtils.isTrue(request.getMchId() >= 1000 && request.getMchId() <= 9999,
+            "无效商户号: 商户号必须为四位数字");
         AssertUtils.notEmpty(request.getName(), "name missed");
 
         merchantService.createMerchant(request);
@@ -36,8 +38,8 @@ public class MerchantController {
     }
 
     @RequestMapping(value = "/findById.do")
-    public Message<MerchantDO> findById(@RequestParam("id") Long id) {
-        return Message.success(merchantService.findMerchantById(id));
+    public Message<MerchantDO> findById(@RequestParam("mchId") Long mchId) {
+        return Message.success(merchantService.findByMchId(mchId));
     }
 
     @RequestMapping(value = "/list.do")
@@ -53,7 +55,7 @@ public class MerchantController {
 
     @RequestMapping(value = "/update.do")
     public Message<?> update(@RequestBody MerchantDTO request) {
-        AssertUtils.notNull(request.getId(), "id missed");
+        AssertUtils.notNull(request.getMchId(), "mchId missed");
 
         merchantService.updateMerchant(request);
         return Message.success();
@@ -64,17 +66,17 @@ public class MerchantController {
      */
     @RequestMapping(value = "/preference.do")
     public Message<?> preference(@RequestBody MerchantPreference request) {
-        AssertUtils.notNull(request.getId(), "id missed");
+        AssertUtils.notNull(request.getMchId(), "mchId missed");
 
         Preference preference = new Preference();
         preference.override(request);
-        preferenceService.setPreferences(request.getId(), preference);
+        preferenceService.setPreferences(request.getMchId(), preference);
         return Message.success();
     }
 
     @RequestMapping(value = "/delete.do")
-    public Message<?> delete(@RequestParam("id") Long id) {
-        merchantService.deleteMerchant(id);
+    public Message<?> delete(@RequestParam("mchId") Long mchId) {
+        merchantService.deleteMerchant(mchId);
         return Message.success();
     }
 }

@@ -4,13 +4,13 @@ import com.diligrp.uap.boss.model.Preference;
 
 public class MerchantPreference extends Preference {
     // 商户ID
-    private Long id;
+    private Long mchId;
 
-    public Long getId() {
-        return id;
+    public Long getMchId() {
+        return mchId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 }

@@ -13,9 +13,9 @@ public interface IMerchantService {
     void createMerchant(MerchantDTO merchant);
 
     /**
-     * 根据ID查找商户
+     * 根据商户号查找商户
      */
-    MerchantDO findMerchantById(Long id);
+    MerchantDO findByMchId(Long mchId);
 
     /**
      * 分页查询系统商户

@@ -34,7 +34,7 @@ public class PreferenceServiceImpl implements IPreferenceService {
     @Transactional(rollbackFor = Exception.class)
     public void setPreferences(Long mchId, Preference preference) {
         String payload = JsonUtils.toJsonString(preference);
-        MerchantDO merchantDO = MerchantDO.builder().id(mchId).params(payload).build();
+        MerchantDO merchantDO = MerchantDO.builder().mchId(mchId).params(payload).build();
         if (merchantDao.updateMerchant(merchantDO) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户偏好设置失败：该商户不存在");
         }
@@ -57,7 +57,7 @@ public class PreferenceServiceImpl implements IPreferenceService {
         try {
             String payload = lettuceTemplate.hget(Constants.PREFERENCE_KEY_PREFIX, String.valueOf(mchId));
             if (ObjectUtils.isEmpty(payload)) {
-                MerchantDO merchant = merchantDao.findById(mchId)
+                MerchantDO merchant = merchantDao.findByMchId(mchId)
                     .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户不存在"));
                 payload = merchant.getParams() == null ? "{}" : merchant.getParams();
                 lettuceTemplate.hset(Constants.PREFERENCE_KEY_PREFIX, String.valueOf(mchId), payload);

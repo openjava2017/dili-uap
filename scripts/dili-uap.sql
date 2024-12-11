@@ -17,8 +17,8 @@ UNIQUE KEY `uk_sequence_key_key` (`key`) USING BTREE
 DROP TABLE IF EXISTS `uap_merchant`;
 CREATE TABLE `uap_merchant` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `mch_id` BIGINT NOT NULL COMMENT '商户号',
   `parent_id` BIGINT NOT NULL COMMENT '父商户ID',
-  `code` VARCHAR(20) NOT NULL COMMENT '商户编码',
   `name` VARCHAR(80) NOT NULL COMMENT '商户名称',
   `address` VARCHAR(128) COMMENT '商户地址',
   `linkman` VARCHAR(40) COMMENT '联系人',
@@ -28,13 +28,13 @@ CREATE TABLE `uap_merchant` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_merchant_code` (`code`) USING BTREE
+  UNIQUE KEY `uk_merchant_mchId` (`mch_id`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_branch`;
 CREATE TABLE `uap_branch` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `mch_id` BIGINT NOT NULL COMMENT '商户ID',
+  `mch_id` BIGINT NOT NULL COMMENT '商户号',
   `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
   `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
   `name` VARCHAR(80) NOT NULL COMMENT '名称',

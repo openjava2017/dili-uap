@@ -43,27 +43,27 @@ public class MerchantServiceImpl implements IMerchantService {
     @Transactional(rollbackFor = Exception.class)
     public void createMerchant(MerchantDTO merchant) {
         if (merchant.getParentId() != null) {
-            Optional<MerchantDO> parent = merchantDao.findById(merchant.getParentId());
+            Optional<MerchantDO> parent = merchantDao.findByMchId(merchant.getParentId());
             parent.orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "创建商户失败：上级商户不存在"));
         }
-        merchantDao.findByCode(merchant.getCode()).ifPresent(self -> {
-            throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "商户已存在：" + self.getCode());
+        merchantDao.findByMchId(merchant.getMchId()).ifPresent(self -> {
+            throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "商户号已存在：" + self.getMchId());
         });
         Long parentId = merchant.getParentId() == null ? 0L : merchant.getParentId();
 
         LocalDateTime when = LocalDateTime.now();
-        MerchantDO self = MerchantDO.builder().parentId(parentId).code(merchant.getCode())
+        MerchantDO self = MerchantDO.builder().mchId(merchant.getMchId()).parentId(parentId)
             .name(merchant.getName()).address(merchant.getAddress()).linkman(merchant.getLinkman())
             .telephone(merchant.getTelephone()).state(1).createdTime(when).modifiedTime(when).build();
         merchantDao.insertMerchant(self);
     }
 
     /**
-     * 根据ID查找商户
+     * 根据商户号查找商户
      */
     @Override
-    public MerchantDO findMerchantById(Long id) {
-        return merchantDao.findById(id).orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户不存在"));
+    public MerchantDO findByMchId(Long mchId) {
+        return merchantDao.findByMchId(mchId).orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户不存在"));
     }
 
     /**
@@ -85,7 +85,7 @@ public class MerchantServiceImpl implements IMerchantService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateMerchant(MerchantDTO request) {
-        MerchantDO merchant = MerchantDO.builder().id(request.getId()).name(request.getName())
+        MerchantDO merchant = MerchantDO.builder().mchId(request.getMchId()).name(request.getName())
             .address(request.getAddress()).linkman(request.getLinkman()).telephone(request.getTelephone()).build();
         if (merchantDao.updateMerchant(merchant) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "修改商户失败：商户不存在");
@@ -108,6 +108,6 @@ public class MerchantServiceImpl implements IMerchantService {
             throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除商户失败：该商户下存在分支机构");
         }
 
-        merchantDao.deleteById(mchId);
+        merchantDao.deleteByMchId(mchId);
     }
 }

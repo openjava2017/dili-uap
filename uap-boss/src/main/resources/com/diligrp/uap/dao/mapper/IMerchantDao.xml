@@ -5,8 +5,8 @@
 <mapper namespace="com.diligrp.uap.boss.dao.IMerchantDao">
     <resultMap id="MerchantMap" type="com.diligrp.uap.boss.model.MerchantDO">
         <id column="id" property="id"/>
+        <result column="mch_id" property="mchId"/>
         <result column="parent_id" property="parentId"/>
-        <result column="code" property="code"/>
         <result column="name" property="name"/>
         <result column="address" property="address"/>
         <result column="linkman" property="linkman"/>
@@ -17,28 +17,24 @@
         <result column="modified_time" property="modifiedTime"/>
     </resultMap>
 
-    <insert id="insertMerchant" parameterType="com.diligrp.uap.boss.model.MerchantDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO uap_merchant(`parent_id`, `code`, `name`, `address`, `linkman`, `telephone`, `params`, `state`, `created_time`, `modified_time`)
-        VALUES (#{parentId}, #{code}, #{name}, #{address}, #{linkman}, #{telephone}, #{params}, #{state}, #{createdTime}, #{modifiedTime})
+    <insert id="insertMerchant" parameterType="com.diligrp.uap.boss.model.MerchantDO">
+        INSERT INTO uap_merchant(`mch_id`, `parent_id`, `name`, `address`, `linkman`, `telephone`, `params`, `state`, `created_time`, `modified_time`)
+        VALUES (#{mchId}, #{parentId}, #{name}, #{address}, #{linkman}, #{telephone}, #{params}, #{state}, #{createdTime}, #{modifiedTime})
     </insert>
 
-    <select id="findById" parameterType="long" resultMap="MerchantMap">
-        SELECT * FROM uap_merchant WHERE id = #{id}
-    </select>
-
-    <select id="findByCode" parameterType="string" resultMap="MerchantMap">
-        SELECT * FROM uap_merchant WHERE code = #{code}
+    <select id="findByMchId" parameterType="long" resultMap="MerchantMap">
+        SELECT * FROM uap_merchant WHERE mch_id = #{mchId}
     </select>
 
     <select id="listMerchants" parameterType="com.diligrp.uap.boss.domain.MerchantQuery" resultType="com.diligrp.uap.boss.domain.MerchantVO">
         SELECT
-            um.id, um.code, um.name, um.address, um.linkman, um.telephone,
+            um.mch_id AS mchId, um.name, um.address, um.linkman, um.telephone,
             umt.name AS parentName, um.state, um.created_time AS createdTime, um.modified_time AS modifiedTime
         FROM uap_merchant um
-        LEFT JOIN uap_merchant umt ON um.parent_id = umt.id
+        LEFT JOIN uap_merchant umt ON um.parent_id = umt.mch_id
         <where>
-            <if test="code != null">
-                AND um.code = #{code}
+            <if test="mchId != null">
+                AND um.mch_id = #{mchId}
             </if>
             <if test="name != null">
                 AND um.name LIKE "%"#{name}"%"
@@ -62,8 +58,8 @@
             COUNT(*)
         FROM uap_merchant um
         <where>
-            <if test="code != null">
-                AND um.code = #{code}
+            <if test="mchId != null">
+                AND um.mch_id = #{mchId}
             </if>
             <if test="name != null">
                 AND um.name LIKE "%"#{name}"%"
@@ -97,10 +93,10 @@
         <if test="params != null">
             , params = #{params}
         </if>
-        WHERE id = #{id}
+        WHERE mch_id = #{mchId}
     </update>
 
-    <delete id="deleteById" parameterType="long">
-        DELETE FROM uap_merchant WHERE id = #{id}
+    <delete id="deleteByMchId" parameterType="long">
+        DELETE FROM uap_merchant WHERE mch_id = #{mchId}
     </delete>
 </mapper>

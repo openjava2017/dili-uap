@@ -5,10 +5,10 @@ import com.diligrp.uap.shared.domain.BaseDO;
 import java.time.LocalDateTime;
 
 public class MerchantDO extends BaseDO {
+    // 商户号
+    private Long mchId;
     // 父商户
     private Long parentId;
-    // 商户编码
-    private String code;
     // 商户名称
     private String name;
     // 商户地址
@@ -22,20 +22,20 @@ public class MerchantDO extends BaseDO {
     // 商户状态
     private Integer state;
 
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
+    }
+
     public Long getParentId() {
         return parentId;
     }
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public String getName() {
@@ -91,18 +91,13 @@ public class MerchantDO extends BaseDO {
     }
 
     public class Builder {
-        public Builder id(Long id) {
-            MerchantDO.this.id = id;
+        public Builder mchId(Long mchId) {
+            MerchantDO.this.mchId = mchId;
             return this;
         }
 
         public Builder parentId(Long parentId) {
             MerchantDO.this.parentId = parentId;
-            return this;
-        }
-
-        public Builder code(String code) {
-            MerchantDO.this.code = code;
             return this;
         }
 

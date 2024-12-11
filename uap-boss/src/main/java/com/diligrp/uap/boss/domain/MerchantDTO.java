@@ -4,12 +4,10 @@ package com.diligrp.uap.boss.domain;
  * 用于商户新增和修改的领域模型
  */
 public class MerchantDTO {
-    // 商户ID
-    private Long id;
+    // 商户号
+    private Long mchId;
     // 父商户
     private Long parentId;
-    // 商户编码
-    private String code;
     // 商户名称
     private String name;
     // 商户地址
@@ -19,12 +17,12 @@ public class MerchantDTO {
     // 电话号码
     private String telephone;
 
-    public Long getId() {
-        return id;
+    public Long getMchId() {
+        return mchId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 
     public Long getParentId() {
@@ -33,14 +31,6 @@ public class MerchantDTO {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public String getName() {

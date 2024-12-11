@@ -6,10 +6,8 @@ import java.time.LocalDateTime;
  * 列表使用的商户数据传输模型
  */
 public class MerchantVO {
-    // 商户ID
-    private Long id;
-    // 商户编码
-    private String code;
+    // 商户号
+    private Long mchId;
     // 商户名称
     private String name;
     // 商户地址
@@ -27,20 +25,12 @@ public class MerchantVO {
     // 修改时间
     private LocalDateTime modifiedTime;
 
-    public Long getId() {
-        return id;
+    public Long getMchId() {
+        return mchId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 
     public String getName() {

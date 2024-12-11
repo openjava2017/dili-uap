@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class ModuleDO extends BaseDO {
     // 模块编码
-    private String code;
+    private Long code;
     // 模块名称
     private String name;
     // 模块类型

@@ -13,9 +13,7 @@ import java.util.Optional;
 public interface IMerchantDao extends MybatisMapperSupport {
     void insertMerchant(MerchantDO merchant);
 
-    Optional<MerchantDO> findById(Long id);
-
-    Optional<MerchantDO> findByCode(String code);
+    Optional<MerchantDO> findByMchId(Long mchId);
 
     List<MerchantVO> listMerchants(MerchantQuery query);
 
@@ -23,5 +21,5 @@ public interface IMerchantDao extends MybatisMapperSupport {
 
     int updateMerchant(MerchantDO merchant);
 
-    int deleteById(Long id);
+    int deleteByMchId(Long mchId);
 }

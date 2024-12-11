@@ -8,8 +8,8 @@ public class MerchantQuery extends PageQuery {
     // 每页记录数
     private Integer pageSize = 20;
 
-    // 商户编码
-    private String code;
+    // 商户号
+    private Long mchId;
     // 商户名称
     private String name;
     // 商户地址
@@ -35,12 +35,12 @@ public class MerchantQuery extends PageQuery {
         this.pageSize = pageSize;
     }
 
-    public String getCode() {
-        return code;
+    public Long getMchId() {
+        return mchId;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 
     public String getName() {
