@@ -1,5 +1,19 @@
 USE dili_uap;
 
+DROP TABLE IF EXISTS `uap_sequence_key`;
+CREATE TABLE `uap_sequence_key` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `key` VARCHAR(40) NOT NULL COMMENT 'KEY标识',
+  `name` VARCHAR(80) NOT NULL COMMENT 'KEY名称',
+  `value` BIGINT NOT NULl COMMENT '起始值',
+  `step` TINYINT UNSIGNED NOT NULL COMMENT '步长',
+  `pattern` VARCHAR(60) COMMENT 'ID格式', -- ORDER-%d{yyyyMMdd}-%n{4}
+  `expired_on` DATE COMMENT '有效日期',
+  `version` BIGINT NOT NULL COMMENT '数据版本',
+PRIMARY KEY (`id`),
+UNIQUE KEY `uk_sequence_key_key` (`key`) USING BTREE
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `uap_merchant`;
 CREATE TABLE `uap_merchant` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -89,7 +103,7 @@ CREATE TABLE `uap_user_authority` (
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
   `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
-  `bitmap` INTEGER NOT NULL COMMENT '资源权限',
+  `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_authority_userId` (`user_id`) USING BTREE,
@@ -116,7 +130,7 @@ CREATE TABLE `uap_role_authority` (
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
   `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
-  `permission` INTEGER NOT NULL COMMENT '资源权限',
+  `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_role_authority_roleId` (`role_id`) USING BTREE,

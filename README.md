@@ -1,13 +1,13 @@
 dili-uap
   uap-shared        基础设施和共享模块（解决循环依赖问题，工具类引入，中间件服务mq/redis/mysql等配置，第三方框架的封装和配置，全局异常拦截配置）
-  uap-rpc           远程调用模块(openfeign集成，访问其他平台服务)
-  uap-boss          管理模块，维护用户/角色/权限等
-  uap-auth          用户认证授权模块，用于用户登陆和权限控制，集成uap-security权限框架
+  uap-rpc           远程调用模块(openfeign集成，访问其他平台服务)，可以利用远程调用完成外部系统的用户认证；
+  uap-boss          管理模块，维护用户/角色/资源/权限等
+  uap-auth          用户认证/授权模块，用于用户登陆和权限控制，集成uap-security权限框架；该模块不仅仅可以授权内部系统用户，还可以通过RPC模块调用远程服务完成用户认证
   uap-security      参考spring-security自研的一套权限验证框架，用于uap及其他子系统进行用户认证授权，类似于uap sdk
   uap-boot          父工程（springboot打包，系统对外提供开放接口）
 
-项目依赖
-uap-shared  ->  etrade-rpc  ->  uap-boss  ->  uap-auth  ->  uap-boot
+模块依赖
+uap-shared  ->  uap-rpc  ->  uap-boss  ->  uap-auth  ->  uap-boot
 uap-security
 
 项目结构
@@ -25,7 +25,7 @@ uap-security
   
   系统对第三方系统提供接口通过uap-boot controller包
   所有数据模型类放入com.diligrp.uap.xxxx.model下，所有域模型类（VO DTO）放入com.diligrp.uap.xxxx.domain下
-  所有数据模型类须继承BaseDo类，进一步规范数据表设计：需包含id version created_time modified_time
+  所有数据模型类须继承BaseDO类，进一步规范数据表设计：需包含id version created_time modified_time
   所有枚举类型放入com.diligrp.uap.xxxx.type下，枚举类定义请提供code/name属性，参见com.diligrp.uap.shared.type.Gender
   所有自定义工具类放入com.diligrp.uap.xxxx.util下，如果大家都能公用请放uap-shared模块下
   所有异常类继承PlatformServiceException（提供了错误码和是否打印异常栈信息功能），并放入com.diligrp.uap.xxxx.exception下
@@ -62,6 +62,4 @@ uap-security
   
   Platform和Native模块的添加通过数据库脚本初始化，模块管理只管理除Platform和Native外的模块
   权限分配只针对于末级资源；被分配权限的末级资源下不能创建下一级资源
-
-  创建商户时，自动创建一条与商户名称相同的分支机构
   

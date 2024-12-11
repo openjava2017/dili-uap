@@ -2,7 +2,7 @@ package com.diligrp.uap.auth.domain;
 
 import java.time.LocalDateTime;
 
-public class PasswordUpdateDTO {
+public class PasswordStateDTO {
     // 用户账号ID
     private Long id;
     // 用户密码
@@ -14,7 +14,7 @@ public class PasswordUpdateDTO {
     // 数据版本 - 乐观锁防止并发修改数据
     private Integer version;
 
-    public PasswordUpdateDTO(Long id, String password, Integer state, LocalDateTime when, Integer version) {
+    public PasswordStateDTO(Long id, String password, Integer state, LocalDateTime when, Integer version) {
         this.id = id;
         this.password = password;
         this.state = state;
@@ -22,7 +22,7 @@ public class PasswordUpdateDTO {
         this.version = version;
     }
 
-    public PasswordUpdateDTO(Long id, String password, LocalDateTime when, Integer version) {
+    public PasswordStateDTO(Long id, String password, LocalDateTime when, Integer version) {
         this(id, password, null, when, version);
     }
 

@@ -28,6 +28,10 @@ public interface IUserManageDao extends MybatisMapperSupport {
 
     int deleteById(Long id);
 
+    int deleteUserAuthorities(Long userId);
+
+    int deleteUserRoles(Long userId);
+
     int countBySuperiorId(Long superiorId);
 
     int countByMchId(Long mchId);

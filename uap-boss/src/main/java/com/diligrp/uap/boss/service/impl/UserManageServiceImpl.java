@@ -29,7 +29,7 @@ import java.util.Optional;
 public class UserManageServiceImpl implements IUserManageService {
 
     @Resource
-    private IUserManageDao userManagementDao;
+    private IUserManageDao userManageDao;
 
     @Resource
     private IBranchDao branchManageDao;
@@ -43,7 +43,7 @@ public class UserManageServiceImpl implements IUserManageService {
     @Transactional(rollbackFor = Exception.class)
     public void createUser(UserDTO user, UserType type) {
         // 校验系统用户的登录账号唯一
-        Optional<UserDO> userOpt = userManagementDao.findByName(user.getName());
+        Optional<UserDO> userOpt = userManageDao.findByName(user.getName());
         userOpt.ifPresent(self -> {
             throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + self.getName());
         });
@@ -52,7 +52,7 @@ public class UserManageServiceImpl implements IUserManageService {
         branchOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "所属分支部门不存在"));
         // 校验上级用户
         if (user.getSuperiorId() != null) {
-            Optional<UserDO> superiorOpt = userManagementDao.findById(user.getSuperiorId());
+            Optional<UserDO> superiorOpt = userManageDao.findById(user.getSuperiorId());
             superiorOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "上级用户不存在"));
         }
 
@@ -65,7 +65,7 @@ public class UserManageServiceImpl implements IUserManageService {
             .branchId(user.getBranchId()).superiorId(user.getSuperiorId()).password(password).secretKey(secretKey)
             .state(UserState.PENDING.getCode()).mchId(user.getMchId()).description(user.getDescription()).version(0)
             .createdTime(now).modifiedTime(now).build();
-        userManagementDao.insertUser(userDO);
+        userManageDao.insertUser(userDO);
     }
 
     /**
@@ -73,7 +73,7 @@ public class UserManageServiceImpl implements IUserManageService {
      */
     @Override
     public UserDO findUserById(Long id) {
-        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        Optional<UserDO> userOpt = userManageDao.findById(id);
         return userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
     }
 
@@ -82,10 +82,10 @@ public class UserManageServiceImpl implements IUserManageService {
      */
     @Override
     public PageMessage<UserVO> listUsers(UserQuery query) {
-        long total = userManagementDao.countUsers(query);
+        long total = userManageDao.countUsers(query);
         List<UserVO> users = Collections.emptyList();
         if (total > 0) {
-            users = userManagementDao.listUsers(query);
+            users = userManageDao.listUsers(query);
         }
 
         return PageMessage.success(total, users);
@@ -98,14 +98,14 @@ public class UserManageServiceImpl implements IUserManageService {
     @Transactional(rollbackFor = Exception.class)
     public void updateUser(UserDTO user) {
         if (Objects.nonNull(user.getSuperiorId())) { // 校验上级用户是否存在
-            Optional<UserDO> superiorOpt = userManagementDao.findById(user.getSuperiorId());
+            Optional<UserDO> superiorOpt = userManageDao.findById(user.getSuperiorId());
             superiorOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "修改该用户信息失败：上级用户不存在"));
         }
 
         UserDO self = UserDO.builder().id(user.getId()).userName(user.getUserName()).telephone(user.getTelephone())
             .email(user.getEmail()).gender(user.getGender()).position(user.getPosition()).superiorId(user.getSuperiorId())
             .description(user.getDescription()).modifiedTime(LocalDateTime.now()).build();
-        if (userManagementDao.updateUser(self) == 0) {
+        if (userManageDao.updateUser(self) == 0) {
             throw new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "修改该用户信息失败：用户不存在");
         }
     }
@@ -118,7 +118,7 @@ public class UserManageServiceImpl implements IUserManageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void disableUser(Long id) {
-        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        Optional<UserDO> userOpt = userManageDao.findById(id);
         UserDO user = userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
         if (UserState.DISABLED.equalTo(user.getState())) {
             return;
@@ -128,7 +128,7 @@ public class UserManageServiceImpl implements IUserManageService {
         }
 
         UserStateDTO userState = new UserStateDTO(id, UserState.DISABLED.getCode(), LocalDateTime.now(), user.getVersion());
-        userManagementDao.compareAndSetState(userState);
+        userManageDao.compareAndSetState(userState);
     }
 
     /**
@@ -138,7 +138,7 @@ public class UserManageServiceImpl implements IUserManageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void enableUser(Long id) {
-        Optional<UserDO> userOpt = userManagementDao.findById(id);
+        Optional<UserDO> userOpt = userManageDao.findById(id);
         UserDO user = userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
         if (UserState.NORMAL.equalTo(user.getState())) {
             return;
@@ -148,7 +148,7 @@ public class UserManageServiceImpl implements IUserManageService {
         }
 
         UserStateDTO userState = new UserStateDTO(id, UserState.NORMAL.getCode(), LocalDateTime.now(), user.getVersion());
-        userManagementDao.compareAndSetState(userState);
+        userManageDao.compareAndSetState(userState);
     }
 
     /**
@@ -157,13 +157,15 @@ public class UserManageServiceImpl implements IUserManageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteUser(Long id) {
-        int users = userManagementDao.countBySuperiorId(id);
+        int users = userManageDao.countBySuperiorId(id);
         if (users > 0) {
             throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "此用户存在下级用户，不能被删除");
         }
-        // TODO: 删除用户时应删除用户权限和用户角色
 
-        users = userManagementDao.deleteById(id);
+        // 删除用户时删除用户权限和用户角色关联
+        userManageDao.deleteUserAuthorities(id);
+        userManageDao.deleteUserRoles(id);
+        users = userManageDao.deleteById(id);
         if (users == 0) {
             throw new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "当前用户不存在");
         }

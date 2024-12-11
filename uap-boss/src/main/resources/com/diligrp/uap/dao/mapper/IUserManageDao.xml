@@ -166,6 +166,14 @@
         DELETE FROM uap_user WHERE id = #{id}
     </delete>
 
+    <delete id="deleteUserAuthorities" parameterType="long">
+        DELETE FROM uap_user_authority WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserRoles" parameterType="long">
+        DELETE FROM uap_user_role WHERE user_id = #{userId}
+    </delete>
+
     <select id="countBySuperiorId" parameterType="long" resultType="int">
         SELECT COUNT(*) FROM uap_user WHERE superior_id = #{superiorId}
     </select>

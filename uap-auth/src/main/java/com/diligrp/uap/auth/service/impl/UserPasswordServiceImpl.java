@@ -3,7 +3,7 @@ package com.diligrp.uap.auth.service.impl;
 import com.diligrp.uap.auth.Constants;
 import com.diligrp.uap.auth.dao.IAuthenticationDao;
 import com.diligrp.uap.auth.domain.PasswordDTO;
-import com.diligrp.uap.auth.domain.PasswordUpdateDTO;
+import com.diligrp.uap.auth.domain.PasswordStateDTO;
 import com.diligrp.uap.auth.exception.UserPasswordException;
 import com.diligrp.uap.auth.service.IUserPasswordService;
 import com.diligrp.uap.boss.dao.IUserManageDao;
@@ -62,7 +62,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
             password = PasswordUtils.encrypt(request.getNewPassword(), user.getSecretKey());
             // 如果用户状态为待激活，修改密码时同步修改状态为正常
             Integer state = UserState.PENDING.equalTo(user.getState()) ? UserState.NORMAL.getCode() : null;
-            PasswordUpdateDTO requestDTO = new PasswordUpdateDTO(user.getId(), password, state, when, user.getVersion());
+            PasswordStateDTO requestDTO = new PasswordStateDTO(user.getId(), password, state, when, user.getVersion());
             int result = authenticationDao.updateUserPassword(requestDTO);
             if (result == 0) {
                 throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "修改密码失败：权限系统忙，请稍后再试");
@@ -140,7 +140,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
         String newPassword = PasswordUtils.encrypt(password, user.getSecretKey());
         // 锁定的用户状态，重置密码后状态变为正常
         Integer state = UserState.LOCKED.equalTo(user.getState()) ? UserState.NORMAL.getCode() : null;
-        PasswordUpdateDTO requestDTO = new PasswordUpdateDTO(user.getId(), newPassword, state, when, user.getVersion());
+        PasswordStateDTO requestDTO = new PasswordStateDTO(user.getId(), newPassword, state, when, user.getVersion());
 
         int result = authenticationDao.updateUserPassword(requestDTO);
         if (result == 0) {

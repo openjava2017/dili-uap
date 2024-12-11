@@ -1,8 +1,9 @@
-package com.diligrp.uap.shared.service;
+package com.diligrp.uap.shared.uid;
 
 import com.diligrp.uap.shared.util.AssertUtils;
 import com.diligrp.uap.shared.util.DateUtils;
 import com.diligrp.uap.shared.util.RandomUtils;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -15,17 +16,18 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * 雪花算法KeyManager实现
  */
+@Service("snowflakeKeyManager")
 public class SnowflakeKeyManager {
 
     private final Lock locker = new ReentrantLock();
 
-    private final ConcurrentMap<String, IKeyGenerator> keyGenerators = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, KeyGenerator> keyGenerators = new ConcurrentHashMap<>();
 
-    public IKeyGenerator getKeyGenerator(SnowflakeKey key) {
+    public KeyGenerator getKeyGenerator(SnowflakeKey key) {
         AssertUtils.notNull(key, "Miss key parameter");
 
         String cachedKey = key.identifier();
-        IKeyGenerator keyGenerator = keyGenerators.get(cachedKey);
+        KeyGenerator keyGenerator = keyGenerators.get(cachedKey);
         // First check, no need synchronize code block
         if (keyGenerator == null) {
             boolean result = false;
@@ -55,13 +57,13 @@ public class SnowflakeKeyManager {
     /**
      * 雪花算法ID生成器实现
      */
-    private static class SnowflakeKeyGenerator implements IKeyGenerator {
+    private static class SnowflakeKeyGenerator implements KeyGenerator {
 
         /**
          * Customer based epoch, unit as second. until 2020-08-08 00:00:00
          */
         private final long epochSeconds = LocalDateTime.of(2020, 8, 8, 0, 0, 0)
-                .toEpochSecond(ZoneOffset.of("+8"));
+            .toEpochSecond(ZoneOffset.of("+8"));
 
         /**
          * Stable fields after spring bean initializing
@@ -81,7 +83,7 @@ public class SnowflakeKeyManager {
         }
 
         @Override
-        public synchronized long nextId() {
+        public synchronized String nextId() {
             long currentSecond = getCurrentSecond();
 
             // Clock moved backwards, refuse to generate uid
@@ -90,15 +92,15 @@ public class SnowflakeKeyManager {
                 throw new RuntimeException(String.format("Clock moved backwards. Refusing for %d seconds", refusedSeconds));
             }
 
-            // At the same second, increase sequence
+            // At the same second, increase service
             if (currentSecond == lastSecond) {
                 sequence = (sequence + 1) & bitsAllocator.maxSequence;
-                // Exceed the max sequence, we wait the next second to generate uid
+                // Exceed the max service, we wait the next second to generate uid
                 if (sequence == 0) {
                     currentSecond = getNextSecond(lastSecond);
                 }
 
-                // At the different second, sequence restart from zero
+                // At the different second, service restart from zero
             } else {
                 sequence = 0L;
             }
@@ -106,7 +108,7 @@ public class SnowflakeKeyManager {
             lastSecond = currentSecond;
 
             // Allocate bits for UID
-            return bitsAllocator.allocate(currentSecond - epochSeconds, workerId, sequence);
+            return String.valueOf(bitsAllocator.allocate(currentSecond - epochSeconds, workerId, sequence));
         }
 
         public String parseId(long uid) {
@@ -125,7 +127,7 @@ public class SnowflakeKeyManager {
             String thatTime = DateUtils.formatDateTime(when);
 
             // format as string
-            return String.format("{\"UID\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}",
+            return String.format("{\"UID\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"service\":\"%d\"}",
                     uid, thatTime, workerId, sequence);
         }
 
@@ -156,7 +158,7 @@ public class SnowflakeKeyManager {
 
     /**
      * Allocate 64 bits for the UID(long)<br>
-     * sign (fixed 1bit) -> deltaSecond -> workerId -> sequence(within the same second)
+     * sign (fixed 1bit) -> deltaSecond -> workerId -> service(within the same second)
      */
     private static class BitsAllocator {
         /**
@@ -165,7 +167,7 @@ public class SnowflakeKeyManager {
         public static final int TOTAL_BITS = 1 << 6;
 
         /**
-         * Bits for [sign-> second-> workId-> sequence]
+         * Bits for [sign-> second-> workId-> service]
          */
         private final int signBits = 1;
         private final int timestampBits;
@@ -173,7 +175,7 @@ public class SnowflakeKeyManager {
         private final int sequenceBits;
 
         /**
-         * Max value for workId & sequence
+         * Max value for workId & service
          */
         private final long maxDeltaSeconds;
         private final long maxWorkerId;
@@ -210,7 +212,7 @@ public class SnowflakeKeyManager {
         }
 
         /**
-         * Allocate bits for UID according to delta seconds & workerId & sequence<br>
+         * Allocate bits for UID according to delta seconds & workerId & service<br>
          * <b>Note that: </b>The highest bit will always be 0 for sign
          */
         public long allocate(long deltaSeconds, long workerId, long sequence) {

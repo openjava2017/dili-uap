@@ -24,6 +24,7 @@ public class MenuElementController {
         AssertUtils.notNull(request.getMenuId(), "menuId missed");
         AssertUtils.notEmpty(request.getName(), "name missed");
         AssertUtils.notNull(request.getOffset(), "offset missed");
+        AssertUtils.isTrue(request.getOffset() >= 0 && request.getOffset() <= 31, "invalid offset: [0, 31]");
         AssertUtils.notNull(request.getSequence(), "sequence missed");
 
         menuElementService.createMenuElement(request);

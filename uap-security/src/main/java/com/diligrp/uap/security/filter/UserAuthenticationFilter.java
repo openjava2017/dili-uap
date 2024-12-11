@@ -27,7 +27,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
     private SessionRepository sessionRepository;
 
     @Resource
-    private UserAuthenticationService userAuthenticationService;
+    private AuthenticationService authenticationService;
 
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -56,10 +56,10 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
             request.setAttribute(Constants.REQUEST_ACCESS_TOKEN, accessToken);
 
             // 用户认证成功回调
-            userAuthenticationService.onAuthenticationSuccess(request, response);
+            authenticationService.onAuthenticationSuccess(request, response);
         } catch (Exception ex) {
             LOGGER.error(ErrorCode.MESSAGE_AUTHENTICATED_FAILED, ex);
-            userAuthenticationService.onAuthenticationFailed(request, response, ex);
+            authenticationService.onAuthenticationFailed(request, response, ex);
         }
     }
 
@@ -81,8 +81,8 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
     }
 
     protected Subject attemptAuthentication(HttpServletRequest request) {
-        AuthenticationToken authentication = userAuthenticationService.obtainAuthentication(request);
-        return userAuthenticationService.doAuthentication(authentication);
+        AuthenticationToken authentication = authenticationService.obtainAuthentication(request);
+        return authenticationService.doAuthentication(authentication);
     }
 
     public void setRequestMatcher(HttpRequestMatcher requestMatcher) {

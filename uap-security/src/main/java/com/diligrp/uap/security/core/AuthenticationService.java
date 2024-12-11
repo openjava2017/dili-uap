@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public abstract class UserAuthenticationService {
+public abstract class AuthenticationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthenticationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationToken obtainAuthentication(HttpServletRequest request) throws AuthenticationException {
         String username = request.getParameter(Constants.FORM_USERNAME_KEY);

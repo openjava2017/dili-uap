@@ -64,8 +64,8 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public UserAuthenticationService userAuthenticationService() {
-        return new UserAuthenticationService() {
+    public AuthenticationService userAuthenticationService() {
+        return new AuthenticationService() {
             @Override
             public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
                 List<Authority> authorities = new ArrayList<>();

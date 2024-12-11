@@ -4,7 +4,7 @@
 
 <mapper namespace="com.diligrp.uap.auth.dao.IAuthenticationDao">
 
-    <update id="updateUserPassword" parameterType="com.diligrp.uap.auth.domain.PasswordUpdateDTO">
+    <update id="updateUserPassword" parameterType="com.diligrp.uap.auth.domain.PasswordStateDTO">
         UPDATE uap_user SET password = #{password}
         <if test="state != null">
             , state = #{state}
