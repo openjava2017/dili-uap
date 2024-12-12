@@ -15,7 +15,7 @@ public interface IModuleService {
     /**
      * 根据ID查找系统模块
      */
-    ModuleDO findModuleById(Long id);
+    ModuleDO findByModuleId(Long moduleId);
 
     /**
      * 分页查询系统模块
@@ -30,5 +30,5 @@ public interface IModuleService {
     /**
      * 删除指定的系统模块
      */
-    void deleteModule(Long id);
+    void deleteModule(Long moduleId);
 }

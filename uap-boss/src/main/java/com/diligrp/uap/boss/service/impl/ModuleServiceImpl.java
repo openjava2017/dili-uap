@@ -32,11 +32,11 @@ public class ModuleServiceImpl implements IModuleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createModule(ModuleDTO module) {
-        moduleDao.findByCode(module.getCode()).ifPresent(m -> {
-            throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "模块已存在：" + m.getCode());
+        moduleDao.findByModuleId(module.getModuleId()).ifPresent(m -> {
+            throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "模块号已存在：" + m.getModuleId());
         });
 
-        ModuleDO self = ModuleDO.builder().code(module.getCode()).name(module.getName()).type(module.getType())
+        ModuleDO self = ModuleDO.builder().moduleId(module.getModuleId()).name(module.getName()).type(module.getType())
             .uri(module.getUri()).icon(module.getIcon()).description(module.getDescription())
             .sequence(module.getSequence()).createdTime(LocalDateTime.now()).build();
         moduleDao.insertModule(self);
@@ -46,8 +46,9 @@ public class ModuleServiceImpl implements IModuleService {
      * 根据ID查找系统模块
      */
     @Override
-    public ModuleDO findModuleById(Long id) {
-        return moduleDao.findById(id).orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块不存在"));
+    public ModuleDO findByModuleId(Long moduleId) {
+        return moduleDao.findByModuleId(moduleId).orElseThrow(() ->
+            new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块不存在"));
     }
 
     /**
@@ -70,9 +71,10 @@ public class ModuleServiceImpl implements IModuleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateModule(ModuleDTO module) {
-        ModuleDO self = ModuleDO.builder().id(module.getId()).name(module.getName()).type(module.getType())
+        ModuleDO self = ModuleDO.builder().moduleId(module.getModuleId()).name(module.getName()).type(module.getType())
             .uri(module.getUri()).icon(module.getIcon()).description(module.getDescription())
             .sequence(module.getSequence()).build();
+
         if(moduleDao.updateModule(self) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块不存在");
         }
@@ -83,11 +85,11 @@ public class ModuleServiceImpl implements IModuleService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteModule(Long id) {
-        if(menuResourceDao.countByModuleId(id) > 0) {
+    public void deleteModule(Long moduleId) {
+        if(menuResourceDao.countByModuleId(moduleId) > 0) {
             throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "系统模块删除失败：存在菜单资源");
         }
-        if (moduleDao.deleteById(id) == 0) {
+        if (moduleDao.deleteByModuleId(moduleId) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块删除失败：模块不存在");
         }
     }

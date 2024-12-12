@@ -13,9 +13,7 @@ public interface IModuleDao extends MybatisMapperSupport {
 
     void insertModule(ModuleDO module);
 
-    Optional<ModuleDO> findById(Long id);
-
-    Optional<ModuleDO> findByCode(String code);
+    Optional<ModuleDO> findByModuleId(Long moduleId);
 
     List<ModuleDO> listModules(ModuleQuery query);
 
@@ -23,5 +21,5 @@ public interface IModuleDao extends MybatisMapperSupport {
 
     int updateModule(ModuleDO module);
 
-    int deleteById(Long id);
+    int deleteByModuleId(Long moduleId);
 }

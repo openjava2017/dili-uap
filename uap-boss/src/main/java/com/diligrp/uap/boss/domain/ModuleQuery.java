@@ -2,16 +2,14 @@ package com.diligrp.uap.boss.domain;
 
 import com.diligrp.uap.shared.domain.PageQuery;
 
-import java.time.LocalDateTime;
-
 public class ModuleQuery extends PageQuery {
     // 页号
     private Integer pageNo = 1;
     // 每页记录数
     private Integer pageSize = 20;
 
-    // 模块编码
-    private String code;
+    // 模块号
+    private Long moduleId;
     // 模块名称
     private String name;
     // 模块类型
@@ -33,12 +31,12 @@ public class ModuleQuery extends PageQuery {
         this.pageSize = pageSize;
     }
 
-    public String getCode() {
-        return code;
+    public Long getModuleId() {
+        return moduleId;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setModuleId(Long moduleId) {
+        this.moduleId = moduleId;
     }
 
     public String getName() {

@@ -4,10 +4,8 @@ package com.diligrp.uap.boss.domain;
  * 用于模块新增和修改的数据模型
  */
 public class ModuleDTO {
-    // 模块ID
-    private Long id;
-    // 模块编码
-    private String code;
+    // 模块号
+    private Long moduleId;
     // 模块名称
     private String name;
     // 模块类型
@@ -21,20 +19,12 @@ public class ModuleDTO {
     // 顺序号
     private Integer sequence;
 
-    public Long getId() {
-        return id;
+    public Long getModuleId() {
+        return moduleId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+    public void setModuleId(Long moduleId) {
+        this.moduleId = moduleId;
     }
 
     public String getName() {

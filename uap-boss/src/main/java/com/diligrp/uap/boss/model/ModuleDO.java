@@ -5,8 +5,8 @@ import com.diligrp.uap.shared.domain.BaseDO;
 import java.time.LocalDateTime;
 
 public class ModuleDO extends BaseDO {
-    // 模块编码
-    private Long code;
+    // 模块号
+    private Long moduleId;
     // 模块名称
     private String name;
     // 模块类型
@@ -22,12 +22,12 @@ public class ModuleDO extends BaseDO {
     // 创建时间
     private LocalDateTime createdTime;
 
-    public String getCode() {
-        return code;
+    public Long getModuleId() {
+        return moduleId;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setModuleId(Long moduleId) {
+        this.moduleId = moduleId;
     }
 
     public String getName() {
@@ -93,13 +93,8 @@ public class ModuleDO extends BaseDO {
     }
 
     public class Builder {
-        public Builder id(Long id) {
-            ModuleDO.this.id = id;
-            return this;
-        }
-
-        public Builder code(String code) {
-            ModuleDO.this.code = code;
+        public Builder moduleId(Long moduleId) {
+            ModuleDO.this.moduleId = moduleId;
             return this;
         }
 

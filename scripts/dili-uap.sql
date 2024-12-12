@@ -173,7 +173,7 @@ CREATE TABLE `uap_menu_element` (
 DROP TABLE IF EXISTS `uap_module`;
 CREATE TABLE `uap_module` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `code` VARCHAR(60) NOT NULL COMMENT '模块编码', -- 可以用来做license
+  `module_id` BIGINT NOT NULL COMMENT '模块号', -- 可以用来做license
   `name` VARCHAR(60) NOT NULL COMMENT '模块名称',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '模块类型', -- Platform Native PC App MiniPro
   `uri` VARCHAR(60) NOT NULL COMMENT '绝对路径',

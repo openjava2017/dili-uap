@@ -25,7 +25,10 @@ public class ModuleController {
 
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody ModuleDTO request) {
-        AssertUtils.notEmpty(request.getCode(), "code missed");
+        AssertUtils.notNull(request.getModuleId(), "moduleId missed");
+        // 请不要随意修改模块号的范围，否则可能影响树形结构数据的构建
+        AssertUtils.isTrue(request.getModuleId() >= 10 && request.getModuleId() <= 99,
+            "无效模块号: 模块号必须2位数字");
         AssertUtils.notEmpty(request.getName(), "name missed");
         ModuleType.getType(request.getType()).orElseThrow(() -> new IllegalArgumentException("invalid type"));
         AssertUtils.notEmpty(request.getUri(), "uri missed");
@@ -36,9 +39,9 @@ public class ModuleController {
         return Message.success();
     }
 
-    @RequestMapping(value = "/findById.do")
-    public Message<ModuleDO> findById(@RequestParam("id") Long id) {
-        return Message.success(moduleService.findModuleById(id));
+    @RequestMapping(value = "/findByModuleId.do")
+    public Message<ModuleDO> findByModuleId(@RequestParam("moduleId") Long moduleId) {
+        return Message.success(moduleService.findByModuleId(moduleId));
     }
 
     @RequestMapping(value = "/list.do")
@@ -54,7 +57,7 @@ public class ModuleController {
 
     @RequestMapping(value = "/update.do")
     public Message<?> update(@RequestBody ModuleDTO request) {
-        AssertUtils.notNull(request.getId(), "id missed");
+        AssertUtils.notNull(request.getModuleId(), "moduleId missed");
         // 传入名称防止没有修改任何属性导致sql异常
         AssertUtils.notEmpty(request.getName(), "name missed");
         Optional.ofNullable(request.getType()).ifPresent(code -> ModuleType.getType(code).orElseThrow(
@@ -65,8 +68,8 @@ public class ModuleController {
     }
 
     @RequestMapping(value = "/delete.do")
-    public Message<?> delete(@RequestParam("id") Long id) {
-        moduleService.deleteModule(id);
+    public Message<?> delete(@RequestParam("moduleId") Long moduleId) {
+        moduleService.deleteModule(moduleId);
         return Message.success();
     }
 }

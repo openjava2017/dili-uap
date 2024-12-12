@@ -5,7 +5,7 @@
 <mapper namespace="com.diligrp.uap.boss.dao.IModuleDao">
     <resultMap id="ModuleMap" type="com.diligrp.uap.boss.model.ModuleDO">
         <id column="id" property="id"/>
-        <result column="code" property="code"/>
+        <result column="module_id" property="moduleId"/>
         <result column="name" property="name"/>
         <result column="type" property="type"/>
         <result column="uri" property="uri"/>
@@ -16,16 +16,12 @@
     </resultMap>
 
     <insert id="insertModule" parameterType="com.diligrp.uap.boss.model.ModuleDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO uap_module(`code`, `name`, `type`, `uri`, `icon`, `description`, `sequence`, `created_time`)
-        VALUES (#{code}, #{name}, #{type}, #{uri}, #{icon}, #{description}, #{sequence}, #{createdTime})
+        INSERT INTO uap_module(`module_id`, `name`, `type`, `uri`, `icon`, `description`, `sequence`, `created_time`)
+        VALUES (#{moduleId}, #{name}, #{type}, #{uri}, #{icon}, #{description}, #{sequence}, #{createdTime})
     </insert>
 
-    <select id="findById" parameterType="long" resultMap="ModuleMap">
-        SELECT * FROM uap_module WHERE id = #{id}
-    </select>
-
-    <select id="findByCode" parameterType="string" resultMap="ModuleMap">
-        SELECT * FROM uap_module WHERE code = #{code}
+    <select id="findByModuleId" parameterType="long" resultMap="ModuleMap">
+        SELECT * FROM uap_module WHERE module_id = #{moduleId}
     </select>
 
     <select id="listModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultMap="ModuleMap">
@@ -33,8 +29,8 @@
         *
         FROM uap_module
         <where>
-            <if test="code != null">
-                AND code = #{code}
+            <if test="moduleId != null">
+                AND module_id = #{moduleId}
             </if>
             <if test="name != null">
                 AND name LIKE "%"#{name}"%"
@@ -52,8 +48,8 @@
             COUNT(*)
         FROM uap_module
         <where>
-            <if test="code != null">
-                AND code = #{code}
+            <if test="moduleId != null">
+                AND module_id = #{moduleId}
             </if>
             <if test="name != null">
                 AND name LIKE "%"#{name}"%"
@@ -86,10 +82,10 @@
                 sequence = #{sequence},
             </if>
         </set>
-        WHERE id = #{id}
+        WHERE module_id = #{moduleId}
     </update>
 
-    <delete id="deleteById" parameterType="long">
-        DELETE FROM uap_module WHERE id = #{id}
+    <delete id="deleteByModuleId" parameterType="long">
+        DELETE FROM uap_module WHERE module_id = #{moduleId}
     </delete>
 </mapper>
