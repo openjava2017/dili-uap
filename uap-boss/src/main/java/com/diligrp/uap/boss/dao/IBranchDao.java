@@ -24,8 +24,6 @@ public interface IBranchDao extends MybatisMapperSupport {
 
     int updateBranch(BranchDO branch);
 
-    int updateCodeById(@Param("id") Long id, @Param("code") String code);
-
     int incChildrenById(Long id);
 
     int decChildrenById(Long id);

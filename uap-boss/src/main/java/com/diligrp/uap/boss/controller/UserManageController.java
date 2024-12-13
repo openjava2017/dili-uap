@@ -86,6 +86,12 @@ public class UserManageController {
         return userManageService.listUsers(request);
     }
 
+    @RequestMapping(value = "/findById.do")
+    public Message<UserDO> findById(@RequestParam("id") Long id) {
+        UserDO user = userManageService.findUserById(id);
+        return Message.success(user);
+    }
+
     @RequestMapping(value = "/update.do")
     public Message<?> updateUser(@RequestBody UserDTO request) {
         Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)

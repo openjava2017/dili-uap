@@ -15,6 +15,8 @@ public interface IMenuResourceDao extends MybatisMapperSupport {
 
     Optional<MenuResourceDO> findById(Long id);
 
+    List<MenuResourceDO> listAllMenus();
+
     List<MenuResourceDO> listChildren(Long id);
 
     List<MenuResourceDO> listByIds(List<Long> ids);
@@ -25,15 +27,13 @@ public interface IMenuResourceDao extends MybatisMapperSupport {
 
     int countByModuleId(Long moduleId);
 
-    int updateCodeById(@Param("id") Long id, @Param("code") String code);
-
     int incChildrenById(Long id);
 
     int decChildrenById(Long id);
 
     int deleteById(Long id);
 
-    int deleteRoleAuthority(Long menuId);
+    int deleteRoleAuthority(@Param("menuId") Long menuId, @Param("type") Integer type);
 
-    int deleteUserAuthority(Long menuId);
+    int deleteUserAuthority(@Param("menuId") Long menuId, @Param("type") Integer type);
 }

@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.Constants;
 import com.diligrp.uap.boss.converter.BossConverters;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.domain.MenuElementDTO;
@@ -7,6 +8,8 @@ import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.MenuElementDO;
 import com.diligrp.uap.boss.service.IMenuElementService;
 import com.diligrp.uap.shared.ErrorCode;
+import com.diligrp.uap.shared.uid.KeyGenerator;
+import com.diligrp.uap.shared.uid.KeyGeneratorManager;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +24,23 @@ public class MenuElementServiceImpl implements IMenuElementService {
     @Resource
     private IMenuElementDao menuElementDao;
 
+    @Resource
+    private KeyGeneratorManager keyGeneratorManager;
+
     /**
      * 新增页面元素
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createMenuElement(MenuElementDTO element) {
-        MenuElementDO self = MenuElementDO.builder().menuId(element.getMenuId()).name(element.getName())
-            .offset(element.getOffset()).description(element.getDescription()).sequence(element.getSequence())
-            .createdTime(LocalDateTime.now()).build();
+        LocalDateTime when = LocalDateTime.now();
+        // 使用菜单的ID生成器，保证页面元素和菜单的ID不重复，目的是为了快速构建模块-菜单-页面的元素树形结构数据
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
+        String elementId = keyGenerator.nextId();
+
+        MenuElementDO self = MenuElementDO.builder().id(Long.parseLong(elementId)).menuId(element.getMenuId())
+            .name(element.getName()).offset(element.getOffset()).description(element.getDescription())
+            .sequence(element.getSequence()).createdTime(when).build();
         menuElementDao.insertMenuElement(self);
     }
 

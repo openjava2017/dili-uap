@@ -14,6 +14,8 @@ public interface IMenuElementDao extends MybatisMapperSupport {
 
     Optional<MenuElementDO> findById(Long id);
 
+    List<MenuElementDO> listAllElements();
+
     List<MenuElementDO> listByMenuId(Long menuId);
 
     int updateMenuElement(MenuElementDO element);

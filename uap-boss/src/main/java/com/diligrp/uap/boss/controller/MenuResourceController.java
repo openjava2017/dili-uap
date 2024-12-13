@@ -32,7 +32,7 @@ public class MenuResourceController {
         AssertUtils.notEmpty(request.getUri(), "uri missed");
         AssertUtils.notNull(request.getSequence(), "sequence missed");
 
-        if (request.getParentId() == null) { // 创建第一级根菜单
+        if (request.getParentId() == null || request.getParentId() == 0) { // 创建第一级根菜单
             AssertUtils.notNull(request.getModuleId(), "moduleId missed");
             menuResourceService.createRootMenu(request);
         } else {

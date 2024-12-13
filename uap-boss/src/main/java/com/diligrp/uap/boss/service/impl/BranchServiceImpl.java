@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.Constants;
 import com.diligrp.uap.boss.converter.BossConverters;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
@@ -9,6 +10,8 @@ import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.service.IBranchService;
 import com.diligrp.uap.shared.ErrorCode;
+import com.diligrp.uap.shared.uid.KeyGenerator;
+import com.diligrp.uap.shared.uid.KeyGeneratorManager;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,9 @@ public class BranchServiceImpl implements IBranchService {
     @Resource
     private IUserManageDao userManageDao;
 
+    @Resource
+    private KeyGeneratorManager keyGeneratorManager;
+
     /**
      * 创建商户第一级根分支机构
      */
@@ -33,12 +39,14 @@ public class BranchServiceImpl implements IBranchService {
     @Transactional(rollbackFor = Exception.class)
     public void createRootBranch(BranchDTO branch) {
         LocalDateTime when = LocalDateTime.now();
-        String code = String.format("%s,%s", branch.getMchId(), "*");
-        BranchDO self = BranchDO.builder().mchId(branch.getMchId()).parentId(0L).code(code).name(branch.getName())
-            .type(branch.getType()).level(1).children(0).state(1).version(0).createdTime(when).modifiedTime(when).build();
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_BRANCH_ID);
+        String branchId = keyGenerator.nextId();
+
+        // 为了快速构建商户-组织机构的树形数据，一级组织机构code为自身ID，且parentId为mchId
+        BranchDO self = BranchDO.builder().id(Long.parseLong(branchId)).mchId(branch.getMchId())
+            .parentId(branch.getMchId()).code(branchId).name(branch.getName()).type(branch.getType())
+            .level(1).children(0).state(1).version(0).createdTime(when).modifiedTime(when).build();
         branchDao.insertBranch(self);
-        // 根据ID更新编码
-        branchDao.updateCodeById(self.getId(), String.valueOf(self.getId()));
     }
 
     /**
@@ -51,13 +59,14 @@ public class BranchServiceImpl implements IBranchService {
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级分支机构不存在"));
 
         LocalDateTime when = LocalDateTime.now();
-        String code = String.format("%s,%s", parent.getCode(), "*");
-        BranchDO self = BranchDO.builder().mchId(branch.getMchId()).parentId(branch.getParentId())
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_BRANCH_ID);
+        String branchId = keyGenerator.nextId();
+
+        String code = String.format("%s,%s", parent.getCode(), branchId);
+        BranchDO self = BranchDO.builder().id(Long.parseLong(branchId)).mchId(branch.getMchId()).parentId(branch.getParentId())
             .code(code).name(branch.getName()).type(branch.getType()).level(parent.getLevel() + 1).children(0)
             .state(1).version(0).createdTime(when).modifiedTime(when).build();
         branchDao.insertBranch(self);
-        // 根据ID更新编码，格式：父级编码,ID
-        branchDao.updateCodeById(self.getId(), String.format("%s,%s", parent.getCode(), self.getId()));
         // 增加父级节点的子节点数量
         branchDao.incChildrenById(parent.getId());
     }

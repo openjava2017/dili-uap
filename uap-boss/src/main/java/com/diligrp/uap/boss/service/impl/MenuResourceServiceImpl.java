@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.Constants;
 import com.diligrp.uap.boss.converter.BossConverters;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
@@ -8,7 +9,10 @@ import com.diligrp.uap.boss.domain.MenuResourceVO;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.MenuResourceDO;
 import com.diligrp.uap.boss.service.IMenuResourceService;
+import com.diligrp.uap.boss.type.ResourceType;
 import com.diligrp.uap.shared.ErrorCode;
+import com.diligrp.uap.shared.uid.KeyGenerator;
+import com.diligrp.uap.shared.uid.KeyGeneratorManager;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     @Resource
     private IMenuElementDao menuElementDao;
 
+    @Resource
+    private KeyGeneratorManager keyGeneratorManager;
+
     /**
      * 创建系统模块下第一级根菜单资源，需指定系统模块
      */
@@ -33,14 +40,14 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     @Transactional(rollbackFor = Exception.class)
     public void createRootMenu(MenuResourceDTO menu) {
         LocalDateTime when = LocalDateTime.now();
-        String code = String.format("%s,%s", menu.getModuleId(), "*");
-        MenuResourceDO self = MenuResourceDO.builder().parentId(0L).code(code).name(menu.getName()).level(1)
-            .children(0).uri(menu.getUri()).icon(menu.getIcon()).moduleId(menu.getModuleId())
-            .description(menu.getDescription()).sequence(menu.getSequence()).createdTime(when).build();
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
+        String menuId = keyGenerator.nextId();
 
+        MenuResourceDO self = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(menu.getModuleId())
+            .code(menuId).name(menu.getName()).level(1).children(0).uri(menu.getUri()).icon(menu.getIcon())
+            .moduleId(menu.getModuleId()).description(menu.getDescription()).sequence(menu.getSequence())
+            .createdTime(when).build();
         menuResourceDao.insertMenuResource(self);
-        // 根据ID更新编码
-        menuResourceDao.updateCodeById(self.getId(), String.valueOf(self.getId()));
     }
 
     /**
@@ -53,14 +60,15 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级菜单不存在"));
 
         LocalDateTime when = LocalDateTime.now();
-        String code = String.format("%s,%s", parent.getCode(), "*");
-        MenuResourceDO self = MenuResourceDO.builder().parentId(menu.getParentId()).code(code).name(menu.getName())
-            .level(parent.getLevel() + 1).children(0).uri(menu.getUri()).icon(menu.getIcon()).moduleId(parent.getModuleId())
-            .description(menu.getDescription()).sequence(menu.getSequence()).createdTime(when).build();
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
+        String menuId = keyGenerator.nextId();
+        String code = String.format("%s,%s", parent.getCode(), menuId);
 
+        MenuResourceDO self = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(menu.getParentId())
+            .code(code).name(menu.getName()).level(parent.getLevel() + 1).children(0).uri(menu.getUri())
+            .icon(menu.getIcon()).moduleId(parent.getModuleId()).description(menu.getDescription())
+            .sequence(menu.getSequence()).createdTime(when).build();
         menuResourceDao.insertMenuResource(self);
-        // 根据ID更新编码，格式：父级编码,ID
-        menuResourceDao.updateCodeById(self.getId(), String.format("%s,%s", parent.getCode(), self.getId()));
         // 增加父级节点的子节点数量
         menuResourceDao.incChildrenById(parent.getId());
         // 如果父级菜单作为叶子节点已被分配给角色或用户，添加子菜单会导致权限分配失效
@@ -149,9 +157,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         }
 
         // 删除角色-菜单的关联
-        menuResourceDao.deleteRoleAuthority(id);
+        menuResourceDao.deleteRoleAuthority(id, ResourceType.MENU.getCode());
         // 删除用户-菜单的关联
-        menuResourceDao.deleteUserAuthority(id);
+        menuResourceDao.deleteUserAuthority(id, ResourceType.MENU.getCode());
         // 删除菜单
         if (menuResourceDao.deleteById(id) > 0) { // 防止并发删除时将父节点的children修改成负数
             // 父节点的子节点数-1

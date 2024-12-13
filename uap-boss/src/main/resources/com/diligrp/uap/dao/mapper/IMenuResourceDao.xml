@@ -19,12 +19,16 @@
     </resultMap>
 
     <insert id="insertMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">
-        INSERT INTO uap_menu_resource(parent_id, code, name, level, children, uri, icon, module_id, sequence, created_time)
-        VALUES (#{parentId}, #{code}, #{name}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
+        INSERT INTO uap_menu_resource(id, parent_id, code, name, level, children, uri, icon, module_id, sequence, created_time)
+        VALUES (#{id}, #{parentId}, #{code}, #{name}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="MenuResourceMap">
         SELECT * FROM uap_menu_resource WHERE id = #{id}
+    </select>
+
+    <select id="listAllMenus" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource ORDER BY level, sequence
     </select>
 
     <select id="listChildren" parameterType="long" resultMap="MenuResourceMap">
@@ -86,11 +90,11 @@
         DELETE FROM uap_menu_resource WHERE id = #{id}
     </delete>
 
-    <delete id="deleteRoleAuthority" parameterType="long">
-        DELETE FROM uap_role_authority WHERE resource_id = #{menuId} AND type = 1
+    <delete id="deleteRoleAuthority">
+        DELETE FROM uap_role_authority WHERE resource_id = #{menuId} AND type = #{type}
     </delete>
 
-    <delete id="deleteUserAuthority" parameterType="long">
-        DELETE FROM uap_user_authority WHERE resource_id = #{menuId} AND type = 1
+    <delete id="deleteUserAuthority">
+        DELETE FROM uap_user_authority WHERE resource_id = #{menuId} AND type = #{type}
     </delete>
 </mapper>

@@ -33,12 +33,12 @@ CREATE TABLE `uap_merchant` (
 
 DROP TABLE IF EXISTS `uap_branch`;
 CREATE TABLE `uap_branch` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建商户-组织机构的树形结构数据
   `mch_id` BIGINT NOT NULL COMMENT '商户号',
-  `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
+  `parent_id` BIGINT NOT NULL COMMENT '父级机构ID', -- 一级节点的父节点为mchId
   `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
   `name` VARCHAR(80) NOT NULL COMMENT '名称',
-  `type` TINYINT UNSIGNED NOT NULL COMMENT '类型', -- 分公司，业务部门，行政部门等
+  `type` TINYINT UNSIGNED NOT NULL COMMENT '类型', -- 业务部门，行政部门等
   `level` TINYINT UNSIGNED NOT NULL COMMENT '层级', -- 分支机构树层级
   `children` SMALLINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 是否为叶子节点
   `state` TINYINT UNSIGNED NOT NULL COMMENT '状态', -- 保留字段
@@ -46,10 +46,11 @@ CREATE TABLE `uap_branch` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  KEY `idx_branch_code` (`code`) USING BTREE, -- 不要使用唯一索引
-  KEY `idx_branch_parentId` (`parent_id`, `state`) USING BTREE,
+  UNIQUE KEY `uk_branch_code` (`code`) USING BTREE,
+  KEY `idx_branch_parentId` (`parent_id`, `created_time`) USING BTREE,
   KEY `idx_branch_mchId` (`mch_id`, `level`) USING BTREE,
-  KEY `idx_branch_name` (`name`, `parent_id`) USING BTREE
+  KEY `idx_branch_name` (`name`) USING BTREE,
+  KEY `idx_branch_createdTime` (`created_time`, `level`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_user`;
@@ -139,8 +140,8 @@ CREATE TABLE `uap_role_authority` (
 
 DROP TABLE IF EXISTS `uap_menu_resource`;
 CREATE TABLE `uap_menu_resource` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `parent_id` BIGINT NOT NULL COMMENT '父菜单',
+  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建模块-菜单-元素的树形结构数据
+  `parent_id` BIGINT NOT NULL COMMENT '父节点', -- 第一级节点的父节点设置为moduleId
   `code` VARCHAR(40) NOT NULL COMMENT '菜单编码', -- 格式：父菜单编码1-父菜单编码2-编码
   `name` VARCHAR(60) NOT NULL COMMENT '菜单名称',
   `level` TINYINT UNSIGNED NOT NULL COMMENT '菜单层级',
@@ -152,14 +153,14 @@ CREATE TABLE `uap_menu_resource` (
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_menu_resource_code` (`code`) USING BTREE, -- 不要使用唯一索引
+  UNIQUE KEY `uk_menu_resource_code` (`code`) USING BTREE,
   KEY `idx_menu_resource_moduleId` (`module_id`, `level`) USING BTREE,
   KEY `idx_menu_resource_parentId` (`parent_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `uap_menu_element`;
 CREATE TABLE `uap_menu_element` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建模块-菜单-元素的树形结构数据
   `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
   `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏移量',

@@ -15,6 +15,8 @@ public interface IModuleDao extends MybatisMapperSupport {
 
     Optional<ModuleDO> findByModuleId(Long moduleId);
 
+    List<ModuleDO> listAllModules();
+
     List<ModuleDO> listModules(ModuleQuery query);
 
     long countModules(ModuleQuery query);

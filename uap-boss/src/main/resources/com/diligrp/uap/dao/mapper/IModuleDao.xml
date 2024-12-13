@@ -24,6 +24,10 @@
         SELECT * FROM uap_module WHERE module_id = #{moduleId}
     </select>
 
+    <select id="listAllModules" resultMap="ModuleMap">
+        SELECT * FROM uap_module ORDER BY sequence
+    </select>
+
     <select id="listModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultMap="ModuleMap">
         SELECT
         *

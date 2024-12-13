@@ -15,12 +15,16 @@
     </resultMap>
 
     <insert id="insertMenuElement" parameterType="com.diligrp.uap.boss.model.MenuElementDO">
-        INSERT INTO uap_menu_element(menu_id, name, offset, description, sequence, created_time)
-        VALUES (#{menuId}, #{name}, #{offset}, #{description}, #{sequence}, #{createdTime})
+        INSERT INTO uap_menu_element(id, menu_id, name, offset, description, sequence, created_time)
+        VALUES (#{id}, #{menuId}, #{name}, #{offset}, #{description}, #{sequence}, #{createdTime})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="MenuElementMap">
         SELECT * FROM uap_menu_element WHERE id = #{id}
+    </select>
+
+    <select id="listAllElements" resultMap="MenuElementMap">
+        SELECT * FROM uap_menu_element ORDER BY sequence
     </select>
 
     <select id="listByMenuId" parameterType="long" resultMap="MenuElementMap">
