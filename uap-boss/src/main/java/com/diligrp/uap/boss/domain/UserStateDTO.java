@@ -12,11 +12,14 @@ public class UserStateDTO {
     // 数据版本 - 乐观锁防止并发修改数据
     private Integer version;
 
-    public UserStateDTO(Long id, Integer state, LocalDateTime when, Integer version) {
-        this.id = id;
-        this.state = state;
-        this.when = when;
-        this.version = version;
+    public static UserStateDTO of(Long id, Integer state, LocalDateTime when, Integer version) {
+        UserStateDTO user = new UserStateDTO();
+        user.id = id;
+        user.state = state;
+        user.when = when;
+        user.version = version;
+
+        return user;
     }
 
     public Long getId() {

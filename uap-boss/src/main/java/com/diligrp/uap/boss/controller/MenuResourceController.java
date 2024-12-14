@@ -20,25 +20,14 @@ public class MenuResourceController {
     @Resource
     private IMenuResourceService menuResourceService;
 
-    @RequestMapping(value = "/root.do")
-    public Message<List<MenuResourceVO>> root(@RequestParam("moduleId") Long moduleId) {
-        List<MenuResourceVO> roots = menuResourceService.listRoots(moduleId);
-        return Message.success(roots);
-    }
-
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody MenuResourceDTO request) {
+        AssertUtils.notNull(request.getParentId(), "parentId missed");
         AssertUtils.notEmpty(request.getName(), "name missed");
         AssertUtils.notEmpty(request.getUri(), "uri missed");
         AssertUtils.notNull(request.getSequence(), "sequence missed");
 
-        if (request.getParentId() == null || request.getParentId() == 0) { // 创建第一级根菜单
-            AssertUtils.notNull(request.getModuleId(), "moduleId missed");
-            menuResourceService.createRootMenu(request);
-        } else {
-            menuResourceService.createMenuResource(request);
-        }
-
+        menuResourceService.createMenuResource(request);
         return Message.success();
     }
 

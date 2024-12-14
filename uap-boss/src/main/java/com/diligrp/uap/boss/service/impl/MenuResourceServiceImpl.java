@@ -1,7 +1,7 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.Constants;
-import com.diligrp.uap.boss.converter.BossConverters;
+import com.diligrp.uap.boss.converter.MenuDoVoConverter;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.domain.MenuResourceDTO;
@@ -34,24 +34,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     private KeyGeneratorManager keyGeneratorManager;
 
     /**
-     * 创建系统模块下第一级根菜单资源，需指定系统模块
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void createRootMenu(MenuResourceDTO menu) {
-        LocalDateTime when = LocalDateTime.now();
-        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
-        String menuId = keyGenerator.nextId();
-
-        MenuResourceDO self = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(menu.getModuleId())
-            .code(menuId).name(menu.getName()).level(1).children(0).uri(menu.getUri()).icon(menu.getIcon())
-            .moduleId(menu.getModuleId()).description(menu.getDescription()).sequence(menu.getSequence())
-            .createdTime(when).build();
-        menuResourceDao.insertMenuResource(self);
-    }
-
-    /**
-     * 创建系统模块下非根菜单资源，不需指定系统模块，与父级菜单的系统模块相同
+     * 创建菜单资源，归属的系统模块与父级菜单相同
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -79,17 +62,8 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
      */
     @Override
     public MenuResourceVO findMenuById(Long id) {
-        return menuResourceDao.findById(id).map(BossConverters.MENU_DO2VO::convert).orElseThrow(() ->
+        return menuResourceDao.findById(id).map(MenuDoVoConverter.INSTANCE::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "菜单不存在"));
-    }
-
-    /**
-     * 查询系统模块下的所有一级菜单
-     */
-    @Override
-    public List<MenuResourceVO> listRoots(Long moduleId) {
-        List<MenuResourceDO> menus = menuResourceDao.listByModuleId(moduleId, 1);
-        return menus.stream().map(BossConverters.MENU_DO2VO::convert).collect(Collectors.toList());
     }
 
     /**
@@ -98,7 +72,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     @Override
     public List<MenuResourceVO> listChildren(Long id) {
         List<MenuResourceDO> menus = menuResourceDao.listChildren(id);
-        return menus.stream().map(BossConverters.MENU_DO2VO::convert).collect(Collectors.toList());
+        return menus.stream().map(MenuDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
     }
 
     /**
@@ -122,9 +96,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
                 ids.add(id);
             }
 
-            return menuResourceDao.listByIds(ids).stream().map(BossConverters.MENU_DO2VO::convert).collect(Collectors.toList());
+            return menuResourceDao.listByIds(ids).stream().map(MenuDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
         } else {
-            return Collections.singletonList(BossConverters.MENU_DO2VO.convert(menu));
+            return Collections.singletonList(MenuDoVoConverter.INSTANCE.convert(menu));
         }
     }
 
@@ -133,12 +107,16 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateMenuResource(MenuResourceDTO menu) {
-        MenuResourceDO self = MenuResourceDO.builder().id(menu.getId()).name(menu.getName()).uri(menu.getUri())
-            .icon(menu.getIcon()).description(menu.getDescription()).sequence(menu.getSequence()).build();
-        if (menuResourceDao.updateMenuResource(self) == 0) {
-            throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "修改系统菜单失败：菜单不存在");
+    public void updateMenuResource(MenuResourceDTO request) {
+        MenuResourceDO self = menuResourceDao.findById(request.getId()).orElseThrow(() ->
+            new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "修改系统菜单失败：菜单不存在"));
+        if (self.getParentId() == 0 || self.getLevel() == 1) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能修改根菜单");
         }
+
+        MenuResourceDO menu = MenuResourceDO.builder().id(request.getId()).name(request.getName()).uri(request.getUri())
+            .icon(request.getIcon()).description(request.getDescription()).sequence(request.getSequence()).build();
+        menuResourceDao.updateMenuResource(menu);
     }
 
     /**
@@ -149,6 +127,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     public void deleteMenuResource(Long id) {
         MenuResourceDO menu = menuResourceDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "当前菜单不存在"));
+        if (menu.getParentId() == 0 || menu.getLevel() == 1) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除根级菜单");
+        }
         if (menu.getChildren() > 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "删除系统菜单失败：当前菜单存在子菜单");
         }

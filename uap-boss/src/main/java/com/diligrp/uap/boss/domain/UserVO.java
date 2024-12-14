@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
  */
 public class UserVO {
     // 用户ID
-    private Long id;
+    private Long userId;
     // 用户账号
     private String name;
     // 真实姓名
@@ -47,12 +47,12 @@ public class UserVO {
     // 修改时间
     private LocalDateTime modifiedTime;
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {

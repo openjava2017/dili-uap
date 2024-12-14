@@ -1,7 +1,9 @@
 USE dili_uap;
 
 INSERT INTO uap_sequence_key (`key`, `name`, `value`, `step`, `pattern`, `expired_on`, `version`)
-VALUES ('BRANCH_ID', '组织机构ID', 10000, 20, NULL, NULL, 0);
+VALUES ('BRANCH_ID', '组织机构ID', 1000, 20, NULL, NULL, 0);
+INSERT INTO uap_sequence_key (`key`, `name`, `value`, `step`, `pattern`, `expired_on`, `version`)
+VALUES ('USER_ID', '系统用户ID', 1000, 20, NULL, NULL, 0);
 INSERT INTO uap_sequence_key (`key`, `name`, `value`, `step`, `pattern`, `expired_on`, `version`)
 VALUES ('MENU_ID', '菜单资源ID', 1000, 20, NULL, NULL, 0);
 

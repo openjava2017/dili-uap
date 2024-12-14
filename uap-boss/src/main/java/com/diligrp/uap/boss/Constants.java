@@ -5,5 +5,7 @@ public final class Constants {
 
     public static final String KEY_BRANCH_ID = "BRANCH_ID";
 
+    public static final String KEY_USER_ID = "USER_ID";
+
     public static final String KEY_MENU_ID = "MENU_ID";
 }

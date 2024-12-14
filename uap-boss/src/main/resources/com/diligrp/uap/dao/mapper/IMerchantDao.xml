@@ -49,7 +49,7 @@
                 AND um.telephone = #{telephone}
             </if>
         </where>
-        ORDER BY um.name
+        ORDER BY um.mch_id
         LIMIT #{start}, #{limit}
     </select>
 

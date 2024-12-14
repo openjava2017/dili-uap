@@ -18,8 +18,6 @@ public class MenuResourceDTO {
     private String description;
     // 顺序号
     private Integer sequence;
-    // 归属模块
-    private Long moduleId;
 
     public Long getId() {
         return id;
@@ -75,13 +73,5 @@ public class MenuResourceDTO {
 
     public void setSequence(Integer sequence) {
         this.sequence = sequence;
-    }
-
-    public Long getModuleId() {
-        return moduleId;
-    }
-
-    public void setModuleId(Long moduleId) {
-        this.moduleId = moduleId;
     }
 }

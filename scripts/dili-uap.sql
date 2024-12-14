@@ -33,9 +33,10 @@ CREATE TABLE `uap_merchant` (
 
 DROP TABLE IF EXISTS `uap_branch`;
 CREATE TABLE `uap_branch` (
-  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建商户-组织机构的树形结构数据
+  `id` BIGINT NOT NULL COMMENT '非自增主键ID',
+  `branch_id` BIGINT NOT NULL COMMENT '分支机构ID',
   `mch_id` BIGINT NOT NULL COMMENT '商户号',
-  `parent_id` BIGINT NOT NULL COMMENT '父级机构ID', -- 一级节点的父节点为mchId
+  `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
   `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
   `name` VARCHAR(80) NOT NULL COMMENT '名称',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '类型', -- 业务部门，行政部门等
@@ -46,6 +47,7 @@ CREATE TABLE `uap_branch` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_branch_branchId` (`branch_id`) USING BTREE,
   UNIQUE KEY `uk_branch_code` (`code`) USING BTREE,
   KEY `idx_branch_parentId` (`parent_id`, `created_time`) USING BTREE,
   KEY `idx_branch_mchId` (`mch_id`, `level`) USING BTREE,
@@ -55,7 +57,7 @@ CREATE TABLE `uap_branch` (
 
 DROP TABLE IF EXISTS `uap_user`;
 CREATE TABLE `uap_user` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` BIGINT NOT NULL COMMENT '非自增主键ID',
   `name` VARCHAR(40) NOT NULL COMMENT '用户账号',
   `user_name` VARCHAR(40) NOT NULL COMMENT '真实姓名',
   `telephone` VARCHAR(20) NOT NULL COMMENT '电话号码',
@@ -77,6 +79,7 @@ CREATE TABLE `uap_user` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_userId` (`user_id`) USING BTREE,
   UNIQUE KEY `uk_user_name` (`name`) USING BTREE,
   KEY `idx_user_userName` (`user_name`) USING BTREE,
   KEY `idx_user_telephone` (`telephone`) USING BTREE,
@@ -102,7 +105,7 @@ CREATE TABLE `uap_user_authority` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
-  `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
+  `code` VARCHAR(40) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
   `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
@@ -129,7 +132,7 @@ CREATE TABLE `uap_role_authority` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `role_id` BIGINT NOT NULL COMMENT '角色ID',
   `resource_id` BIGINT NOT NULL COMMENT '资源ID',
-  `code` VARCHAR(20) COMMENT '资源编码', -- 冗余
+  `code` VARCHAR(40) COMMENT '资源编码', -- 冗余
   `type` TINYINT UNSIGNED NOT NULL COMMENT '资源类型',
   `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
@@ -140,9 +143,9 @@ CREATE TABLE `uap_role_authority` (
 
 DROP TABLE IF EXISTS `uap_menu_resource`;
 CREATE TABLE `uap_menu_resource` (
-  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建模块-菜单-元素的树形结构数据
-  `parent_id` BIGINT NOT NULL COMMENT '父节点', -- 第一级节点的父节点设置为moduleId
-  `code` VARCHAR(40) NOT NULL COMMENT '菜单编码', -- 格式：父菜单编码1-父菜单编码2-编码
+  `id` BIGINT NOT NULL COMMENT '非自增主键ID', -- 防止菜单ID和页面元素ID重复，不便于构建树形结构数据
+  `parent_id` BIGINT NOT NULL COMMENT '父节点ID',
+  `code` VARCHAR(40) NOT NULL COMMENT '菜单编码', -- 格式：id1,id2,id3,id4
   `name` VARCHAR(60) NOT NULL COMMENT '菜单名称',
   `level` TINYINT UNSIGNED NOT NULL COMMENT '菜单层级',
   `children` TINYINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 用来标注目录/页面
@@ -160,7 +163,7 @@ CREATE TABLE `uap_menu_resource` (
 
 DROP TABLE IF EXISTS `uap_menu_element`;
 CREATE TABLE `uap_menu_element` (
-  `id` BIGINT NOT NULL COMMENT '主键ID', -- 非自增主键，目的是快速构建模块-菜单-元素的树形结构数据
+  `id` BIGINT NOT NULL COMMENT '非自增主键ID', -- 防止菜单ID和页面元素ID重复，不便于构建树形结构数据
   `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
   `name` VARCHAR(60) NOT NULL COMMENT '元素名称', -- 新增 修改 查询
   `offset` TINYINT UNSIGNED NOT NULL COMMENT '权限偏移量',

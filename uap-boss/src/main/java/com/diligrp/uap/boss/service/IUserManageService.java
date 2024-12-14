@@ -4,17 +4,21 @@ import com.diligrp.uap.boss.domain.UserDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.domain.UserVO;
 import com.diligrp.uap.boss.model.UserDO;
-import com.diligrp.uap.boss.type.UserType;
 import com.diligrp.uap.shared.domain.PageMessage;
 
 public interface IUserManageService {
 
     /**
-     * 创建系统用户，默认状态为"待激活"
-     * 普通用户(非系统管理员)，不需指定商户ID，归属商户与登录用户相同
+     * 创建系统管理员，默认状态为"待激活"
      * 系统管理员需指定商户ID，归属于顶层分支机构且没有职位信息和上级用户信息
      */
-    void createUser(UserDTO user, UserType type);
+    void createAdmin(UserDTO user);
+
+    /**
+     * 创建普通用户，默认状态为"待激活"
+     * 普通用户(非系统管理员)，不需指定商户ID，归属商户与登录用户相同
+     */
+    void createUser(UserDTO user);
 
     /**
      * 根据用户ID查询用户账号

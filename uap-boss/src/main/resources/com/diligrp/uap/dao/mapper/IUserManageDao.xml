@@ -27,10 +27,10 @@
         <result column="modified_time" property="modifiedTime"/>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.diligrp.uap.boss.model.UserDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO uap_user(`name`, `user_name`, `telephone`, `email`, `gender`, `type`, `position`, `branch_id`, `superior_id`,
+    <insert id="insertUser" parameterType="com.diligrp.uap.boss.model.UserDO">
+        INSERT INTO uap_user(`id`, `name`, `user_name`, `telephone`, `email`, `gender`, `type`, `position`, `branch_id`, `superior_id`,
                              `password`, `secret_key`, `state`, `mch_id`, `description`, `version`, `created_time`, `modified_time`)
-        VALUES (#{name}, #{username}, #{telephone}, #{email}, #{gender}, #{type}, #{position}, #{branchId}, #{superiorId},
+        VALUES (#{id}, #{name}, #{username}, #{telephone}, #{email}, #{gender}, #{type}, #{position}, #{branchId}, #{superiorId},
                 #{password}, #{secretKey}, #{state}, #{mchId}, #{description}, #{version}, #{createdTime}, #{modifiedTime})
     </insert>
 
@@ -48,9 +48,9 @@
             uu.superior_id AS superiorId, us.user_name AS superiorName, uu.locked_time AS lockedTime, uu.online_time AS onlineTime, uu.state, uu.mch_id AS mchId,
             um.`name` AS mchName, uu.description, uu.created_time AS createdTime, uu.modified_time AS modifiedTime
         FROM uap_user uu
-        LEFT JOIN uap_branch ub ON uu.branch_id = ub.id
+        LEFT JOIN uap_branch ub ON uu.branch_id = ub.branch_id
         LEFT JOIN uap_user us ON uu.superior_id = us.id
-        LEFT JOIN uap_merchant um ON uu.mch_id = um.id
+        LEFT JOIN uap_merchant um ON uu.mch_id = um.mch_id
         <where>
             <if test="name != null">
                 AND uu.name = #{name}
@@ -86,7 +86,7 @@
                 <![CDATA[AND uu.createdTime <= #{endTime}]]>
             </if>
         </where>
-        ORDER BY id
+        ORDER BY created_time
         LIMIT #{start}, #{limit}
     </select>
 

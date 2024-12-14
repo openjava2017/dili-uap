@@ -38,10 +38,9 @@ public class UserManageController {
         Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
             .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
         AssertUtils.notEmpty(request.getPassword(), "password missed");
-        AssertUtils.notNull(request.getBranchId(), "branchId missed");
         AssertUtils.notNull(request.getMchId(), "mchId missed");
 
-        userManageService.createUser(request, UserType.ADMIN);
+        userManageService.createAdmin(request);
         return Message.success();
     }
 
@@ -58,10 +57,7 @@ public class UserManageController {
         Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)
             .orElseThrow(() -> new IllegalArgumentException(("Invalid position"))));
 
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        request.setMchId(subject.getOrganization().getId());
-
-        userManageService.createUser(request, UserType.USER);
+        userManageService.createUser(request);
         return Message.success();
     }
 
@@ -87,13 +83,14 @@ public class UserManageController {
     }
 
     @RequestMapping(value = "/findById.do")
-    public Message<UserDO> findById(@RequestParam("id") Long id) {
-        UserDO user = userManageService.findUserById(id);
+    public Message<UserDO> findById(@RequestParam("userId") Long userId) {
+        UserDO user = userManageService.findUserById(userId);
         return Message.success(user);
     }
 
     @RequestMapping(value = "/update.do")
     public Message<?> updateUser(@RequestBody UserDTO request) {
+        AssertUtils.notNull(request.getId(), "id missed");
         Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
             .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
         Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)

@@ -24,7 +24,7 @@
     </select>
 
     <select id="listAllElements" resultMap="MenuElementMap">
-        SELECT * FROM uap_menu_element ORDER BY sequence
+        SELECT * FROM uap_menu_element ORDER BY menu_id, sequence
     </select>
 
     <select id="listByMenuId" parameterType="long" resultMap="MenuElementMap">

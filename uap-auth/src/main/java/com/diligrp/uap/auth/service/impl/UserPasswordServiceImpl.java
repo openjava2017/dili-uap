@@ -62,7 +62,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
             password = PasswordUtils.encrypt(request.getNewPassword(), user.getSecretKey());
             // 如果用户状态为待激活，修改密码时同步修改状态为正常
             Integer state = UserState.PENDING.equalTo(user.getState()) ? UserState.NORMAL.getCode() : null;
-            PasswordStateDTO requestDTO = new PasswordStateDTO(user.getId(), password, state, when, user.getVersion());
+            PasswordStateDTO requestDTO = PasswordStateDTO.of(user.getId(), password, state, when, user.getVersion());
             int result = authenticationDao.updateUserPassword(requestDTO);
             if (result == 0) {
                 throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "修改密码失败：权限系统忙，请稍后再试");
@@ -109,7 +109,8 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
                 if (errors >= maxPwdErrors) {
                     // 异步执行，以防止抛出异常后数据库事务回滚导致无法锁定用户账号
                     ThreadPollService.getIoThreadPoll().submit(() -> {
-                        UserStateDTO stateDTO = new UserStateDTO(user.getId(), UserState.LOCKED.getCode(), when, user.getVersion());
+                        UserStateDTO stateDTO = UserStateDTO.of(
+                            user.getId(), UserState.LOCKED.getCode(), when, user.getVersion());
                         userManageDao.compareAndSetState(stateDTO);
                     });
 
@@ -140,7 +141,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
         String newPassword = PasswordUtils.encrypt(password, user.getSecretKey());
         // 锁定的用户状态，重置密码后状态变为正常
         Integer state = UserState.LOCKED.equalTo(user.getState()) ? UserState.NORMAL.getCode() : null;
-        PasswordStateDTO requestDTO = new PasswordStateDTO(user.getId(), newPassword, state, when, user.getVersion());
+        PasswordStateDTO requestDTO = PasswordStateDTO.of(user.getId(), newPassword, state, when, user.getVersion());
 
         int result = authenticationDao.updateUserPassword(requestDTO);
         if (result == 0) {

@@ -70,14 +70,6 @@
         WHERE id = #{id}
     </update>
 
-    <select id="countByModuleId" parameterType="long" resultType="int">
-        SELECT COUNT(*) FROM uap_menu_resource WHERE module_id = #{moduleId}
-    </select>
-
-    <update id="updateCodeById">
-        UPDATE uap_menu_resource SET code = #{code} WHERE id = #{id}
-    </update>
-
     <update id="incChildrenById">
         UPDATE uap_menu_resource SET children = children + 1 WHERE id = #{id}
     </update>

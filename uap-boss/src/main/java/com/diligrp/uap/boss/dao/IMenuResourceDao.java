@@ -25,8 +25,6 @@ public interface IMenuResourceDao extends MybatisMapperSupport {
 
     int updateMenuResource(MenuResourceDO menu);
 
-    int countByModuleId(Long moduleId);
-
     int incChildrenById(Long id);
 
     int decChildrenById(Long id);

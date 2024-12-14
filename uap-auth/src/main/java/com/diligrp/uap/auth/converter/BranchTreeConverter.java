@@ -9,6 +9,8 @@ import com.diligrp.uap.boss.model.BranchDO;
  */
 public class BranchTreeConverter implements IConverter<BranchDO, TreeNode> {
 
+    public static final IConverter<BranchDO, TreeNode> INSTANCE = new BranchTreeConverter();
+
     @Override
     public TreeNode convert(BranchDO branch) {
         TreeNode node = new TreeNode();
@@ -17,8 +19,6 @@ public class BranchTreeConverter implements IConverter<BranchDO, TreeNode> {
         node.setCode(branch.getCode());
         node.setName(branch.getName());
         node.setType(branch.getType());
-        node.setLevel(branch.getLevel());
-        node.setChildren(branch.getChildren());
         node.setDescription(branch.getName());
 
         return node;

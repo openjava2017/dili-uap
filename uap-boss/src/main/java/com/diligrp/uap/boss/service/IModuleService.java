@@ -8,7 +8,7 @@ import com.diligrp.uap.shared.domain.PageMessage;
 public interface IModuleService {
 
     /**
-     * 创建系统模块
+     * 创建系统模块，同时创建根菜单
      */
     void createModule(ModuleDTO module);
 

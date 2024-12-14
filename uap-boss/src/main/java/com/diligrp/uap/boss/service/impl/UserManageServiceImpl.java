@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.service.impl;
 
+import com.diligrp.uap.boss.Constants;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.UserDTO;
@@ -15,6 +16,8 @@ import com.diligrp.uap.boss.type.UserType;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.domain.PageMessage;
 import com.diligrp.uap.shared.security.PasswordUtils;
+import com.diligrp.uap.shared.uid.KeyGenerator;
+import com.diligrp.uap.shared.uid.KeyGeneratorManager;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,22 +37,56 @@ public class UserManageServiceImpl implements IUserManageService {
     @Resource
     private IBranchDao branchManageDao;
 
+    @Resource
+    private KeyGeneratorManager keyGeneratorManager;
+
     /**
-     * 创建系统用户，默认状态为"待激活"
-     * 普通用户(非系统管理员)，不需指定商户ID，归属商户与登录用户相同
+     * 创建系统管理员，默认状态为"待激活"
      * 系统管理员需指定商户ID，归属于顶层分支机构且没有职位信息和上级用户信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createUser(UserDTO user, UserType type) {
+    public void createAdmin(UserDTO user) {
         // 校验系统用户的登录账号唯一
         Optional<UserDO> userOpt = userManageDao.findByName(user.getName());
         userOpt.ifPresent(self -> {
             throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + self.getName());
         });
-        // 校验分支部门
+        // 获取商户顶层分支结构
+        Optional<BranchDO> branchOpt = branchManageDao.findRootBranch(user.getMchId());
+        BranchDO branch = branchOpt.orElseThrow(() ->
+            new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "商户顶层分支机构不存在，不能创建系统管理员"));
+
+        // 每个账户单独的密钥，保证密码安全
+        LocalDateTime now = LocalDateTime.now();
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_USER_ID);
+        Long userId = Long.parseLong(keyGenerator.nextId());
+        String secretKey = PasswordUtils.generateSecretKey();
+        String password = PasswordUtils.encrypt(user.getPassword(), secretKey);
+        UserDO userDO = UserDO.builder().id(userId).name(user.getName()).userName(user.getUserName())
+            .telephone(user.getTelephone()).email(user.getEmail()).gender(user.getGender())
+            .type(UserType.ADMIN.getCode()).branchId(branch.getId()).password(password).secretKey(secretKey)
+            .state(UserState.PENDING.getCode()).mchId(user.getMchId()).description(user.getDescription()).version(0)
+            .createdTime(now).modifiedTime(now).build();
+        userManageDao.insertUser(userDO);
+    }
+
+    /**
+     * 创建普通用户，默认状态为"待激活"
+     * 普通用户(非系统管理员)，不需指定商户ID，归属商户与登录用户相同
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createUser(UserDTO user) {
+        // 校验系统用户的登录账号唯一
+        Optional<UserDO> userOpt = userManageDao.findByName(user.getName());
+        userOpt.ifPresent(self -> {
+            throw new UserManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "系统用户已存在：" + self.getName());
+        });
+        // 校验分支机构
         Optional<BranchDO> branchOpt = branchManageDao.findById(user.getBranchId());
-        branchOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "所属分支部门不存在"));
+        BranchDO branch = branchOpt.orElseThrow(() ->
+            new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "归属的分支部门不存在"));
         // 校验上级用户
         if (user.getSuperiorId() != null) {
             Optional<UserDO> superiorOpt = userManageDao.findById(user.getSuperiorId());
@@ -58,13 +95,15 @@ public class UserManageServiceImpl implements IUserManageService {
 
         // 每个账户单独的密钥，保证密码安全
         LocalDateTime now = LocalDateTime.now();
+        KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_USER_ID);
+        Long userId = Long.parseLong(keyGenerator.nextId());
         String secretKey = PasswordUtils.generateSecretKey();
         String password = PasswordUtils.encrypt(user.getPassword(), secretKey);
-        UserDO userDO = UserDO.builder().name(user.getName()).userName(user.getUserName()).telephone(user.getTelephone())
-            .email(user.getEmail()).gender(user.getGender()).type(UserType.USER.getCode()).position(user.getPosition())
-            .branchId(user.getBranchId()).superiorId(user.getSuperiorId()).password(password).secretKey(secretKey)
-            .state(UserState.PENDING.getCode()).mchId(user.getMchId()).description(user.getDescription()).version(0)
-            .createdTime(now).modifiedTime(now).build();
+        UserDO userDO = UserDO.builder().id(userId).name(user.getName()).userName(user.getUserName())
+            .telephone(user.getTelephone()).email(user.getEmail()).gender(user.getGender()).type(UserType.USER.getCode())
+            .position(user.getPosition()).branchId(branch.getId()).superiorId(user.getSuperiorId())
+            .password(password).secretKey(secretKey).state(UserState.PENDING.getCode()).mchId(branch.getMchId())
+            .description(user.getDescription()).version(0).createdTime(now).modifiedTime(now).build();
         userManageDao.insertUser(userDO);
     }
 
@@ -127,7 +166,7 @@ public class UserManageServiceImpl implements IUserManageService {
             throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "禁用用户账号失败：用户账号已被锁定");
         }
 
-        UserStateDTO userState = new UserStateDTO(id, UserState.DISABLED.getCode(), LocalDateTime.now(), user.getVersion());
+        UserStateDTO userState = UserStateDTO.of(id, UserState.DISABLED.getCode(), LocalDateTime.now(), user.getVersion());
         userManageDao.compareAndSetState(userState);
     }
 
@@ -147,7 +186,7 @@ public class UserManageServiceImpl implements IUserManageService {
             throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "启用用户账号失败：用户账号未被禁用");
         }
 
-        UserStateDTO userState = new UserStateDTO(id, UserState.NORMAL.getCode(), LocalDateTime.now(), user.getVersion());
+        UserStateDTO userState = UserStateDTO.of(id, UserState.NORMAL.getCode(), LocalDateTime.now(), user.getVersion());
         userManageDao.compareAndSetState(userState);
     }
 

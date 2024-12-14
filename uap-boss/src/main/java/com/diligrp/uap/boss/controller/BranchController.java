@@ -4,8 +4,6 @@ import com.diligrp.uap.boss.domain.BranchDTO;
 import com.diligrp.uap.boss.domain.BranchVO;
 import com.diligrp.uap.boss.service.IBranchService;
 import com.diligrp.uap.boss.type.BranchType;
-import com.diligrp.uap.security.core.Subject;
-import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.domain.Message;
 import com.diligrp.uap.shared.util.AssertUtils;
 import jakarta.annotation.Resource;
@@ -24,27 +22,13 @@ public class BranchController {
     @Resource
     private IBranchService branchService;
 
-    @RequestMapping(value = "/root.do")
-    public Message<List<BranchVO>> root() {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        Long mchId = subject.getOrganization().getId();
-
-        List<BranchVO> roots = branchService.listRoots(mchId);
-        return Message.success(roots);
-    }
-
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody BranchDTO request) {
         AssertUtils.notEmpty(request.getName(), "name missed");
+        AssertUtils.notNull(request.getParentId(), "parentId missed");
         BranchType.getType(request.getType()).orElseThrow(() -> new IllegalArgumentException("invalid type"));
 
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        request.setMchId(subject.getOrganization().getId());
-        if (request.getParentId() == null || request.getParentId() == 0L) {
-            branchService.createRootBranch(request);
-        } else {
-            branchService.createBranch(request);
-        }
+        branchService.createBranch(request);
         return Message.success();
     }
 
@@ -75,9 +59,9 @@ public class BranchController {
         return Message.success();
     }
 
-    @RequestMapping(value = "/delete.do")
-    public Message<?> delete(@RequestParam("id") Long id) {
-        branchService.deleteBranch(id);
+    @RequestMapping(value = "/deleteById.do")
+    public Message<?> deleteById(@RequestParam("id") Long id) {
+        branchService.deleteBranchById(id);
         return Message.success();
     }
 }

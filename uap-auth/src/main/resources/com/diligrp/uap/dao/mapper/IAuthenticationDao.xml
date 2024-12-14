@@ -10,7 +10,7 @@
             , state = #{state}
         </if>
         , modified_time = #{when}, version = version + 1
-        WHERE id = #{id} AND version = #{version}
+        WHERE user_id = #{userId} AND version = #{version}
     </update>
 
 </mapper>

@@ -15,7 +15,7 @@
         <result column="created_time" property="createdTime"/>
     </resultMap>
 
-    <insert id="insertModule" parameterType="com.diligrp.uap.boss.model.ModuleDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="insertModule" parameterType="com.diligrp.uap.boss.model.ModuleDO">
         INSERT INTO uap_module(`module_id`, `name`, `type`, `uri`, `icon`, `description`, `sequence`, `created_time`)
         VALUES (#{moduleId}, #{name}, #{type}, #{uri}, #{icon}, #{description}, #{sequence}, #{createdTime})
     </insert>

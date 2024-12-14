@@ -2,7 +2,6 @@ package com.diligrp.uap.boss.dao;
 
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,13 +13,13 @@ public interface IBranchDao extends MybatisMapperSupport {
 
     Optional<BranchDO> findById(Long id);
 
+    Optional<BranchDO> findRootBranch(Long mchId);
+
     List<BranchDO> listChildren(Long id);
 
     List<BranchDO> listByIds(List<Long> ids);
 
-    List<BranchDO> listByMchId(@Param("mchId") Long mchId, @Param("level") Integer level);
-
-    long countByMchId(Long mchId);
+    List<BranchDO> listByMchId(Long mchId);
 
     int updateBranch(BranchDO branch);
 

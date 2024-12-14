@@ -8,12 +8,7 @@ import java.util.List;
 public interface IMenuResourceService {
 
     /**
-     * 创建系统模块下第一级根菜单资源，需指定系统模块
-     */
-    void createRootMenu(MenuResourceDTO menu);
-
-    /**
-     * 创建系统模块下非根菜单资源，不需指定系统模块，与父级菜单的系统模块相同
+     * 创建菜单资源，归属的系统模块与父级菜单相同
      */
     void createMenuResource(MenuResourceDTO menu);
 
@@ -21,11 +16,6 @@ public interface IMenuResourceService {
      * 根据ID查询菜单资源
      */
     MenuResourceVO findMenuById(Long id);
-
-    /**
-     * 查询系统模块下的所有一级菜单
-     */
-    List<MenuResourceVO> listRoots(Long moduleId);
 
     /**
      * 查询指定菜单下的所有子菜单
@@ -40,7 +30,7 @@ public interface IMenuResourceService {
     /**
      * 修改系统菜单
      */
-    void updateMenuResource(MenuResourceDTO menu);
+    void updateMenuResource(MenuResourceDTO request);
 
     /**
      * 删除指定的菜单

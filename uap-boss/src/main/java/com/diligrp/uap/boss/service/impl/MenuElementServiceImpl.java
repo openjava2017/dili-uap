@@ -1,7 +1,7 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.Constants;
-import com.diligrp.uap.boss.converter.BossConverters;
+import com.diligrp.uap.boss.converter.ElementDoDtoConverter;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.domain.MenuElementDTO;
 import com.diligrp.uap.boss.exception.BossManageException;
@@ -49,7 +49,7 @@ public class MenuElementServiceImpl implements IMenuElementService {
      */
     @Override
     public MenuElementDTO findMenuElementById(Long id) {
-        return menuElementDao.findById(id).map(BossConverters.ELEMENT_DO2DTO::convert).orElseThrow(() ->
+        return menuElementDao.findById(id).map(ElementDoDtoConverter.INSTANCE::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "页面元素不存在"));
     }
 
@@ -58,7 +58,7 @@ public class MenuElementServiceImpl implements IMenuElementService {
      */
     @Override
     public List<MenuElementDTO> listMenuElements(Long menuId) {
-        return menuElementDao.listByMenuId(menuId).stream().map(BossConverters.ELEMENT_DO2DTO::convert)
+        return menuElementDao.listByMenuId(menuId).stream().map(ElementDoDtoConverter.INSTANCE::convert)
             .collect(Collectors.toList());
     }
 

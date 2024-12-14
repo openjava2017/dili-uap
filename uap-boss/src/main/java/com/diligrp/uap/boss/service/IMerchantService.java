@@ -8,7 +8,7 @@ import com.diligrp.uap.shared.domain.PageMessage;
 
 public interface IMerchantService {
     /**
-     * 创建商户
+     * 创建商户, 同时创建商户的根级分支机构
      */
     void createMerchant(MerchantDTO merchant);
 

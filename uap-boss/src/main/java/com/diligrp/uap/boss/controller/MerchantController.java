@@ -29,7 +29,6 @@ public class MerchantController {
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody MerchantDTO request) {
         AssertUtils.notNull(request.getMchId(), "mchId missed");
-        // 请不要随意修改商户号的范围，否则可能影响树形结构数据的构建(商户-分支机构)
         AssertUtils.isTrue(request.getMchId() >= 1000 && request.getMchId() <= 9999,
             "无效商户号: 商户号必须为四位数字");
         AssertUtils.notEmpty(request.getName(), "name missed");

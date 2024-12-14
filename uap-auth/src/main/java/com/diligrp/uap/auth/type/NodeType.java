@@ -11,11 +11,9 @@ import java.util.stream.Stream;
  * 树形节点类型，用于页面进行树形结构数据展现，请勿任意修改
  */
 public enum NodeType implements IEnumType {
-    MODULE("系统模块", 1),
+    MENU("系统菜单", 1),
 
-    MENU("系统菜单", 2),
-
-    ELEMENT("页面元素", 3);
+    ELEMENT("页面元素", 2);
 
     private String name;
     private int code;
