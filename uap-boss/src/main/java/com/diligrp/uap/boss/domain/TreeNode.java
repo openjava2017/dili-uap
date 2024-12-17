@@ -1,22 +1,19 @@
-package com.diligrp.uap.auth.domain;
+package com.diligrp.uap.boss.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 树形结构数据模型-用于组织机构/菜单数据的树形展示
- */
 public class TreeNode {
     // 节点ID
     private Long id;
     // 父节点ID
     private Long parentId;
-    // 节点编码
-    private String code;
     // 节点名称
     private String name;
     // 节点类型
     private Integer type;
+    // 路径: id1,id2,id3,id4
+    private String path;
     // 描述
     private String description;
     // 子节点
@@ -38,14 +35,6 @@ public class TreeNode {
         this.parentId = parentId;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getName() {
         return name;
     }
@@ -60,6 +49,14 @@ public class TreeNode {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getDescription() {

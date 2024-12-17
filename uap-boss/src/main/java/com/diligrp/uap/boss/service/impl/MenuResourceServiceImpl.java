@@ -1,14 +1,15 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.Constants;
-import com.diligrp.uap.boss.converter.MenuDoVoConverter;
+import com.diligrp.uap.boss.converter.MenuTreeConverter;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.domain.MenuResourceDTO;
-import com.diligrp.uap.boss.domain.MenuResourceVO;
+import com.diligrp.uap.boss.domain.MenuTreeNode;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.MenuResourceDO;
 import com.diligrp.uap.boss.service.IMenuResourceService;
+import com.diligrp.uap.boss.type.NodeType;
 import com.diligrp.uap.boss.type.ResourceType;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.uid.KeyGenerator;
@@ -32,6 +33,31 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
 
     @Resource
     private KeyGeneratorManager keyGeneratorManager;
+
+    /**
+     * 获取菜单树，模块-系统菜单
+     */
+    @Override
+    public MenuTreeNode listMenuTree() {
+        // 构建树形结构的根节点
+        MenuTreeNode root = buildRootNode();
+
+        List<MenuResourceDO> menus = menuResourceDao.listAllMenus();
+        var parents = new HashMap<Long, MenuTreeNode>(menus.size());
+        // 根节点放入Map，便于构建节点父子关系
+        parents.put(root.getId(), root);
+
+        menus.stream().map(MenuTreeConverter.INSTANCE::convert).forEach(menu -> {
+            var parent = parents.get(menu.getParentId());
+            if (parent != null) {
+                parent.addChild(menu);
+                parents.put(menu.getId(), menu);
+            } else { // 找不到父节点，则直接抛弃
+                // Never happened
+            }
+        });
+        return root;
+    }
 
     /**
      * 创建菜单资源，归属的系统模块与父级菜单相同
@@ -61,8 +87,8 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
      * 根据ID查询菜单资源
      */
     @Override
-    public MenuResourceVO findMenuById(Long id) {
-        return menuResourceDao.findById(id).map(MenuDoVoConverter.INSTANCE::convert).orElseThrow(() ->
+    public MenuTreeNode findMenuById(Long id) {
+        return menuResourceDao.findById(id).map(MenuTreeConverter.INSTANCE::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "菜单不存在"));
     }
 
@@ -70,16 +96,16 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
      * 查询指定菜单下的所有子菜单
      */
     @Override
-    public List<MenuResourceVO> listChildren(Long id) {
+    public List<MenuTreeNode> listChildren(Long id) {
         List<MenuResourceDO> menus = menuResourceDao.listChildren(id);
-        return menus.stream().map(MenuDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
+        return menus.stream().map(MenuTreeConverter.INSTANCE::convert).collect(Collectors.toList());
     }
 
     /**
      * 查找指定菜单的所有父亲/祖先菜单
      */
     @Override
-    public List<MenuResourceVO> listParents(Long id) {
+    public List<MenuTreeNode> listParents(Long id) {
         MenuResourceDO menu = menuResourceDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的菜单不存在"));
         String path = menu.getCode();
@@ -96,9 +122,9 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
                 ids.add(id);
             }
 
-            return menuResourceDao.listByIds(ids).stream().map(MenuDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
+            return menuResourceDao.listByIds(ids).stream().map(MenuTreeConverter.INSTANCE::convert).collect(Collectors.toList());
         } else {
-            return Collections.singletonList(MenuDoVoConverter.INSTANCE.convert(menu));
+            return Collections.singletonList(MenuTreeConverter.INSTANCE.convert(menu));
         }
     }
 
@@ -146,5 +172,20 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
             // 父节点的子节点数-1
             menuResourceDao.decChildrenById(menu.getParentId());
         }
+    }
+
+    private MenuTreeNode buildRootNode() {
+        MenuTreeNode root = new MenuTreeNode();
+        root.setId(0L);
+        root.setParentId(0L);
+        root.setName("根菜单");
+        root.setType(NodeType.ROOT.getCode());
+        root.setPath("0");
+        root.setDescription("根菜单");
+        root.setUri("#");
+        root.setIcon(null);
+        root.setSequence(0);
+
+        return root;
     }
 }

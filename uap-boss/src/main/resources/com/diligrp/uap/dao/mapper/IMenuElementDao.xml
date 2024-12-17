@@ -31,6 +31,14 @@
         SELECT * FROM uap_menu_element WHERE menu_id = #{menuId} ORDER BY sequence
     </select>
 
+    <select id="listByIds" parameterType="long" resultMap="MenuElementMap">
+        SELECT * FROM uap_menu_element WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY menu_id, sequence
+    </select>
+
     <update id="updateMenuElement" parameterType="com.diligrp.uap.boss.model.MenuElementDO">
         UPDATE uap_menu_element
         <set>

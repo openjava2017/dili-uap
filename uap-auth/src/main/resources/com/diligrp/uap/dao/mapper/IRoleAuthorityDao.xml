@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.diligrp.uap.auth.dao.IRoleAuthorityDao">
+    <resultMap id="MenuResourceMap" type="com.diligrp.uap.boss.model.MenuResourceDO">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="level" property="level"/>
+        <result column="children" property="children"/>
+        <result column="uri" property="uri"/>
+        <result column="icon" property="icon"/>
+        <result column="module_id" property="moduleId"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <resultMap id="MenuElementMap" type="com.diligrp.uap.boss.model.MenuElementDO">
+        <id column="id" property="id"/>
+        <result column="menu_id" property="menuId"/>
+        <result column="name" property="name"/>
+        <result column="offset" property="offset"/>
+        <result column="description" property="description"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <select id="listRoleMenus" parameterType="long" resultMap="MenuResourceMap">
+        SELECT
+            DISTINCT um.*
+        FROM uap_menu_resource um
+        INNER JOIN uap_role_authority ur ON um.id = ur.resource_id AND ur.type = 1
+        WHERE
+            ur.role_id = #{roleId}
+    </select>
+
+    <select id="listRoleMenuElements" parameterType="long" resultMap="MenuElementMap">
+        SELECT
+            DISTINCT um.*
+        FROM uap_menu_element um
+        INNER JOIN uap_role_authority ur ON um.menu_id = ur.resource_id AND ur.type = 1
+        WHERE
+            ur.role_id = #{roleId}
+            <![CDATA[AND (ur.bitmap && (1 << um.offset)) > 0]]>
+    </select>
+
+    <delete id="deleteRoleAuthorities" parameterType="long">
+        DELETE FROM uap_role_authority WHERE role_id = #{roleId}
+    </delete>
+
+    <insert id="insertRoleAuthorities" parameterType="java.util.List">
+        INSERT INTO uap_role_authority(role_id, resource_id, code, type, bitmap, created_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.roleId}, #{item.resourceId}, #{item.code}, #{item.type}, #{item.bitmap}, #{item.createdTime})
+        </foreach>
+    </insert>
+    
+</mapper>

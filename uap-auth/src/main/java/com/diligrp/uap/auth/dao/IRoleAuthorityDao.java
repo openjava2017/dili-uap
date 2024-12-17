@@ -1,18 +1,19 @@
 package com.diligrp.uap.auth.dao;
 
 import com.diligrp.uap.auth.model.RoleAuthorityDO;
-import com.diligrp.uap.auth.model.UserAuthorityDO;
+import com.diligrp.uap.boss.model.MenuElementDO;
+import com.diligrp.uap.boss.model.MenuResourceDO;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository("authorizationDao")
-public interface IAuthorizationDao extends MybatisMapperSupport {
+@Repository("roleAuthorityDao")
+public interface IRoleAuthorityDao extends MybatisMapperSupport {
 
-    void deleteUserAuthorities(Long userId);
+    List<MenuResourceDO> listRoleMenus(Long roleId);
 
-    void insertUserAuthorities(List<UserAuthorityDO> authorities);
+    List<MenuElementDO> listRoleMenuElements(Long roleId);
 
     void deleteRoleAuthorities(Long roleId);
 

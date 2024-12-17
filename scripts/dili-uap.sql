@@ -34,7 +34,6 @@ CREATE TABLE `uap_merchant` (
 DROP TABLE IF EXISTS `uap_branch`;
 CREATE TABLE `uap_branch` (
   `id` BIGINT NOT NULL COMMENT '非自增主键ID',
-  `branch_id` BIGINT NOT NULL COMMENT '分支机构ID',
   `mch_id` BIGINT NOT NULL COMMENT '商户号',
   `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
   `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
@@ -47,7 +46,6 @@ CREATE TABLE `uap_branch` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_branch_branchId` (`branch_id`) USING BTREE,
   UNIQUE KEY `uk_branch_code` (`code`) USING BTREE,
   KEY `idx_branch_parentId` (`parent_id`, `created_time`) USING BTREE,
   KEY `idx_branch_mchId` (`mch_id`, `level`) USING BTREE,
@@ -79,7 +77,6 @@ CREATE TABLE `uap_user` (
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_user_userId` (`user_id`) USING BTREE,
   UNIQUE KEY `uk_user_name` (`name`) USING BTREE,
   KEY `idx_user_userName` (`user_name`) USING BTREE,
   KEY `idx_user_telephone` (`telephone`) USING BTREE,
@@ -186,15 +183,5 @@ CREATE TABLE `uap_module` (
   `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_module_code` (`code`) USING BTREE
-) ENGINE=InnoDB;
-
-DROP TABLE IF EXISTS `uap_scope_resource`;
-CREATE TABLE `uap_scope_resource` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `code` VARCHAR(40) NOT NULL COMMENT '范围编码', -- 个人，所有
-  `name` VARCHAR(60) NOT NULL COMMENT '范围名称', -- 个人，所有
-  `sequence` TINYINT UNSIGNED NOT NULL COMMENT '顺序号',
-  `created_time` DATETIME COMMENT '创建时间',
-  PRIMARY KEY (`id`)
+  UNIQUE KEY `uk_module_moduleId` (`module_id`) USING BTREE
 ) ENGINE=InnoDB;

@@ -1,11 +1,11 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.Constants;
-import com.diligrp.uap.boss.converter.BranchDoVoConverter;
+import com.diligrp.uap.boss.converter.BranchTreeConverter;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.BranchDTO;
-import com.diligrp.uap.boss.domain.BranchVO;
+import com.diligrp.uap.boss.domain.BranchTreeNode;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.service.IBranchService;
@@ -33,6 +33,32 @@ public class BranchServiceImpl implements IBranchService {
     private KeyGeneratorManager keyGeneratorManager;
 
     /**
+     * 获取组织机构树，商户-组织结构
+     */
+    @Override
+    public BranchTreeNode listBranchTree(Long mchId) {
+        // 获取所有的组织机构
+        var branches = branchDao.listByMchId(mchId);
+        // 找到商户的顶层组织机构，并放入内存备用，便于构建树形结构
+        BranchTreeNode root = branchDao.findRootBranch(mchId).map(BranchTreeConverter.INSTANCE::convert)
+            .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户的顶层组织机构不存在"));
+        var parents = new HashMap<Long, BranchTreeNode>(branches.size());
+        parents.put(root.getId(), root);
+
+        branches.stream().map(BranchTreeConverter.INSTANCE::convert).forEach(branch -> {
+            BranchTreeNode parent = parents.get(branch.getParentId());
+            if (parent != null) {
+                parent.addChild(branch);
+                parents.put(branch.getId(), branch);
+            } else { // 找不到父节点，则直接抛弃
+                // Never happened
+            }
+        });
+
+        return root;
+    }
+
+    /**
      * 创建分支机构
      */
     @Override
@@ -58,9 +84,9 @@ public class BranchServiceImpl implements IBranchService {
      * 查询指定的分支机构信息
      */
     @Override
-    public BranchVO findBranchById(Long id) {
+    public BranchTreeNode findBranchById(Long id) {
         Optional<BranchDO> branchOpt = branchDao.findById(id);
-        return branchOpt.map(BranchDoVoConverter.INSTANCE::convert).orElseThrow(() ->
+        return branchOpt.map(BranchTreeConverter.INSTANCE::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "分支机构不存在"));
     }
 
@@ -85,16 +111,16 @@ public class BranchServiceImpl implements IBranchService {
      *  查询指定节点的子节点
      */
     @Override
-    public List<BranchVO> listChildren(Long id) {
+    public List<BranchTreeNode> listChildren(Long id) {
         List<BranchDO> branches = branchDao.listChildren(id);
-        return branches.stream().map(BranchDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
+        return branches.stream().map(BranchTreeConverter.INSTANCE::convert).collect(Collectors.toList());
     }
 
     /**
      * 查找指定节点的所有父亲/祖先节点
      */
     @Override
-    public List<BranchVO> listParents(Long id) {
+    public List<BranchTreeNode> listParents(Long id) {
         BranchDO self = branchDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的分支机构不存在"));
         String path = self.getCode();
@@ -112,9 +138,9 @@ public class BranchServiceImpl implements IBranchService {
             }
 
             List<BranchDO> branches = branchDao.listByIds(idList);
-            return branches.stream().map(BranchDoVoConverter.INSTANCE::convert).collect(Collectors.toList());
+            return branches.stream().map(BranchTreeConverter.INSTANCE::convert).collect(Collectors.toList());
         } else {
-            return Collections.singletonList(BranchDoVoConverter.INSTANCE.convert(self));
+            return Collections.singletonList(BranchTreeConverter.INSTANCE.convert(self));
         }
     }
 

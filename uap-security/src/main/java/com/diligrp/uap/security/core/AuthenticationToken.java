@@ -12,11 +12,11 @@ public class AuthenticationToken {
         this.credentials = credentials;
     }
 
-    protected Object getPrincipal() {
+    public Object getPrincipal() {
         return this.principal;
     }
 
-    protected Object getCredentials() {
+    public Object getCredentials() {
         return this.credentials;
     }
 }
