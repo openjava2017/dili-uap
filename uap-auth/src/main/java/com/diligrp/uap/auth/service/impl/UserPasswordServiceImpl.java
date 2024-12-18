@@ -94,16 +94,16 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
      * 密码错误次数不能超过当日最大限制，否则将锁定用户账户
      */
     @Override
-    public void checkUserPassword(UserDO user, PasswordDTO request, int maxPwdErrors) {
+    public void checkUserPassword(UserDO user, String password, int maxPwdErrors) {
         if (UserState.LOCKED.equalTo(user.getState())) {
             throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "用户账号已被锁定");
         }
 
         LocalDateTime when = LocalDateTime.now();
-        String password = PasswordUtils.encrypt(request.getPassword(), user.getSecretKey());
+        String encryptedPwd = PasswordUtils.encrypt(password, user.getSecretKey());
         String userDailyKey = String.format("%s:%s:%s", Constants.CHECK_PASS_KEY_PREFIX,
             DateUtils.formatDate(LocalDate.now(), Constants.SIMPLE_DATE_FORMAT), user.getId());
-        if (!ObjectUtils.equals(password, user.getPassword())) {
+        if (!ObjectUtils.equals(encryptedPwd, user.getPassword())) {
             if (maxPwdErrors > 0) {
                 long errors = incPasswordErrors(userDailyKey);
                 if (errors >= maxPwdErrors) {

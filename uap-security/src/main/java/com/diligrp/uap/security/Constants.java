@@ -4,7 +4,7 @@ public final class Constants {
     public static final String WEB_SECURITY_FILTER_CHAIN_NAME = "webSecurityFilterChain";
 
     // 用户类型常量列表
-    public static final int TYPE_SYSTEM_USER = 0; // 系统内部用户
+    public static final int TYPE_SYSTEM_USER = 1; // 系统内部用户
 
     // 过滤器优先级列表
     public static final int PRIORITY_CORS = 0; // 跨域处理过滤器

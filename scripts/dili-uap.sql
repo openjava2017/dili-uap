@@ -107,7 +107,7 @@ CREATE TABLE `uap_user_authority` (
   `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_user_authority_userId` (`user_id`) USING BTREE,
+  UNIQUE KEY `uk_user_authority_userId` (`user_id`, `resource_id`, `type`) USING BTREE,
   KEY `idx_user_authority_resourceId` (`resource_id`, `type`) USING BTREE
 ) ENGINE=InnoDB;
 
@@ -134,7 +134,7 @@ CREATE TABLE `uap_role_authority` (
   `bitmap` INTEGER NOT NULL COMMENT '子权限位图',
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  KEY `idx_role_authority_roleId` (`role_id`) USING BTREE,
+  UNIQUE KEY `uk_role_authority_roleId` (`role_id`, `resource_id`, `type`) USING BTREE,
   KEY `idx_role_authority_resourceId` (`resource_id`, `type`) USING BTREE
 ) ENGINE=InnoDB;
 

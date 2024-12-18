@@ -7,6 +7,8 @@ public class ResourceAuthority {
     private String code;
     // 资源类型
     private Integer type;
+    // 子权限位图
+    private Integer bitmap;
 
     public Long getResourceId() {
         return resourceId;
@@ -30,5 +32,13 @@ public class ResourceAuthority {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Integer bitmap) {
+        this.bitmap = bitmap;
     }
 }

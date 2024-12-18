@@ -33,7 +33,7 @@
         FROM uap_menu_resource um
         INNER JOIN uap_user_authority uu ON um.id = uu.resource_id AND uu.type = 1
         WHERE
-            uu.user_id = #{roleId}
+            uu.user_id = #{userId}
     </select>
 
     <select id="listUserMenuElements" parameterType="long" resultMap="MenuElementMap">
@@ -42,8 +42,28 @@
         FROM uap_menu_element um
         INNER JOIN uap_user_authority uu ON um.menu_id = uu.resource_id AND uu.type = 1
         WHERE
-            uu.user_id = #{roleId}
+            uu.user_id = #{userId}
             <![CDATA[AND (uu.bitmap && (1 << um.offset)) > 0]]>
+    </select>
+
+    <select id="listResourceAuthorities" parameterType="long" resultType="com.diligrp.uap.auth.domain.ResourceAuthority">
+        SELECT
+            DISTINCT resource_id AS resourceId, code, type, bitmap
+        FROM (
+           SELECT
+               resource_id, code, type, bitmap
+           FROM uap_user_authority
+           WHERE
+               user_id = #{userId}
+           UNION ALL
+           SELECT
+               ur.resource_id, ur.code, ur.type, ur.bitmap
+           FROM uap_role_authority ur
+           INNER JOIN uap_user_role uu ON ur.role_id = uu.role_id
+           WHERE
+               uu.user_id = #{userId}
+        ) temp_authority
+        ORDER BY type, resource_id
     </select>
 
     <delete id="deleteUserAuthorities" parameterType="long">

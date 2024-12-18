@@ -9,23 +9,38 @@ import java.io.Serializable;
 public class Authority implements Serializable {
     private static final long serialVersionUID = 8108687186195591559L;
 
+    // 资源ID
+    private Long id;
     // 资源编码
-    private final String code;
-
+    private String code;
     // 资源类型
-    private final int type;
-
+    private int type;
     // 子权限位图
-    private final int bitmap;
+    private int bitmap;
 
-    public Authority(String code, int type) {
-        this(code, type, 0);
+    public static Authority of(String code, int type) {
+        return of(0L, code, type, 0);
     }
 
-    public Authority(String code, int type, int bitmap) {
-        this.code = code;
-        this.type = type;
-        this.bitmap = bitmap;
+    public static Authority of(Long id, String code, int type) {
+        return of(id, code, type, 0);
+    }
+
+    public static Authority of(String code, int type, int bitmap) {
+        return of(0L, code, type, bitmap);
+    }
+
+    public static Authority of(Long id, String code, int type, int bitmap) {
+        Authority authority = new Authority();
+        authority.id = id;
+        authority.code = code;
+        authority.type = type;
+        authority.bitmap = bitmap;
+        return authority;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCode() {

@@ -48,8 +48,8 @@ public class AuthConfiguration {
         .authorizeRequests(customizer ->
             customizer.requestMatchers("/api/**").permitAll()
                 .requestMatchers("/deny/**").denyAll()
-                .requestMatchers("/authority/**").hasPermission(new Authority("1-2-3-4", 1))
-                .requestMatchers("/permission/**").hasPermission(new Authority("1-2-3-4", 1, 1 << 7))
+                .requestMatchers("/authority/**").hasPermission(Authority.of("1-2-3-4", 1))
+                .requestMatchers("/permission/**").hasPermission(Authority.of("1-2-3-4", 1, 1 << 7))
                 .anyRequest().authenticated()
         )
         .logout(customizer ->
@@ -69,9 +69,9 @@ public class AuthConfiguration {
             @Override
             public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
                 List<Authority> authorities = new ArrayList<>();
-                authorities.add(new Authority("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
-                Organization organization = new Organization(9L, "沈阳地利", 10001L, "部门名称");
-                return new Subject(1000L, "brenthuang", "黄刚", authorities, organization, Constants.TYPE_SYSTEM_USER);
+                authorities.add(Authority.of("1-2-3-4", 1, ((1 << 6) | (1 << 8))));
+                Organization organization = Organization.of(9L, "沈阳地利", 10001L, "部门名称");
+                return Subject.of(1000L, "brenthuang", "黄刚", authorities, organization, Constants.TYPE_SYSTEM_USER);
             }
         };
     }

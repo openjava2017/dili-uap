@@ -57,6 +57,10 @@ public enum UserState implements IEnumType {
         return this.code;
     }
 
+    public static boolean forLogin(int code) {
+        return UserState.PENDING.equalTo(code) || UserState.NORMAL.equalTo(code);
+    }
+
     public String toString() {
         return this.name;
     }
