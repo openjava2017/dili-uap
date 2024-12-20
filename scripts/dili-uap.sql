@@ -142,8 +142,9 @@ DROP TABLE IF EXISTS `uap_menu_resource`;
 CREATE TABLE `uap_menu_resource` (
   `id` BIGINT NOT NULL COMMENT '非自增主键ID', -- 防止菜单ID和页面元素ID重复，不便于构建树形结构数据
   `parent_id` BIGINT NOT NULL COMMENT '父节点ID',
-  `code` VARCHAR(40) NOT NULL COMMENT '菜单编码', -- 格式：id1,id2,id3,id4
+  `code` VARCHAR(40) NOT NULL COMMENT '菜单编码',
   `name` VARCHAR(60) NOT NULL COMMENT '菜单名称',
+  `path` VARCHAR(40) NOT NULL COMMENT '菜单路径', -- 格式：id1,id2,id3,id4
   `level` TINYINT UNSIGNED NOT NULL COMMENT '菜单层级',
   `children` TINYINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 用来标注目录/页面
   `uri` VARCHAR(60) NOT NULL COMMENT '相对路径', -- /user/page.do
@@ -154,6 +155,7 @@ CREATE TABLE `uap_menu_resource` (
   `created_time` DATETIME COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_menu_resource_code` (`code`) USING BTREE,
+  UNIQUE KEY `uk_menu_resource_path` (`path`) USING BTREE,
   KEY `idx_menu_resource_moduleId` (`module_id`, `level`) USING BTREE,
   KEY `idx_menu_resource_parentId` (`parent_id`, `sequence`) USING BTREE
 ) ENGINE=InnoDB;

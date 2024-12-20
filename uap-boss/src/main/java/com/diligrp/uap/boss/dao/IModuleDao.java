@@ -21,6 +21,8 @@ public interface IModuleDao extends MybatisMapperSupport {
 
     long countModules(ModuleQuery query);
 
+    List<ModuleDO> listByType(Integer moduleType);
+
     int updateModule(ModuleDO module);
 
     int deleteByModuleId(Long moduleId);

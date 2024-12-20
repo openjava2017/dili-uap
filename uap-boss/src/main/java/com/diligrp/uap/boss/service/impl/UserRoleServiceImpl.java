@@ -7,8 +7,6 @@ import com.diligrp.uap.boss.domain.RoleQuery;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.RoleDO;
 import com.diligrp.uap.boss.service.IUserRoleService;
-import com.diligrp.uap.security.core.Subject;
-import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.domain.PageMessage;
 import jakarta.annotation.Resource;
@@ -54,10 +52,6 @@ public class UserRoleServiceImpl implements IUserRoleService {
      */
     @Override
     public PageMessage<RoleDTO> listRoles(RoleQuery query) {
-        Subject subject = SecuritySessionHolder.getSession().getSubject();
-        Long mchId = subject.getOrganization().getId();
-        query.setMchId(mchId);
-
         long total = userRoleDao.countRoles(query);
         List<RoleDTO> roles = Collections.emptyList();
         if (total > 0) {

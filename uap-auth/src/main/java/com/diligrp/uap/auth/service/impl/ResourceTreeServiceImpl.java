@@ -7,8 +7,6 @@ import com.diligrp.uap.auth.dao.IRoleAuthorityDao;
 import com.diligrp.uap.auth.dao.IUserAuthorityDao;
 import com.diligrp.uap.auth.domain.StateMenuTreeNode;
 import com.diligrp.uap.auth.service.IResourceTreeService;
-import com.diligrp.uap.auth.type.MenuNodeType;
-import com.diligrp.uap.auth.type.NodeState;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.model.MenuElementDO;
@@ -41,7 +39,7 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
     @Override
     public StateMenuTreeNode listMenuTree() {
         // 构建根节点，并放入内存备用，便于构建树形结构
-        StateMenuTreeNode root = buildRootNode();
+        StateMenuTreeNode root = StateMenuTreeNode.buildRootNode();
         // 构建所有菜单-页面元素的菜单树，所有节点为未选中状态
         buildEmptyMenuTree(root);
         return root;
@@ -54,7 +52,7 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
     @Override
     public StateMenuTreeNode listRoleMenuTree(Long roleId) {
         // 构建根节点，并放入内存备用，便于构建树形结构
-        StateMenuTreeNode root = buildRootNode();
+        StateMenuTreeNode root = StateMenuTreeNode.buildRootNode();
         // 构建所有菜单-页面元素的菜单树，所有节点为未选中状态
         var parents = buildEmptyMenuTree(root);
 
@@ -86,7 +84,7 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
     @Override
     public StateMenuTreeNode listUserMenuTree(Long userId) {
         // 构建根节点，并放入内存备用，便于构建树形结构
-        StateMenuTreeNode root = buildRootNode();
+        StateMenuTreeNode root = StateMenuTreeNode.buildRootNode();
         // 构建所有菜单-页面元素的菜单树，所有节点为未选中状态
         var parents = buildEmptyMenuTree(root);
 
@@ -141,19 +139,5 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
             }
         });
         return parents;
-    }
-
-    private StateMenuTreeNode buildRootNode() {
-        MenuNodeType type = MenuNodeType.ROOT_MENU;
-        StateMenuTreeNode root = new StateMenuTreeNode();
-        root.setId(0L);
-        root.setParentId(0L);
-        root.setName(type.getName());
-        root.setType(type.getCode());
-        root.setPath("0");
-        root.setDescription(type.getName());
-        root.setState(NodeState.IDLE.getCode());
-
-        return root;
     }
 }

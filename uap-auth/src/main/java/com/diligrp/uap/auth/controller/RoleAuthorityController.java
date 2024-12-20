@@ -39,7 +39,8 @@ public class RoleAuthorityController {
     @RequestMapping(value = "/menu/assign.do")
     public Message<?> assignMenu(@RequestBody RoleAuthority request) {
         AssertUtils.notNull(request.getRoleId(), "roleId missed");
-        AssertUtils.notEmpty(request.getAuthorities(), "authorities missed");
+        // 空集合则清空权限
+        AssertUtils.notNull(request.getAuthorities(), "authorities missed");
         request.getAuthorities().stream().forEach(authority -> {
             AssertUtils.notNull(authority.getResourceId(), "resourceId missed");
             AssertUtils.notNull(authority.getType(), "type missed");

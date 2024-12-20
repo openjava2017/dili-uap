@@ -3,9 +3,6 @@ package com.diligrp.uap.security;
 public final class Constants {
     public static final String WEB_SECURITY_FILTER_CHAIN_NAME = "webSecurityFilterChain";
 
-    // 用户类型常量列表
-    public static final int TYPE_SYSTEM_USER = 1; // 系统内部用户
-
     // 过滤器优先级列表
     public static final int PRIORITY_CORS = 0; // 跨域处理过滤器
     public static final int PRIORITY_USER_LOGOUT = 10; // 用户登出过滤器
@@ -37,7 +34,7 @@ public final class Constants {
     public static final String MD5_ALGORITHM = "MD5";
 
     // 权限常量列表
-    public static final int ALL_PERMISSION = 0x0FFFFFFF;
+    public static final int ALL_PERMISSION = 0x7FFFFFFF;
     public static final int NO_PERMISSION = 0;
 
     // 时间格式

@@ -1,7 +1,7 @@
 package com.diligrp.uap.security.builder;
 
 import com.diligrp.uap.security.ErrorCode;
-import com.diligrp.uap.security.core.Authority;
+import com.diligrp.uap.security.core.AuthorityPoint;
 import com.diligrp.uap.security.core.AuthorizationManager;
 import com.diligrp.uap.security.core.UrlAuthorizationManager;
 import com.diligrp.uap.security.exception.AuthenticationException;
@@ -49,7 +49,7 @@ public class UserAuthorizationBuilder extends SecurityFilterBuilder<UserAuthoriz
             this.requestMatcher = requestMatcher;
         }
 
-        public UserAuthorizationBuilder hasPermission(Authority authority) {
+        public UserAuthorizationBuilder hasAuthority(AuthorityPoint authority) {
             Assert.notNull(authority, "permission must be specified");
 
             UrlAuthorizationManager.AuthorizationHandler handler = new UrlAuthorizationManager.AuthorityHandler(authority);

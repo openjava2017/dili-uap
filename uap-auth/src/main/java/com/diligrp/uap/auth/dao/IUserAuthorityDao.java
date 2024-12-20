@@ -2,15 +2,25 @@ package com.diligrp.uap.auth.dao;
 
 import com.diligrp.uap.auth.domain.ResourceAuthority;
 import com.diligrp.uap.auth.model.UserAuthorityDO;
+import com.diligrp.uap.auth.model.UserRoleDO;
 import com.diligrp.uap.boss.model.MenuElementDO;
 import com.diligrp.uap.boss.model.MenuResourceDO;
+import com.diligrp.uap.boss.model.ModuleDO;
+import com.diligrp.uap.boss.model.RoleDO;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository("userAuthorityDao")
 public interface IUserAuthorityDao extends MybatisMapperSupport {
+
+    List<ModuleDO> listUserModules(Long userId);
+
+    List<MenuResourceDO> listAllUserMenus(@Param("userId") Long userId, @Param("moduleId") Long moduleId);
+
+    List<MenuResourceDO> listModuleMenus(Integer moduleType);
 
     List<MenuResourceDO> listUserMenus(Long userId);
 
@@ -21,7 +31,13 @@ public interface IUserAuthorityDao extends MybatisMapperSupport {
      */
     List<ResourceAuthority> listResourceAuthorities(Long userId);
 
-    void deleteUserAuthorities(Long userId);
+    List<RoleDO> listUserRoles(Long userId);
+
+    int deleteUserRoles(Long userId);
+
+    void insertUserRoles(List<UserRoleDO> userRoles);
+
+    int deleteUserAuthorities(Long userId);
 
     void insertUserAuthorities(List<UserAuthorityDO> authorities);
 }

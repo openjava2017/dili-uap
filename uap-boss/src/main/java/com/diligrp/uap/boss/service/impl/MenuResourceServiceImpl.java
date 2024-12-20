@@ -40,7 +40,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     @Override
     public MenuTreeNode listMenuTree() {
         // 构建树形结构的根节点
-        MenuTreeNode root = buildRootNode();
+        MenuTreeNode root = MenuTreeNode.buildRootNode();
 
         List<MenuResourceDO> menus = menuResourceDao.listAllMenus();
         var parents = new HashMap<Long, MenuTreeNode>(menus.size());
@@ -65,17 +65,20 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createMenuResource(MenuResourceDTO menu) {
+        menuResourceDao.findByCode(menu.getCode()).ifPresent(self -> {
+            throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "菜单编码已经存在");
+        });
         MenuResourceDO parent = menuResourceDao.findById(menu.getParentId())
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级菜单不存在"));
 
         LocalDateTime when = LocalDateTime.now();
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
         String menuId = keyGenerator.nextId();
-        String code = String.format("%s,%s", parent.getCode(), menuId);
+        String path = String.format("%s,%s", parent.getPath(), menuId);
 
         MenuResourceDO self = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(menu.getParentId())
-            .code(code).name(menu.getName()).level(parent.getLevel() + 1).children(0).uri(menu.getUri())
-            .icon(menu.getIcon()).moduleId(parent.getModuleId()).description(menu.getDescription())
+            .code(menu.getCode()).path(path).name(menu.getName()).level(parent.getLevel() + 1).children(0)
+            .uri(menu.getUri()).icon(menu.getIcon()).moduleId(parent.getModuleId()).description(menu.getDescription())
             .sequence(menu.getSequence()).createdTime(when).build();
         menuResourceDao.insertMenuResource(self);
         // 增加父级节点的子节点数量
@@ -108,7 +111,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
     public List<MenuTreeNode> listParents(Long id) {
         MenuResourceDO menu = menuResourceDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的菜单不存在"));
-        String path = menu.getCode();
+        String path = menu.getPath();
 
         if (Objects.nonNull(path)) {
             // 将编码解析成祖先节点ID列表，编码格式为：父ID,父ID,父ID,ID
@@ -172,20 +175,5 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
             // 父节点的子节点数-1
             menuResourceDao.decChildrenById(menu.getParentId());
         }
-    }
-
-    private MenuTreeNode buildRootNode() {
-        MenuTreeNode root = new MenuTreeNode();
-        root.setId(0L);
-        root.setParentId(0L);
-        root.setName("根菜单");
-        root.setType(NodeType.ROOT.getCode());
-        root.setPath("0");
-        root.setDescription("根菜单");
-        root.setUri("#");
-        root.setIcon(null);
-        root.setSequence(0);
-
-        return root;
     }
 }

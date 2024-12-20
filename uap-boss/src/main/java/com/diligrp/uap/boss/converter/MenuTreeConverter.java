@@ -10,21 +10,14 @@ public class MenuTreeConverter implements IConverter<MenuResourceDO, MenuTreeNod
 
     @Override
     public MenuTreeNode convert(MenuResourceDO menu) {
-        NodeType type;
-        if (menu.getParentId() == 0 || menu.getLevel() == 1) {
-            type = NodeType.ROOT;
-        } else if (menu.getChildren() > 0) {
-            type = NodeType.CHILD;
-        } else {
-            type = NodeType.LEAF;
-        }
+        NodeType type = menu.getChildren() > 0 ? NodeType.CHILD : NodeType.LEAF;
 
         MenuTreeNode self = new MenuTreeNode();
         self.setId(menu.getId());
         self.setParentId(menu.getParentId());
         self.setName(menu.getName());
         self.setType(type.getCode());
-        self.setPath(menu.getCode());
+        self.setPath(menu.getPath());
         self.setDescription(menu.getDescription());
         self.setUri(menu.getUri());
         self.setIcon(menu.getIcon());

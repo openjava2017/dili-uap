@@ -2,7 +2,6 @@ package com.diligrp.uap.auth.service.impl;
 
 import com.diligrp.uap.auth.dao.IUserAuthorityDao;
 import com.diligrp.uap.auth.domain.ResourceAuthority;
-import com.diligrp.uap.auth.service.IAuthenticationService;
 import com.diligrp.uap.auth.service.IUserPasswordService;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IMerchantDao;
@@ -13,21 +12,18 @@ import com.diligrp.uap.boss.model.Preference;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.boss.service.IPreferenceService;
 import com.diligrp.uap.boss.type.UserState;
-import com.diligrp.uap.security.Constants;
+import com.diligrp.uap.boss.type.UserType;
 import com.diligrp.uap.security.core.*;
 import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.shared.ErrorCode;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Service("authenticationService")
-public class AuthenticationServiceImpl extends AuthenticationService implements IAuthenticationService {
+@Service("userAuthenticationService")
+public class UserAuthenticationService extends AuthenticationService {
 
     @Resource
     private IUserManageDao userManageDao;
@@ -51,18 +47,25 @@ public class AuthenticationServiceImpl extends AuthenticationService implements 
     public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
         UserDO user = userManageDao.findByName((String)authentication.getPrincipal())
             .orElseThrow(() -> new AuthenticationException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
-        BranchDO branch = branchDao.findById(user.getBranchId())
-            .orElseThrow(() -> new AuthenticationException(ErrorCode.OBJECT_NOT_FOUND, "用户组织机构不存在"));
-        MerchantDO merchant = merchantDao.findByMchId(user.getMchId())
-            .orElseThrow(() -> new AuthenticationException(ErrorCode.OBJECT_NOT_FOUND, "归属商户不存在"));
-
         if (!UserState.forLogin(user.getState())) {
             String state = UserState.getName(user.getState());
             throw new AuthenticationException(ErrorCode.OPERATION_NOT_ALLOWED, "用户不允许登录: 账号状态为" + state);
         }
 
-        // 获取商户偏好设置
-        Preference preference = preferenceService.getPreferences(user.getMchId());
+        // 超级管理员默认权限，无组织机构信息
+        if (UserType.ROOT.equalTo(user.getType())) {
+            userPasswordService.checkUserPassword(user, (String) authentication.getCredentials(), -1);
+            return Subject.of(user.getId(), user.getName(), user.getUserName(), Collections.EMPTY_LIST, null, user.getType());
+        }
+
+        MerchantDO merchant = merchantDao.findByMchId(user.getMchId())
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.OBJECT_NOT_FOUND, "用户登录失败：归属商户不存在"));
+        BranchDO branch = branchDao.findById(user.getBranchId())
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.OBJECT_NOT_FOUND, "用户登录失败：组织机构不存在"));;
+        Organization organization = Organization.of(merchant.getMchId(), merchant.getName(), branch.getId(), branch.getName());
+
+        // 获取商户偏好设置并验证密码
+        Preference preference = preferenceService.getPreferences(merchant.getMchId());
         int maxPwdErrors = preference.getMaxPasswordErrors();
         userPasswordService.checkUserPassword(user, (String) authentication.getCredentials(), maxPwdErrors);
 
@@ -82,9 +85,7 @@ public class AuthenticationServiceImpl extends AuthenticationService implements 
         List<Authority> authorities = authorityMap.values().stream().map(authority ->
             Authority.of(authority.getResourceId(), authority.getCode(), authority.getType(), authority.getBitmap()))
             .collect(Collectors.toList());
-        return Subject.of(user.getId(), user.getName(), user.getUserName(), authorities,
-            Organization.of(merchant.getMchId(), merchant.getName(), branch.getId(), branch.getName()),
-            Constants.TYPE_SYSTEM_USER);
+        return Subject.of(user.getId(), user.getName(), user.getUserName(), authorities, organization, user.getType());
     }
 
     private static class ResourceKey {

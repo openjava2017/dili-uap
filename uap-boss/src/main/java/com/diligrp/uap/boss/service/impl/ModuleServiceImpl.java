@@ -1,6 +1,7 @@
 package com.diligrp.uap.boss.service.impl;
 
 import com.diligrp.uap.boss.Constants;
+import com.diligrp.uap.boss.converter.ModuleDoDtoConverter;
 import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.dao.IModuleDao;
 import com.diligrp.uap.boss.domain.ModuleDTO;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("moduleService")
 public class ModuleServiceImpl implements IModuleService {
@@ -53,8 +55,9 @@ public class ModuleServiceImpl implements IModuleService {
         // 同步创建根菜单
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
         String menuId = keyGenerator.nextId();
-        MenuResourceDO menu = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(0L).code(menuId)
-            .name(module.getName()).level(1).children(0).uri(module.getUri()).icon(module.getIcon())
+        String code = String.valueOf(module.getModuleId()); // 根菜单编码使用moduleId
+        MenuResourceDO menu = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(0L).code(code)
+            .name(module.getName()).path(menuId).level(1).children(0).uri(module.getUri()).icon(module.getIcon())
             .moduleId(module.getModuleId()).description(module.getDescription()).sequence(module.getSequence())
             .createdTime(when).build();
         menuResourceDao.insertMenuResource(menu);
@@ -64,8 +67,8 @@ public class ModuleServiceImpl implements IModuleService {
      * 根据ID查找系统模块
      */
     @Override
-    public ModuleDO findByModuleId(Long moduleId) {
-        return moduleDao.findByModuleId(moduleId).orElseThrow(() ->
+    public ModuleDTO findByModuleId(Long moduleId) {
+        return moduleDao.findByModuleId(moduleId).map(ModuleDoDtoConverter.INSTANCE::convert).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块不存在"));
     }
 
@@ -73,11 +76,12 @@ public class ModuleServiceImpl implements IModuleService {
      * 分页查询系统模块
      */
     @Override
-    public PageMessage<ModuleDO> listModules(ModuleQuery query) {
+    public PageMessage<ModuleDTO> listModules(ModuleQuery query) {
         long total = moduleDao.countModules(query);
-        List<ModuleDO> modules = Collections.emptyList();
+        List<ModuleDTO> modules = Collections.emptyList();
         if (total > 0) {
-            modules = moduleDao.listModules(query);
+            modules = moduleDao.listModules(query).stream().map(ModuleDoDtoConverter.INSTANCE::convert)
+                .collect(Collectors.toList());
         }
 
         return PageMessage.success(total, modules);

@@ -9,6 +9,7 @@
         <result column="parent_id" property="parentId"/>
         <result column="code" property="code"/>
         <result column="name" property="name"/>
+        <result column="path" property="path"/>
         <result column="level" property="level"/>
         <result column="children" property="children"/>
         <result column="uri" property="uri"/>
@@ -19,16 +20,20 @@
     </resultMap>
 
     <insert id="insertMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">
-        INSERT INTO uap_menu_resource(id, parent_id, code, name, level, children, uri, icon, module_id, sequence, created_time)
-        VALUES (#{id}, #{parentId}, #{code}, #{name}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
+        INSERT INTO uap_menu_resource(id, parent_id, code, name, path, level, children, uri, icon, module_id, sequence, created_time)
+        VALUES (#{id}, #{parentId}, #{code}, #{name}, #{path}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="MenuResourceMap">
         SELECT * FROM uap_menu_resource WHERE id = #{id}
     </select>
 
+    <select id="findByCode" parameterType="string" resultMap="MenuResourceMap">
+        SELECT * FROM uap_menu_resource WHERE code = #{code}
+    </select>
+
     <select id="listAllMenus" resultMap="MenuResourceMap">
-        SELECT * FROM uap_menu_resource ORDER BY level, sequence
+        SELECT * FROM uap_menu_resource WHERE module_id >= 10 ORDER BY level, sequence
     </select>
 
     <select id="listChildren" parameterType="long" resultMap="MenuResourceMap">

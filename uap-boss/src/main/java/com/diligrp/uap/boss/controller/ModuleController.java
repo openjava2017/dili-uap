@@ -2,7 +2,6 @@ package com.diligrp.uap.boss.controller;
 
 import com.diligrp.uap.boss.domain.ModuleDTO;
 import com.diligrp.uap.boss.domain.ModuleQuery;
-import com.diligrp.uap.boss.model.ModuleDO;
 import com.diligrp.uap.boss.service.IModuleService;
 import com.diligrp.uap.boss.type.ModuleType;
 import com.diligrp.uap.shared.domain.Message;
@@ -40,12 +39,12 @@ public class ModuleController {
     }
 
     @RequestMapping(value = "/findByModuleId.do")
-    public Message<ModuleDO> findByModuleId(@RequestParam("moduleId") Long moduleId) {
+    public Message<ModuleDTO> findByModuleId(@RequestParam("moduleId") Long moduleId) {
         return Message.success(moduleService.findByModuleId(moduleId));
     }
 
     @RequestMapping(value = "/list.do")
-    public PageMessage<ModuleDO> list(@RequestBody ModuleQuery request) {
+    public PageMessage<ModuleDTO> list(@RequestBody ModuleQuery request) {
         AssertUtils.notNull(request.getPageNo(), "pageNo missed");
         AssertUtils.notNull(request.getPageSize(), "pageSize missed");
         AssertUtils.isTrue(request.getPageNo() > 0, "invalid pageNo");

@@ -15,6 +15,11 @@ public interface IMenuResourceDao extends MybatisMapperSupport {
 
     Optional<MenuResourceDO> findById(Long id);
 
+    Optional<MenuResourceDO> findByCode(String code);
+
+    /**
+     * 获取除Platform模块外的所有菜单，Platform模块的菜单仅仅超级管理员可使用
+     */
     List<MenuResourceDO> listAllMenus();
 
     List<MenuResourceDO> listChildren(Long id);

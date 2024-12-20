@@ -10,6 +10,7 @@ import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.UserStateDTO;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.boss.type.UserState;
+import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.redis.LettuceTemplate;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.security.PasswordUtils;
@@ -91,12 +92,12 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
 
     /**
      * 验证指定用户密码
-     * 密码错误次数不能超过当日最大限制，否则将锁定用户账户
+     * 密码错误次数不能超过当日最大限制，否则将锁定用户账户; maxPwdErrors小于0则不限制密码错误次数，等于0则密码错误时立即锁定用户
      */
     @Override
     public void checkUserPassword(UserDO user, String password, int maxPwdErrors) {
         if (UserState.LOCKED.equalTo(user.getState())) {
-            throw new UserPasswordException(ErrorCode.OPERATION_NOT_ALLOWED, "用户账号已被锁定");
+            throw new AuthenticationException(ErrorCode.OPERATION_NOT_ALLOWED, "用户账号已被锁定");
         }
 
         LocalDateTime when = LocalDateTime.now();
@@ -104,7 +105,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
         String userDailyKey = String.format("%s:%s:%s", Constants.CHECK_PASS_KEY_PREFIX,
             DateUtils.formatDate(LocalDate.now(), Constants.SIMPLE_DATE_FORMAT), user.getId());
         if (!ObjectUtils.equals(encryptedPwd, user.getPassword())) {
-            if (maxPwdErrors > 0) {
+            if (maxPwdErrors >= 0) {
                 long errors = incPasswordErrors(userDailyKey);
                 if (errors >= maxPwdErrors) {
                     // 异步执行，以防止抛出异常后数据库事务回滚导致无法锁定用户账号
@@ -115,18 +116,18 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
                     });
 
                     resetPasswordErrors(userDailyKey);
-                    throw new UserPasswordException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，用户账号已被锁定");
+                    throw new AuthenticationException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，用户账号已被锁定");
                 } else if (errors == maxPwdErrors - 2) {
-                    throw new UserPasswordException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，再输入错误2次将锁定账号");
+                    throw new AuthenticationException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，再输入错误2次将锁定账号");
                 } else if (errors == maxPwdErrors - 1) {
-                    throw new UserPasswordException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，再输入错误1次将锁定账号");
+                    throw new AuthenticationException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确，再输入错误1次将锁定账号");
                 }
             }
-            throw new UserPasswordException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确");
+            throw new AuthenticationException(ErrorCode.INVALID_USER_PASSWORD, "用户密码不正确");
         }
 
         // 密码输入正确，重置密码最大错误次数
-        if (maxPwdErrors > 0) {
+        if (maxPwdErrors >= 0) {
             resetPasswordErrors(userDailyKey);
         }
     }

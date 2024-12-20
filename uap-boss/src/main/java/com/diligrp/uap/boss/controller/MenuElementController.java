@@ -24,7 +24,8 @@ public class MenuElementController {
         AssertUtils.notNull(request.getMenuId(), "menuId missed");
         AssertUtils.notEmpty(request.getName(), "name missed");
         AssertUtils.notNull(request.getOffset(), "offset missed");
-        AssertUtils.isTrue(request.getOffset() >= 0 && request.getOffset() <= 31, "invalid offset: [0, 31]");
+        // 偏移量范围0-30，所有权限的位图0x7FFFFFFF，除符号位0外，总共31位用于表示权限
+        AssertUtils.isTrue(request.getOffset() >= 0 && request.getOffset() <= 30, "invalid offset: [0, 30]");
         AssertUtils.notNull(request.getSequence(), "sequence missed");
 
         menuElementService.createMenuElement(request);

@@ -32,6 +32,7 @@ public class MenuResourceController {
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody MenuResourceDTO request) {
         AssertUtils.notNull(request.getParentId(), "parentId missed");
+        AssertUtils.notEmpty(request.getCode(), "code missed");
         AssertUtils.notEmpty(request.getName(), "name missed");
         AssertUtils.notEmpty(request.getUri(), "uri missed");
         AssertUtils.notNull(request.getSequence(), "sequence missed");

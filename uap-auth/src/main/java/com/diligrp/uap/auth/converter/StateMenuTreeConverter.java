@@ -7,7 +7,7 @@ import com.diligrp.uap.boss.converter.IConverter;
 import com.diligrp.uap.boss.model.MenuResourceDO;
 
 /**
- * MenuResourceDO-TreeNode转换器，用于模块-菜单树形结构数据
+ * MenuResourceDO-StateMenuTreeNode转换器，用于模块-菜单树形结构数据
  */
 public class StateMenuTreeConverter implements IConverter<MenuResourceDO, StateMenuTreeNode> {
 
@@ -19,7 +19,7 @@ public class StateMenuTreeConverter implements IConverter<MenuResourceDO, StateM
         StateMenuTreeNode node = new StateMenuTreeNode();
         node.setId(menu.getId());
         node.setParentId(menu.getParentId());
-        node.setPath(menu.getCode());
+        node.setPath(menu.getPath());
         node.setName(menu.getName());
         node.setType(type.getCode());
         node.setDescription(type.getName());

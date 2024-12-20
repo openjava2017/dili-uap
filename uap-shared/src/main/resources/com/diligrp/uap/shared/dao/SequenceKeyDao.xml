@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.diligrp.uap.shared.dao.SequenceKeyDao">
-    <resultMap id="PersistentKeyMap" type="com.diligrp.erp.shared.domain.PersistentSequenceKey">
+    <resultMap id="PersistentKeyMap" type="com.diligrp.uap.shared.domain.PersistentSequenceKey">
         <id column="id" property="id"/>
         <result column="key" property="key"/>
         <result column="name" property="name"/>
@@ -15,7 +15,7 @@
         <result column="version" property="version"/>
     </resultMap>
 
-    <insert id="insertSequenceKey" parameterType="com.diligrp.erp.shared.domain.PersistentSequenceKey">
+    <insert id="insertSequenceKey" parameterType="com.diligrp.uap.shared.domain.PersistentSequenceKey">
         INSERT INTO uap_sequence_key(`key`, name, value, step, pattern, expired_on, version)
         VALUES (#{key}, #{name}, #{value}, #{step}, #{pattern}, #{expiredOn}, #{version})
     </insert>
@@ -48,7 +48,7 @@
         FOR UPDATE
     </select>
 
-    <update id="unlockSequenceKey" parameterType="com.diligrp.erp.shared.domain.PersistentSequenceKey">
+    <update id="unlockSequenceKey" parameterType="com.diligrp.uap.shared.domain.PersistentSequenceKey">
         UPDATE
             uap_sequence_key
         SET

@@ -3,6 +3,8 @@ package com.diligrp.uap.boss.controller;
 import com.diligrp.uap.boss.domain.RoleDTO;
 import com.diligrp.uap.boss.domain.RoleQuery;
 import com.diligrp.uap.boss.service.IUserRoleService;
+import com.diligrp.uap.security.core.Subject;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.domain.Message;
 import com.diligrp.uap.shared.domain.PageMessage;
 import com.diligrp.uap.shared.util.AssertUtils;
@@ -40,7 +42,11 @@ public class UserRoleController {
         AssertUtils.isTrue(request.getPageNo() > 0, "invalid pageNo");
         AssertUtils.isTrue(request.getPageSize() > 0, "invalid pageSize");
 
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        Long mchId = subject.getOrganization().getId();
+        request.setMchId(mchId);
         request.from(request.getPageNo(), request.getPageSize());
+
         return userRoleService.listRoles(request);
     }
 

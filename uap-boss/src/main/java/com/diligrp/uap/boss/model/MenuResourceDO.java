@@ -11,6 +11,8 @@ public class MenuResourceDO extends BaseDO {
     private String code;
     // 菜单名称
     private String name;
+    // 菜单路径: id1,id2,id3,id4
+    private String path;
     // 菜单层级
     private Integer level;
     // 子节点数量
@@ -48,6 +50,14 @@ public class MenuResourceDO extends BaseDO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Integer getLevel() {
@@ -128,6 +138,11 @@ public class MenuResourceDO extends BaseDO {
 
         public Builder name(String name) {
             MenuResourceDO.this.name = name;
+            return this;
+        }
+
+        public Builder path(String path) {
+            MenuResourceDO.this.path = path;
             return this;
         }
 

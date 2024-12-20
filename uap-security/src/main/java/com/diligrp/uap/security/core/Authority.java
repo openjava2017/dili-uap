@@ -18,16 +18,8 @@ public class Authority implements Serializable {
     // 子权限位图
     private int bitmap;
 
-    public static Authority of(String code, int type) {
-        return of(0L, code, type, 0);
-    }
-
     public static Authority of(Long id, String code, int type) {
         return of(id, code, type, 0);
-    }
-
-    public static Authority of(String code, int type, int bitmap) {
-        return of(0L, code, type, bitmap);
     }
 
     public static Authority of(Long id, String code, int type, int bitmap) {
@@ -55,10 +47,10 @@ public class Authority implements Serializable {
         return bitmap;
     }
 
-    public boolean check(Authority authority) {
-        boolean matched = this.type == authority.type && ObjectUtils.nullSafeEquals(this.code, authority.code);
+    public boolean check(AuthorityPoint authority) {
+        boolean matched = this.type == authority.getType() && ObjectUtils.nullSafeEquals(this.code, authority.getCode());
         if (matched) {
-            if ((this.bitmap & authority.bitmap) == authority.bitmap) {
+            if ((this.bitmap & 1 << authority.getOffset()) > 0) {
                 return true;
             } else {
                 throw new AuthorizationException(ErrorCode.ACCESS_DENIED_ERROR, ErrorCode.MESSAGE_ACCESS_DENIED);

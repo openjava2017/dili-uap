@@ -64,6 +64,10 @@
         </where>
     </select>
 
+    <select id="listByType" parameterType="int" resultMap="ModuleMap">
+        SELECT * FROM uap_module WHERE type = #{moduleType} ORDER BY sequence
+    </select>
+
     <update id="updateModule" parameterType="com.diligrp.uap.boss.model.ModuleDO">
         UPDATE uap_module
         <set>

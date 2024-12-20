@@ -1,5 +1,6 @@
 package com.diligrp.uap.auth.service.impl;
 
+import com.diligrp.uap.auth.Constants;
 import com.diligrp.uap.auth.dao.IRoleAuthorityDao;
 import com.diligrp.uap.auth.domain.ResourceAuthority;
 import com.diligrp.uap.auth.model.RoleAuthorityDO;
@@ -29,8 +30,6 @@ import java.util.stream.Collectors;
 @Service("roleAuthorityService")
 public class RoleAuthorityServiceImpl implements IRoleAuthorityService {
 
-    private static final int NO_PERMISSION = 0;
-
     @Resource
     private IUserRoleDao userRoleDao;
 
@@ -43,7 +42,6 @@ public class RoleAuthorityServiceImpl implements IRoleAuthorityService {
     @Resource
     private IRoleAuthorityDao roleAuthorityDao;
 
-
     /**
      * 为角色分配资源权限
      */
@@ -52,15 +50,18 @@ public class RoleAuthorityServiceImpl implements IRoleAuthorityService {
     public void assignMenuAuthorities(Long roleId, List<ResourceAuthority> authorities) {
         Optional<RoleDO> roleOpt = userRoleDao.findById(roleId);
         roleOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "系统角色不存在"));
+        int NO_PERMISSION = Constants.NO_PERMISSION;
 
         // 获取所有分配的菜单
         List<Long> menuIds = authorities.stream().filter(resource -> resource.getType() ==
             MenuNodeType.LEAF_MENU.getCode()).map(ResourceAuthority::getResourceId).collect(Collectors.toList());
+        menuIds.add(-1L); // 由于允许清空权限，因此添加Fake数据避免空集合导致查询异常，简化逻辑判断
         List<MenuResourceDO> menus = menuResourceDao.listByIds(menuIds);
 
         // 获取所有分配的页面元素
         List<Long> elementIds = authorities.stream().filter(resource -> resource.getType() ==
             MenuNodeType.MENU_ELEMENT.getCode()).map(ResourceAuthority::getResourceId).collect(Collectors.toList());
+        elementIds.add(-1L); // 由于允许清空权限，因此添加Fake数据避免空集合导致查询异常，简化逻辑判断
         List<MenuElementDO> elements = menuElementDao.listByIds(elementIds);
         // 根据菜单ID分组，根据菜单元素的偏移量offset获得某个菜单的菜单元素权限位图
         // 如果菜单元素的偏移量为1，则int类型bitmap的第2位(1 << 1)代表是否拥有该菜单元素权限
@@ -75,6 +76,8 @@ public class RoleAuthorityServiceImpl implements IRoleAuthorityService {
         }).collect(Collectors.toList());
 
         roleAuthorityDao.deleteRoleAuthorities(roleId);
-        roleAuthorityDao.insertRoleAuthorities(authorityList);
+        if (!authorityList.isEmpty()) {
+            roleAuthorityDao.insertRoleAuthorities(authorityList);
+        }
     }
 }

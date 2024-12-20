@@ -12,4 +12,8 @@ public final class Constants {
     public static final int STATE_NODE_IDLE = 0;
 
     public static final int STATE_NODE_SELECTED = 1;
+
+    public static final int NO_PERMISSION = 0;
+
+    public static final int ALL_PERMISSION = 0x7FFFFFFF;
 }

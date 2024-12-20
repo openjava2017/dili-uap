@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 系统菜单树形展现控制器
+ * 系统资源(菜单等)树形展现控制器
  */
 @RestController
 @RequestMapping("/resource")

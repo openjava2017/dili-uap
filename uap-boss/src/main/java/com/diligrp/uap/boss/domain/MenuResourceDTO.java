@@ -8,6 +8,8 @@ public class MenuResourceDTO {
     private Long id;
     // 父菜单ID
     private Long parentId;
+    // 菜单编码
+    private String code;
     // 菜单名称
     private String name;
     // 相对路径
@@ -33,6 +35,14 @@ public class MenuResourceDTO {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {

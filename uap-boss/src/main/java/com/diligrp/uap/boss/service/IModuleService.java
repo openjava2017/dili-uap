@@ -15,12 +15,12 @@ public interface IModuleService {
     /**
      * 根据ID查找系统模块
      */
-    ModuleDO findByModuleId(Long moduleId);
+    ModuleDTO findByModuleId(Long moduleId);
 
     /**
      * 分页查询系统模块
      */
-    PageMessage<ModuleDO> listModules(ModuleQuery query);
+    PageMessage<ModuleDTO> listModules(ModuleQuery query);
 
     /**
      * 修改系统模块

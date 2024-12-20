@@ -1,7 +1,9 @@
 package com.diligrp.uap.shared;
 
+import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
 import com.diligrp.uap.shared.util.JsonUtils;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,7 @@ import java.util.Date;
 
 @Configuration
 @ComponentScan("com.diligrp.uap.shared")
+@MapperScan(basePackages =  {"com.diligrp.uap.shared.dao"}, markerInterface = MybatisMapperSupport.class)
 public class SharedConfiguration {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {

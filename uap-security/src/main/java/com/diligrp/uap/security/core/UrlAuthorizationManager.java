@@ -46,9 +46,9 @@ public class UrlAuthorizationManager implements AuthorizationManager {
     }
 
     public static class AuthorityHandler implements AuthorizationHandler {
-        private final Authority authority;
+        private final AuthorityPoint authority;
 
-        public AuthorityHandler(Authority authority) {
+        public AuthorityHandler(AuthorityPoint authority) {
             this.authority = authority;
         }
 

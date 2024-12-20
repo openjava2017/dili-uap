@@ -15,6 +15,8 @@ public interface IUserRoleDao extends MybatisMapperSupport {
 
     Optional<RoleDO> findById(Long id);
 
+    List<RoleDO> listByIds(List<Long> roleIds);
+
     List<RoleDO> listRoles(RoleQuery query);
 
     long countRoles(RoleQuery query);

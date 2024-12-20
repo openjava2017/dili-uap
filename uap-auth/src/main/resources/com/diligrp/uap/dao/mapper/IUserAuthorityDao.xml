@@ -3,11 +3,24 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.diligrp.uap.auth.dao.IUserAuthorityDao">
+    <resultMap id="ModuleMap" type="com.diligrp.uap.boss.model.ModuleDO">
+        <id column="id" property="id"/>
+        <result column="module_id" property="moduleId"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="uri" property="uri"/>
+        <result column="icon" property="icon"/>
+        <result column="description" property="description"/>
+        <result column="sequence" property="sequence"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
     <resultMap id="MenuResourceMap" type="com.diligrp.uap.boss.model.MenuResourceDO">
         <id column="id" property="id"/>
         <result column="parent_id" property="parentId"/>
         <result column="code" property="code"/>
         <result column="name" property="name"/>
+        <result column="path" property="path"/>
         <result column="level" property="level"/>
         <result column="children" property="children"/>
         <result column="uri" property="uri"/>
@@ -26,6 +39,77 @@
         <result column="sequence" property="sequence"/>
         <result column="created_time" property="createdTime"/>
     </resultMap>
+
+    <resultMap id="RoleMap" type="com.diligrp.uap.boss.model.RoleDO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="mch_id" property="mchId"/>
+        <result column="description" property="description"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <select id="listUserModules" parameterType="long" resultMap="ModuleMap">
+        SELECT
+            *
+        FROM uap_module WHERE module_id IN
+            (SELECT
+                um.module_id
+            FROM uap_menu_resource um
+            INNER JOIN uap_user_authority uu ON um.id = uu.resource_id AND uu.type = 1
+            WHERE
+                uu.user_id = 1
+            UNION
+            SELECT
+                um.module_id
+            FROM uap_menu_resource um
+            INNER JOIN uap_role_authority ur ON um.id = ur.resource_id AND ur.type = 1
+            INNER JOIN uap_user_role uur ON ur.role_id = uur.role_id
+            WHERE
+                uur.user_id = 1
+            )
+        ORDER BY sequence
+    </select>
+
+    <select id="listAllUserMenus" resultMap="MenuResourceMap">
+        SELECT
+            DISTINCT menu_authority.*
+        FROM (
+            SELECT
+                um.*
+            FROM uap_menu_resource um
+            INNER JOIN uap_user_authority uu ON um.id = uu.resource_id AND uu.type = 1
+            WHERE
+                uu.user_id = #{userId}
+                <if test="moduleId != null">
+                    AND um.module_id = 1
+                </if>
+            UNION ALL
+            SELECT
+                um.*
+            FROM uap_menu_resource um
+            INNER JOIN uap_role_authority ur ON um.id = ur.resource_id AND ur.type = 1
+            INNER JOIN uap_user_role uu ON ur.role_id = uu.role_id
+            WHERE
+                uu.user_id = #{userId}
+                <if test="moduleId != null">
+                    AND um.module_id = 1
+                </if>
+            ) menu_authority
+        INNER JOIN uap_module um ON menu_authority.module_id = um.module_id
+        ORDER BY um.sequence, menu_authority.level, menu_authority.sequence
+    </select>
+
+    <select id="listModuleMenus" parameterType="int" resultMap="MenuResourceMap">
+        SELECT
+            DISTINCT umr.*
+        FROM uap_menu_resource umr
+        INNER JOIN uap_module um ON umr.module_id = um.module_id
+        WHERE
+            um.type = #{moduleType}
+        ORDER BY um.sequence, umr.level, umr.sequence
+    </select>
 
     <select id="listUserMenus" parameterType="long" resultMap="MenuResourceMap">
         SELECT
@@ -65,6 +149,27 @@
         ) temp_authority
         ORDER BY type, resource_id
     </select>
+
+    <select id="listUserRoles" parameterType="long" resultMap="RoleMap">
+        SELECT
+            DISTINCT ur.*
+        FROM uap_role ur
+        INNER JOIN uap_user_role uu ON ur.id = uu.role_id
+        WHERE
+            uu.user_id = #{userId}
+    </select>
+
+    <delete id="deleteUserRoles" parameterType="long">
+        DELETE FROM uap_user_role WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertUserRoles" parameterType="java.util.List">
+        INSERT INTO uap_user_role(user_id, role_id, created_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId}, #{item.roleId}, #{item.createdTime})
+        </foreach>
+    </insert>
 
     <delete id="deleteUserAuthorities" parameterType="long">
         DELETE FROM uap_user_authority WHERE user_id = #{userId}
