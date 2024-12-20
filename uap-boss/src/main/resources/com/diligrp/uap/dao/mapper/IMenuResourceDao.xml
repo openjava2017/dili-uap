@@ -33,7 +33,11 @@
     </select>
 
     <select id="listAllMenus" resultMap="MenuResourceMap">
-        SELECT * FROM uap_menu_resource WHERE module_id >= 10 ORDER BY level, sequence
+        SELECT
+            DISTINCT umr.*
+        FROM uap_menu_resource umr
+        INNER JOIN uap_module um ON umr.module_id = um.module_id
+        WHERE um.type > 0 ORDER BY umr.level, umr.sequence
     </select>
 
     <select id="listChildren" parameterType="long" resultMap="MenuResourceMap">

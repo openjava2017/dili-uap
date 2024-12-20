@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 public enum ModuleType implements IEnumType {
     // 平台模块下的权限，仅仅超级管理员使用
     Platform("平台模块", 0),
-    // 本地模块下的权限，为UAP自身功能的权限
-    Native("本地模块", 1),
+    // 权限模块下的权限，为UAP自身功能的权限
+    Native("权限模块", 1),
     // PC模块下的权限，用户登录PC端使用
     PC("PC模块", 2),
     // 移动端小程序模块下的权限，用户登录小程序使用
