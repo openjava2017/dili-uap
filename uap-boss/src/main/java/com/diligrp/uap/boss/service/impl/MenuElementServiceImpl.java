@@ -3,9 +3,11 @@ package com.diligrp.uap.boss.service.impl;
 import com.diligrp.uap.boss.Constants;
 import com.diligrp.uap.boss.converter.ElementDoDtoConverter;
 import com.diligrp.uap.boss.dao.IMenuElementDao;
+import com.diligrp.uap.boss.dao.IMenuResourceDao;
 import com.diligrp.uap.boss.domain.MenuElementDTO;
 import com.diligrp.uap.boss.exception.BossManageException;
 import com.diligrp.uap.boss.model.MenuElementDO;
+import com.diligrp.uap.boss.model.MenuResourceDO;
 import com.diligrp.uap.boss.service.IMenuElementService;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.uid.KeyGenerator;
@@ -25,6 +27,9 @@ public class MenuElementServiceImpl implements IMenuElementService {
     private IMenuElementDao menuElementDao;
 
     @Resource
+    private IMenuResourceDao menuResourceDao;
+
+    @Resource
     private KeyGeneratorManager keyGeneratorManager;
 
     /**
@@ -33,6 +38,12 @@ public class MenuElementServiceImpl implements IMenuElementService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createMenuElement(MenuElementDTO element) {
+        MenuResourceDO menu = menuResourceDao.findById(element.getMenuId())
+            .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "菜单不存在"));
+        if (menu.getChildren() > 0) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "菜单目录下不能添加页面元素");
+        }
+
         LocalDateTime when = LocalDateTime.now();
         // 使用菜单的ID生成器，保证页面元素和菜单的ID不重复，目的是为了快速构建模块-菜单-页面的元素树形结构数据
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);

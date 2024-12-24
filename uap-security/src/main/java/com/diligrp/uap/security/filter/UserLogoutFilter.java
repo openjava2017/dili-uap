@@ -1,13 +1,14 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.core.SecurityContext;
-import com.diligrp.uap.security.exception.WebSecurityException;
-import com.diligrp.uap.security.handler.LogoutHandler;
-import com.diligrp.uap.security.session.HttpRequestIdRepository;
-import com.diligrp.uap.security.session.SessionIdRepository;
-import com.diligrp.uap.security.session.SessionRepository;
 import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.ErrorCode;
+import com.diligrp.uap.security.core.SecurityAccessToken;
+import com.diligrp.uap.security.core.SecurityConfiguration;
+import com.diligrp.uap.security.core.SecurityContext;
+import com.diligrp.uap.security.core.SecurityContextAware;
+import com.diligrp.uap.security.exception.WebSecurityException;
+import com.diligrp.uap.security.handler.LogoutHandler;
+import com.diligrp.uap.security.session.*;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -18,12 +19,15 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-public class UserLogoutFilter extends AbstractSecurityFilter {
+public class UserLogoutFilter extends AbstractSecurityFilter implements SecurityContextAware {
+
+    private SecurityContext securityContext;
+
     private HttpRequestMatcher requestMatcher;
 
     private LogoutHandler logoutHandler;
 
-    private SessionIdRepository sessionIdRepository;
+    private AccessTokenRepository accessTokenRepository;
 
     @Resource
     private SessionRepository sessionRepository;
@@ -37,11 +41,16 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
 
         try {
             LOGGER.debug("{} filtered", this.getClass().getSimpleName());
-            String sessionId = sessionIdRepository.loadSessionId(request);
-            if (sessionId == null) {
+            // 获取页面回传的accessToken
+            SecurityConfiguration configuration = securityContext.getConfiguration();
+            String accessToken = accessTokenRepository.loadAccessToken(request);
+            if (accessToken == null) {
                 throw new WebSecurityException(ErrorCode.SUBJECT_NOT_AUTHENTICATED, ErrorCode.MESSAGE_NOT_AUTHENTICATED);
             }
-            sessionRepository.removeSession(sessionId);
+
+            SecurityAccessToken token = SecurityAccessToken.fromAccessToken(accessToken, configuration.getPublicKey());
+            Session session = sessionRepository.removeSession(token.getSessionId());
+            SecuritySessionHolder.createSession(() -> session);
 
             logoutHandler.onLogoutSuccess(response);
         } catch (Exception ex) {
@@ -52,7 +61,7 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository();
+        this.accessTokenRepository = new AccessTokenHttpRepository();
     }
 
     @Override
@@ -67,6 +76,11 @@ public class UserLogoutFilter extends AbstractSecurityFilter {
 
     public void setLogoutHandler(LogoutHandler logoutHandler) {
         this.logoutHandler = logoutHandler;
+    }
+
+    @Override
+    public void setSecurityContext(SecurityContext context) {
+        this.securityContext = context;
     }
 
     @Override

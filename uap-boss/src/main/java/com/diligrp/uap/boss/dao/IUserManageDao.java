@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.dao;
 
+import com.diligrp.uap.boss.domain.UserOnline;
 import com.diligrp.uap.boss.domain.UserVO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.domain.UserStateDTO;
@@ -37,4 +38,6 @@ public interface IUserManageDao extends MybatisMapperSupport {
     int countByMchId(Long mchId);
 
     int countByBranchId(Long branchId);
+
+    int updateUserLogin(UserOnline request);
 }

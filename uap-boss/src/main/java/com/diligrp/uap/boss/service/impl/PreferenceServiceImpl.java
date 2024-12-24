@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service("preferenceService")
 public class PreferenceServiceImpl implements IPreferenceService {
 
@@ -33,9 +35,10 @@ public class PreferenceServiceImpl implements IPreferenceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void setPreferences(Long mchId, Preference preference) {
+        LocalDateTime when = LocalDateTime.now();
         String payload = JsonUtils.toJsonString(preference);
-        MerchantDO merchantDO = MerchantDO.builder().mchId(mchId).params(payload).build();
-        if (merchantDao.updateMerchant(merchantDO) == 0) {
+        MerchantDO merchant = MerchantDO.builder().mchId(mchId).params(payload).modifiedTime(when).build();
+        if (merchantDao.updateMerchant(merchant) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户偏好设置失败：该商户不存在");
         }
 

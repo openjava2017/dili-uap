@@ -1,9 +1,9 @@
 package com.diligrp.uap.security.filter;
 
-import com.diligrp.uap.security.core.*;
-import com.diligrp.uap.security.session.*;
 import com.diligrp.uap.security.Constants;
 import com.diligrp.uap.security.ErrorCode;
+import com.diligrp.uap.security.core.*;
+import com.diligrp.uap.security.session.*;
 import com.diligrp.uap.security.util.HttpRequestMatcher;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -21,7 +21,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
 
     private HttpRequestMatcher requestMatcher;
 
-    private SessionIdRepository sessionIdRepository;
+    private AccessTokenRepository accessTokenRepository;
 
     @Resource
     private SessionRepository sessionRepository;
@@ -51,7 +51,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
 
             // 存储session至redis中，并将accessToken存储至response
             sessionRepository.saveSession(session, configuration.getSessionTimeout());
-            sessionIdRepository.saveSessionId(response, accessToken);
+            accessTokenRepository.saveAccessToken(response, accessToken);
             request.setAttribute(Constants.REQUEST_SESSION_TOKEN, session);
             request.setAttribute(Constants.REQUEST_ACCESS_TOKEN, accessToken);
 
@@ -66,7 +66,7 @@ public class UserAuthenticationFilter extends AbstractSecurityFilter implements 
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository();
+        this.accessTokenRepository = new AccessTokenHttpRepository();
     }
 
     @Override

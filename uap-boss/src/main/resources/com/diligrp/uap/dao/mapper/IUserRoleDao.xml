@@ -81,11 +81,11 @@
         WHERE id = #{id}
     </update>
 
-    <select id="countByMchId" parameterType="long" resultType="int">
-        SELECT * FROM uap_role WHERE mch_id = #{mchId}
+    <select id="countByMchId" parameterType="long" resultType="long">
+        SELECT COUNT(*) FROM uap_role WHERE mch_id = #{mchId}
     </select>
 
-    <select id="countUsersById" parameterType="long" resultType="int">
+    <select id="countUsersById" parameterType="long" resultType="long">
         SELECT COUNT(*) FROM uap_user_role WHERE role_id = #{id}
     </select>
 

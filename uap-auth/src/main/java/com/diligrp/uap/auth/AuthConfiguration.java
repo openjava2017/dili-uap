@@ -1,22 +1,20 @@
 package com.diligrp.uap.auth;
 
+import com.diligrp.uap.auth.service.impl.UserLogoutHandler;
 import com.diligrp.uap.security.EnableWebSecurity;
 import com.diligrp.uap.security.builder.SecurityContextCustomizer;
 import com.diligrp.uap.security.builder.SecurityCustomizer;
 import com.diligrp.uap.security.builder.SecurityFilterChainBuilder;
-import com.diligrp.uap.security.core.*;
-import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.core.AuthorityPoint;
+import com.diligrp.uap.security.core.SecurityProperties;
 import com.diligrp.uap.security.filter.SecurityFilterChain;
-import com.diligrp.uap.security.Constants;
+import com.diligrp.uap.security.handler.LogoutHandler;
 import com.diligrp.uap.shared.mybatis.MybatisMapperSupport;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @ComponentScan("com.diligrp.uap.auth")
@@ -38,7 +36,7 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain() {
+    public SecurityFilterChain securityFilterChain(LogoutHandler logoutHandler) {
         SecurityFilterChainBuilder builder = new SecurityFilterChainBuilder();
         builder.requestMatcher(customizer -> SecurityCustomizer.withDefaults())
         .login(customizer ->
@@ -53,7 +51,7 @@ public class AuthConfiguration {
                 .anyRequest().authenticated()
         )
         .logout(customizer ->
-            customizer.requestMatchers("/logout")
+            customizer.requestMatchers("/logout").handler(logoutHandler)
         )
         .cors(customizer -> SecurityCustomizer.withDefaults())
         .cachedRequest(customizer ->
@@ -61,5 +59,10 @@ public class AuthConfiguration {
                 .requestMatchers("cached/**").cached()
         );
         return builder.build();
+    }
+
+    @Bean
+    public LogoutHandler logoutHandler() {
+        return new UserLogoutHandler();
     }
 }

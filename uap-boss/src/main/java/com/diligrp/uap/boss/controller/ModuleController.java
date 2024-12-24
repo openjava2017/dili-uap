@@ -26,12 +26,11 @@ public class ModuleController {
     public Message<?> create(@RequestBody ModuleDTO request) {
         AssertUtils.notNull(request.getModuleId(), "moduleId missed");
         // 请不要随意修改模块号的范围，否则可能影响树形结构数据的构建
-        AssertUtils.isTrue(request.getModuleId() >= 10 && request.getModuleId() <= 99,
-            "无效模块号: 模块号必须2位数字");
+        AssertUtils.isTrue(request.getModuleId() >= 1000 && request.getModuleId() <= 9999,
+            "无效模块号: 模块号必须4位数字");
         AssertUtils.notEmpty(request.getName(), "name missed");
         ModuleType.getType(request.getType()).orElseThrow(() -> new IllegalArgumentException("invalid type"));
         AssertUtils.notEmpty(request.getUri(), "uri missed");
-        AssertUtils.notEmpty(request.getIcon(), "icon missed");
         AssertUtils.notNull(request.getSequence(), "sequence missed");
 
         moduleService.createModule(request);

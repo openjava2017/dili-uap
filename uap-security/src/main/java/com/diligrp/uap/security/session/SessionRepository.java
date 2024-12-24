@@ -5,7 +5,7 @@ public interface SessionRepository {
 
     void saveSession(Session session, int expireInSeconds);
 
-    void removeSession(String sessionId);
+    Session removeSession(String sessionId);
 
     boolean sessionExists(String sessionId);
 }

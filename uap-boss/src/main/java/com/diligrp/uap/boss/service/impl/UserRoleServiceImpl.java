@@ -76,7 +76,7 @@ public class UserRoleServiceImpl implements IUserRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRole(Long id) {
-        int users = userRoleDao.countUsersById(id);
+        long users = userRoleDao.countUsersById(id);
         if (users > 0) {
             throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "系统角色删除失败：角色下存在用户");
         }

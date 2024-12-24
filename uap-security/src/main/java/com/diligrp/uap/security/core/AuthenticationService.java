@@ -21,7 +21,7 @@ public abstract class AuthenticationService {
 
 
         if (!StringUtils.hasText(username)) {
-            throw new WebSecurityException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "username missed");
+            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, "username missed");
         }
         return new AuthenticationToken(username, password);
     }

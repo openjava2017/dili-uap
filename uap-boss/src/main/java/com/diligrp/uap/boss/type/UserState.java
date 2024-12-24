@@ -9,13 +9,13 @@ import java.util.stream.Stream;
 
 public enum UserState implements IEnumType {
     // 新创建用户的初始状态，用于强制密码修改
-    PENDING("待激活", 1),
+    PENDING("待激活", 0),
     // 新建用户强制修改密码后的状态
-    NORMAL("正常", 2),
+    NORMAL("正常", 1),
     // 密码超过错误次数时锁定用户
-    LOCKED("锁定", 3),
+    LOCKED("锁定", 2),
     // 人工禁用系统用户
-    DISABLED("禁用", 0);
+    DISABLED("禁用", 3);
 
     private String name;
     private int code;

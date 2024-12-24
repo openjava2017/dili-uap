@@ -23,9 +23,9 @@ public interface IUserRoleDao extends MybatisMapperSupport {
 
     int updateRole(RoleDTO request);
 
-    int countByMchId(Long mchId);
+    long countByMchId(Long mchId);
 
-    int countUsersById(Long id);
+    long countUsersById(Long id);
 
     int deleteById(Long id);
 }

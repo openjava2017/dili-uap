@@ -47,7 +47,7 @@
         LIMIT #{start}, #{limit}
     </select>
 
-    <select id="countModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultMap="long">
+    <select id="countModules" parameterType="com.diligrp.uap.boss.domain.ModuleQuery" resultType="long">
         SELECT
             COUNT(*)
         FROM uap_module

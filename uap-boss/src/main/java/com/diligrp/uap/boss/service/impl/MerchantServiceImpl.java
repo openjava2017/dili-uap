@@ -71,7 +71,7 @@ public class MerchantServiceImpl implements IMerchantService {
         String branchId = keyGenerator.nextId();
         BranchDO branch = BranchDO.builder().id(Long.parseLong(branchId)).mchId(merchant.getMchId()).parentId(0L)
             .code(branchId).name(merchant.getName()).type(BranchType.BRANCH.getCode()).level(1).children(0).state(1)
-            .createdTime(when).modifiedTime(when).build();
+            .version(0).createdTime(when).modifiedTime(when).build();
         branchDao.insertBranch(branch);
     }
 
@@ -104,7 +104,8 @@ public class MerchantServiceImpl implements IMerchantService {
     public void updateMerchant(MerchantDTO request) {
         LocalDateTime when = LocalDateTime.now();
         MerchantDO merchant = MerchantDO.builder().mchId(request.getMchId()).name(request.getName())
-            .address(request.getAddress()).linkman(request.getLinkman()).telephone(request.getTelephone()).build();
+            .address(request.getAddress()).linkman(request.getLinkman()).telephone(request.getTelephone())
+            .modifiedTime(when).build();
         if (merchantDao.updateMerchant(merchant) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_ALREADY_EXISTS, "修改商户失败：商户不存在");
         }

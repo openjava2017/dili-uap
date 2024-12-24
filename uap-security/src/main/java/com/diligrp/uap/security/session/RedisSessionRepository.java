@@ -43,10 +43,12 @@ public class RedisSessionRepository implements SessionRepository, InitializingBe
     }
 
     @Override
-    public void removeSession(String sessionId) {
+    public Session removeSession(String sessionId) {
         String key = Constants.SESSION_KEY_PREFIX + sessionId;
         RedisCommands<String, Session> command = connection.sync();
+        Session session = command.get(key);
         command.del(key);
+        return session;
     }
 
     @Override

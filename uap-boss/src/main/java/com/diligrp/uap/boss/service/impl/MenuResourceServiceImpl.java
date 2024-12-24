@@ -70,6 +70,10 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         });
         MenuResourceDO parent = menuResourceDao.findById(menu.getParentId())
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级菜单不存在"));
+        long elements = menuElementDao.countByMenuId(parent.getId());
+        if (elements > 0) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "新增子菜单失败：父级菜单存在页面元素");
+        }
 
         LocalDateTime when = LocalDateTime.now();
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
@@ -140,7 +144,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         MenuResourceDO self = menuResourceDao.findById(request.getId()).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "修改系统菜单失败：菜单不存在"));
         if (self.getParentId() == 0 || self.getLevel() == 1) {
-            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能修改根菜单");
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "修改根菜单失败：请在模块管理中修改");
         }
 
         MenuResourceDO menu = MenuResourceDO.builder().id(request.getId()).name(request.getName()).uri(request.getUri())
@@ -157,7 +161,7 @@ public class MenuResourceServiceImpl implements IMenuResourceService {
         MenuResourceDO menu = menuResourceDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "当前菜单不存在"));
         if (menu.getParentId() == 0 || menu.getLevel() == 1) {
-            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除根级菜单");
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除根菜单失败：请在模块管理中删除");
         }
         if (menu.getChildren() > 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "删除系统菜单失败：当前菜单存在子菜单");

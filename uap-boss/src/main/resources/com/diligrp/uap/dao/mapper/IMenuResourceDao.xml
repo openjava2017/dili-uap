@@ -15,13 +15,14 @@
         <result column="uri" property="uri"/>
         <result column="icon" property="icon"/>
         <result column="module_id" property="moduleId"/>
+        <result column="description" property="description"/>
         <result column="sequence" property="sequence"/>
         <result column="created_time" property="createdTime"/>
     </resultMap>
 
     <insert id="insertMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">
-        INSERT INTO uap_menu_resource(id, parent_id, code, name, path, level, children, uri, icon, module_id, sequence, created_time)
-        VALUES (#{id}, #{parentId}, #{code}, #{name}, #{path}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{sequence}, #{createdTime})
+        INSERT INTO uap_menu_resource(id, parent_id, code, name, path, level, children, uri, icon, module_id, description, sequence, created_time)
+        VALUES (#{id}, #{parentId}, #{code}, #{name}, #{path}, #{level}, #{children}, #{uri}, #{icon}, #{moduleId}, #{description}, #{sequence}, #{createdTime})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="MenuResourceMap">
@@ -53,8 +54,11 @@
     </select>
 
     <select id="listByModuleId" resultMap="MenuResourceMap">
-        SELECT * FROM uap_menu_resource WHERE module_id = #{moduleId} AND level = #{level}
-        ORDER BY sequence
+        SELECT * FROM uap_menu_resource WHERE module_id = #{moduleId}
+        <if test="level != null">
+            AND level = #{level}
+        </if>
+        ORDER BY level, sequence
     </select>
 
     <update id="updateMenuResource" parameterType="com.diligrp.uap.boss.model.MenuResourceDO">

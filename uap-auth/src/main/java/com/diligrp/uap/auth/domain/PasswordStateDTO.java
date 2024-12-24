@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class PasswordStateDTO {
     // 用户账号ID
-    private Long userId;
+    private Long id;
     // 用户密码
     private String password;
     // 用户状态 - 用于第一次登录修改密码时状态更新为"正常"
@@ -16,7 +16,7 @@ public class PasswordStateDTO {
 
     public static PasswordStateDTO of(Long id, String password, Integer state, LocalDateTime when, Integer version) {
         PasswordStateDTO stateDTO = new PasswordStateDTO();
-        stateDTO.userId = id;
+        stateDTO.id = id;
         stateDTO.password = password;
         stateDTO.state = state;
         stateDTO.when = when;
@@ -29,12 +29,12 @@ public class PasswordStateDTO {
         return of(id, password, null, when, version);
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getPassword() {

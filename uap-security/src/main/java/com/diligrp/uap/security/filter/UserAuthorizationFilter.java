@@ -23,7 +23,7 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
 
     private SecurityContext securityContext;
 
-    private SessionIdRepository sessionIdRepository;
+    private AccessTokenRepository accessTokenRepository;
 
     @Resource
     private SessionRepository sessionRepository;
@@ -39,7 +39,7 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
         try {
             LOGGER.debug("{} filtered", this.getClass().getSimpleName());
             // 请求中获取AccessToken
-            String accessTokenId = sessionIdRepository.loadSessionId(request);
+            String accessTokenId = accessTokenRepository.loadAccessToken(request);
             if (accessTokenId != null) {
                 SecurityConfiguration configuration = securityContext.getConfiguration();
                 SecurityAccessToken accessToken = SecurityAccessToken.fromAccessToken(accessTokenId, configuration.getPublicKey());
@@ -61,7 +61,7 @@ public class UserAuthorizationFilter extends AbstractSecurityFilter implements S
     @Override
     public void configure(SecurityContext context) {
         super.configure(context);
-        this.sessionIdRepository = new HttpRequestIdRepository();
+        this.accessTokenRepository = new AccessTokenHttpRepository();
     }
 
     @Override

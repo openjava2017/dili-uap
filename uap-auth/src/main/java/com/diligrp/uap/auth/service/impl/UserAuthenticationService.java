@@ -6,6 +6,7 @@ import com.diligrp.uap.auth.service.IUserPasswordService;
 import com.diligrp.uap.boss.dao.IBranchDao;
 import com.diligrp.uap.boss.dao.IMerchantDao;
 import com.diligrp.uap.boss.dao.IUserManageDao;
+import com.diligrp.uap.boss.domain.UserOnline;
 import com.diligrp.uap.boss.model.BranchDO;
 import com.diligrp.uap.boss.model.MerchantDO;
 import com.diligrp.uap.boss.model.Preference;
@@ -15,10 +16,17 @@ import com.diligrp.uap.boss.type.UserState;
 import com.diligrp.uap.boss.type.UserType;
 import com.diligrp.uap.security.core.*;
 import com.diligrp.uap.security.exception.AuthenticationException;
+import com.diligrp.uap.security.session.SecuritySessionHolder;
+import com.diligrp.uap.security.session.Session;
 import com.diligrp.uap.shared.ErrorCode;
+import com.diligrp.uap.shared.service.ThreadPollService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +50,9 @@ public class UserAuthenticationService extends AuthenticationService {
 
     @Resource
     private IPreferenceService preferenceService;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     @Override
     public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
@@ -86,6 +97,20 @@ public class UserAuthenticationService extends AuthenticationService {
             Authority.of(authority.getResourceId(), authority.getCode(), authority.getType(), authority.getBitmap()))
             .collect(Collectors.toList());
         return Subject.of(user.getId(), user.getName(), user.getUserName(), authorities, organization, user.getType());
+    }
+
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
+        // 异步更新用户在线信息
+        Session session = SecuritySessionHolder.getSession();
+        ThreadPollService.getIoThreadPoll().submit(() -> {
+            transactionTemplate.execute(status -> {
+                Subject subject = session.getSubject();
+                userManageDao.updateUserLogin(UserOnline.of(subject.getId(), session.getSessionId(), LocalDateTime.now()));
+                return null;
+            });
+        });
+
+        super.onAuthenticationSuccess(request, response);
     }
 
     private static class ResourceKey {

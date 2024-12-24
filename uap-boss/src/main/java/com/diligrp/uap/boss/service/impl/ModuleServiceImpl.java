@@ -55,11 +55,10 @@ public class ModuleServiceImpl implements IModuleService {
         // 同步创建根菜单
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_MENU_ID);
         String menuId = keyGenerator.nextId();
-        String code = String.valueOf(module.getModuleId()); // 根菜单编码使用moduleId
-        MenuResourceDO menu = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(0L).code(code)
+        MenuResourceDO menu = MenuResourceDO.builder().id(Long.parseLong(menuId)).parentId(0L).code(menuId)
             .name(module.getName()).path(menuId).level(1).children(0).uri(module.getUri()).icon(module.getIcon())
             .moduleId(module.getModuleId()).description(module.getDescription()).sequence(module.getSequence())
-            .createdTime(when).build();
+            .description(module.getDescription()).createdTime(when).build();
         menuResourceDao.insertMenuResource(menu);
     }
 
@@ -101,7 +100,8 @@ public class ModuleServiceImpl implements IModuleService {
         }
 
         // 同步修改系统模块的根菜单
-        MenuResourceDO menu = MenuResourceDO.builder().id(module.getModuleId()).name(module.getName()).uri(module.getUri())
+        MenuResourceDO rootMenu = menuResourceDao.listByModuleId(module.getModuleId(), 1).get(0);
+        MenuResourceDO menu = MenuResourceDO.builder().id(rootMenu.getId()).name(module.getName()).uri(module.getUri())
             .icon(module.getIcon()).description(module.getDescription()).sequence(module.getSequence()).build();
         menuResourceDao.updateMenuResource(menu);
     }
@@ -112,13 +112,12 @@ public class ModuleServiceImpl implements IModuleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteModule(Long moduleId) {
-        menuResourceDao.findById(moduleId).ifPresent(menu -> {
-            if (menu.getChildren() > 0) {
-                throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除系统模块失败：存在系统菜单");
-            }
-            // 删除模块下的根菜单
-            menuResourceDao.deleteById(menu.getId());
-        });
+        MenuResourceDO rootMenu = menuResourceDao.listByModuleId(moduleId, 1).get(0);
+        if (rootMenu.getChildren() > 0) {
+            throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "删除系统模块失败：存在系统菜单");
+        }
+        // 删除模块下的根菜单
+        menuResourceDao.deleteById(rootMenu.getId());
         
         if (moduleDao.deleteByModuleId(moduleId) == 0) {
             throw new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "系统模块删除失败：模块不存在");

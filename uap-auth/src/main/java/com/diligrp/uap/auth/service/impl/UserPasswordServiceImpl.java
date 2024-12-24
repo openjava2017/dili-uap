@@ -6,7 +6,6 @@ import com.diligrp.uap.auth.domain.PasswordDTO;
 import com.diligrp.uap.auth.domain.PasswordStateDTO;
 import com.diligrp.uap.auth.exception.UserPasswordException;
 import com.diligrp.uap.auth.service.IUserPasswordService;
-import com.diligrp.uap.boss.dao.IUserManageDao;
 import com.diligrp.uap.boss.domain.UserStateDTO;
 import com.diligrp.uap.boss.model.UserDO;
 import com.diligrp.uap.boss.type.UserState;
@@ -22,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,15 +32,15 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
     private static final Logger LOG = LoggerFactory.getLogger(UserPasswordServiceImpl.class);
 
     @Resource
-    private IUserManageDao userManageDao;
-
-    @Resource
     private IAuthenticationDao authenticationDao;
 
     // 为了节省资源, 管理功能和SDK使用了同一套Redis客户端, 因此使用LettuceTemplate前
     // 请确保通过@EnableWebSecurity集成了UAP-SDK并配置了SecurityProperties
     @Resource
     private LettuceTemplate<String, String> lettuceTemplate;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     /**
      * 修改指定用户的密码
@@ -110,9 +110,12 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
                 if (errors >= maxPwdErrors) {
                     // 异步执行，以防止抛出异常后数据库事务回滚导致无法锁定用户账号
                     ThreadPollService.getIoThreadPoll().submit(() -> {
-                        UserStateDTO stateDTO = UserStateDTO.of(
-                            user.getId(), UserState.LOCKED.getCode(), when, user.getVersion());
-                        userManageDao.compareAndSetState(stateDTO);
+                        transactionTemplate.execute(status -> { // 线程里使用编程式事务
+                            UserStateDTO stateDTO = UserStateDTO.of(
+                                    user.getId(), UserState.LOCKED.getCode(), when, user.getVersion());
+                            authenticationDao.lockUser(stateDTO);
+                            return null;
+                        });
                     });
 
                     resetPasswordErrors(userDailyKey);

@@ -10,7 +10,13 @@
             , state = #{state}
         </if>
         , modified_time = #{when}, version = version + 1
-        WHERE user_id = #{userId} AND version = #{version}
+        WHERE id = #{id} AND version = #{version}
+    </update>
+
+    <update id="lockUser" parameterType="com.diligrp.uap.boss.domain.UserStateDTO">
+        UPDATE uap_user
+        SET state = #{state}, locked_time = #{when}, modified_time = #{when}, version = version + 1
+        WHERE id = #{id} AND version = #{version}
     </update>
 
 </mapper>
