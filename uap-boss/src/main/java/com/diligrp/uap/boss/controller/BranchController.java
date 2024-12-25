@@ -73,8 +73,8 @@ public class BranchController {
         return Message.success();
     }
 
-    @RequestMapping(value = "/deleteById.do")
-    public Message<?> deleteById(@RequestParam("id") Long id) {
+    @RequestMapping(value = "/delete.do")
+    public Message<?> delete(@RequestParam("id") Long id) {
         branchService.deleteBranchById(id);
         return Message.success();
     }

@@ -42,6 +42,7 @@ CREATE TABLE `uap_branch` (
   `level` TINYINT UNSIGNED NOT NULL COMMENT '层级', -- 分支机构树层级
   `children` SMALLINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 是否为叶子节点
   `state` TINYINT UNSIGNED NOT NULL COMMENT '状态', -- 保留字段
+  `description` VARCHAR(128) COMMENT '备注',
   `version` INTEGER UNSIGNED NOT NULL COMMENT '数据版本号',
   `created_time` DATETIME COMMENT '创建时间',
   `modified_time` DATETIME COMMENT '修改时间',

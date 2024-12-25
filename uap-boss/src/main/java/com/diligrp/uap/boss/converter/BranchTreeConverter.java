@@ -27,7 +27,7 @@ public class BranchTreeConverter implements IConverter<BranchDO, BranchTreeNode>
         node.setParentId(branch.getParentId());
         node.setName(branch.getName());
         node.setType(branch.getType());
-        node.setPath(branch.getCode());
+        node.setPath(branch.getPath());
         // Converter在构建组织机构树时使用频繁，因此利用缓存提升性能
         node.setDescription(typeMap.get(branch.getType()));
 

@@ -32,8 +32,8 @@ public class UserRoleServiceImpl implements IUserRoleService {
     @Transactional(rollbackFor = Exception.class)
     public void createRole(RoleDTO role) {
         LocalDateTime when = LocalDateTime.now();
-        RoleDO self = RoleDO.builder().name(role.getName()).description(role.getDescription())
-            .createdTime(when).modifiedTime(when).build();
+        RoleDO self = RoleDO.builder().name(role.getName()).mchId(role.getMchId()).description(role.getDescription())
+            .version(0).createdTime(when).modifiedTime(when).build();
         userRoleDao.insertRole(self);
     }
 

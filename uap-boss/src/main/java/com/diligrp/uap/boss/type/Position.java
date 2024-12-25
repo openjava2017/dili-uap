@@ -23,7 +23,7 @@ public enum Position implements IEnumType {
     }
 
     public static Optional<Position> getPosition(Integer code) {
-        if (code == null) {
+        if (code != null) {
             Stream<Position> positions = Arrays.stream(values());
             return positions.filter(position -> position.getCode() == code.intValue()).findFirst();
         } else {

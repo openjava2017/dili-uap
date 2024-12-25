@@ -70,7 +70,7 @@ public class MerchantServiceImpl implements IMerchantService {
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_BRANCH_ID);
         String branchId = keyGenerator.nextId();
         BranchDO branch = BranchDO.builder().id(Long.parseLong(branchId)).mchId(merchant.getMchId()).parentId(0L)
-            .code(branchId).name(merchant.getName()).type(BranchType.BRANCH.getCode()).level(1).children(0).state(1)
+            .name(merchant.getName()).path(branchId).type(BranchType.BRANCH.getCode()).level(1).children(0).state(1)
             .version(0).createdTime(when).modifiedTime(when).build();
         branchDao.insertBranch(branch);
     }

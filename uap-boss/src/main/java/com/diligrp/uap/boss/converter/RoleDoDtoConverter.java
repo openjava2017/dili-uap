@@ -12,6 +12,7 @@ public class RoleDoDtoConverter implements IConverter<RoleDO, RoleDTO> {
         RoleDTO self = new RoleDTO();
         self.setId(role.getId());
         self.setName(role.getName());
+        self.setMchId(role.getMchId());
         self.setDescription(role.getDescription());
         self.setCreatedTime(role.getCreatedTime());
         self.setModifiedTime(role.getModifiedTime());

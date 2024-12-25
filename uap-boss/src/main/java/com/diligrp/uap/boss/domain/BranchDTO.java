@@ -12,6 +12,8 @@ public class BranchDTO {
     private String name;
     // 分支机构类型
     private Integer type;
+    // 备注
+    private String description;
 
     public Long getId() {
         return id;
@@ -43,5 +45,13 @@ public class BranchDTO {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

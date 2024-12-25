@@ -39,10 +39,10 @@
                 AND mch_id = #{mchId}
             </if>
             <if test="startTime != null">
-                <![CDATA[AND createdTime >= #{startTime}]]>
+                <![CDATA[AND created_time >= #{startTime}]]>
             </if>
             <if test="endTime != null">
-                <![CDATA[AND createdTime <= #{endTime}]]>
+                <![CDATA[AND created_time <= #{endTime}]]>
             </if>
         </where>
         ORDER BY id
@@ -59,10 +59,10 @@
                 AND mch_id = #{mchId}
             </if>
             <if test="startTime != null">
-                <![CDATA[AND createdTime >= #{startTime}]]>
+                <![CDATA[AND created_time >= #{startTime}]]>
             </if>
             <if test="endTime != null">
-                <![CDATA[AND createdTime <= #{endTime}]]>
+                <![CDATA[AND created_time <= #{endTime}]]>
             </if>
         </where>
     </select>

@@ -24,7 +24,8 @@ public class UserRoleController {
     @RequestMapping(value = "/create.do")
     public Message<?> create(@RequestBody RoleDTO request) {
         AssertUtils.notEmpty(request.getName(), "name missed");
-
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        request.setMchId(subject.getOrganization().getId());
         userRoleService.createRole(request);
         return Message.success();
     }

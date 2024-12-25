@@ -64,17 +64,18 @@ public class BranchServiceImpl implements IBranchService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createBranch(BranchDTO branch) {
-        BranchDO parent = branchDao.findById(branch.getId())
+        BranchDO parent = branchDao.findById(branch.getParentId())
             .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "父级分支机构不存在"));
 
         LocalDateTime when = LocalDateTime.now();
         KeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(Constants.KEY_BRANCH_ID);
         String branchId = keyGenerator.nextId();
 
-        String code = String.format("%s,%s", parent.getCode(), branchId);
+        String path = String.format("%s,%s", parent.getPath(), branchId);
         BranchDO self = BranchDO.builder().id(Long.parseLong(branchId)).mchId(parent.getMchId())
-            .parentId(parent.getId()).code(code).name(branch.getName()).type(branch.getType())
-            .level(parent.getLevel() + 1).children(0).state(1).version(0).createdTime(when).modifiedTime(when).build();
+            .parentId(parent.getId()).name(branch.getName()).path(path).type(branch.getType())
+            .level(parent.getLevel() + 1).children(0).state(1).version(0).createdTime(when)
+            .description(branch.getDescription()).modifiedTime(when).build();
         branchDao.insertBranch(self);
         // 增加父级节点的子节点数量
         branchDao.incChildrenById(parent.getId());
@@ -102,8 +103,8 @@ public class BranchServiceImpl implements IBranchService {
             throw new BossManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能修改根分支机构");
         }
 
-        BranchDO branch = BranchDO.builder().id(request.getId()).name(request.getName())
-            .type(request.getType()).modifiedTime(LocalDateTime.now()).build();
+        BranchDO branch = BranchDO.builder().id(request.getId()).name(request.getName()).type(request.getType())
+            .description(request.getDescription()).modifiedTime(LocalDateTime.now()).build();
         branchDao.updateBranch(branch);
     }
 
@@ -123,7 +124,7 @@ public class BranchServiceImpl implements IBranchService {
     public List<BranchTreeNode> listParents(Long id) {
         BranchDO self = branchDao.findById(id).orElseThrow(() ->
             new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "指定的分支机构不存在"));
-        String path = self.getCode();
+        String path = self.getPath();
 
         if (Objects.nonNull(path)) {
             // 将编码解析成祖先节点ID列表，编码格式为：父ID,父ID,父ID,ID

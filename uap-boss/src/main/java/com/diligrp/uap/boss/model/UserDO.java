@@ -202,7 +202,7 @@ public class UserDO extends BaseDO {
         }
 
         public Builder email(String email) {
-            UserDO.this.email = telephone;
+            UserDO.this.email = email;
             return this;
         }
 

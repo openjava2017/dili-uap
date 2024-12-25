@@ -7,20 +7,21 @@
         <id column="id" property="id"/>
         <result column="mch_id" property="mchId"/>
         <result column="parent_id" property="parentId"/>
-        <result column="code" property="code"/>
         <result column="name" property="name"/>
+        <result column="path" property="path"/>
         <result column="type" property="type"/>
         <result column="level" property="level"/>
         <result column="children" property="children"/>
         <result column="state" property="state"/>
+        <result column="description" property="description"/>
         <result column="version" property="version"/>
         <result column="created_time" property="createdTime"/>
         <result column="modified_time" property="modifiedTime"/>
     </resultMap>
 
     <insert id="insertBranch" parameterType="com.diligrp.uap.boss.model.BranchDO">
-        INSERT INTO uap_branch(`id`, `mch_id`, `parent_id`, `code`, `name`, `type`, `level`, `children`, `state`, `version`, `created_time`, `modified_time`)
-        VALUES (#{id}, #{mchId}, #{parentId}, #{code}, #{name}, #{type}, #{level}, #{children}, #{state}, #{version}, #{createdTime}, #{modifiedTime})
+        INSERT INTO uap_branch(`id`, `mch_id`, `parent_id`, `name`, `path`, `type`, `level`, `children`, `state`, `description`, `version`, `created_time`, `modified_time`)
+        VALUES (#{id}, #{mchId}, #{parentId}, #{name}, #{path}, #{type}, #{level}, #{children}, #{state}, #{description}, #{version}, #{createdTime}, #{modifiedTime})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="BranchMap">
@@ -55,6 +56,9 @@
         </if>
         <if test="type != null">
             , type = #{type}
+        </if>
+        <if test="description != null">
+            , description = #{description}
         </if>
         <if test="modifiedTime != null">
             , modified_time = #{modifiedTime}

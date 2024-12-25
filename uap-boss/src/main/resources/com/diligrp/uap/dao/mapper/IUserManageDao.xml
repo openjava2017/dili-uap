@@ -48,7 +48,7 @@
             uu.superior_id AS superiorId, us.user_name AS superiorName, uu.locked_time AS lockedTime, uu.online_time AS onlineTime, uu.state, uu.mch_id AS mchId,
             um.`name` AS mchName, uu.description, uu.created_time AS createdTime, uu.modified_time AS modifiedTime
         FROM uap_user uu
-        LEFT JOIN uap_branch ub ON uu.branch_id = ub.branch_id
+        LEFT JOIN uap_branch ub ON uu.branch_id = ub.id
         LEFT JOIN uap_user us ON uu.superior_id = us.id
         LEFT JOIN uap_merchant um ON uu.mch_id = um.mch_id
         <where>
@@ -80,13 +80,13 @@
                 AND uu.mch_id = #{mchId}
             </if>
             <if test="startTime != null">
-                <![CDATA[AND uu.createdTime >= #{startTime}]]>
+                <![CDATA[AND uu.created_time >= #{startTime}]]>
             </if>
             <if test="endTime != null">
-                <![CDATA[AND uu.createdTime <= #{endTime}]]>
+                <![CDATA[AND uu.created_time <= #{endTime}]]>
             </if>
         </where>
-        ORDER BY created_time
+        ORDER BY uu.created_time
         LIMIT #{start}, #{limit}
     </select>
 
@@ -123,10 +123,10 @@
                 AND uu.mch_id = #{mchId}
             </if>
             <if test="startTime != null">
-                <![CDATA[AND uu.createdTime >= #{startTime}]]>
+                <![CDATA[AND uu.created_time >= #{startTime}]]>
             </if>
             <if test="endTime != null">
-                <![CDATA[AND uu.createdTime <= #{endTime}]]>
+                <![CDATA[AND uu.created_time <= #{endTime}]]>
             </if>
         </where>
     </select>
@@ -150,6 +150,9 @@
         </if>
         <if test="superiorId != null">
             , superior_id = #{superiorId}
+        </if>
+        <if test="description != null">
+            , description = #{description}
         </if>
         <if test="modifiedTime != null">
             , modified_time = #{modifiedTime}

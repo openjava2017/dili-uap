@@ -9,10 +9,10 @@ public class BranchDO extends BaseDO {
     private Long mchId;
     // 父级机构ID
     private Long parentId;
-    // 编码
-    private String code;
     // 名称
     private String name;
+    // 路径，格式：id1,id2,id3,id4
+    private String path;
     // 类型
     private Integer type;
     // 层级
@@ -21,6 +21,8 @@ public class BranchDO extends BaseDO {
     private Integer children;
     // 状态
     private Integer state;
+    // 备注
+    private String description;
 
     public Long getMchId() {
         return mchId;
@@ -38,20 +40,20 @@ public class BranchDO extends BaseDO {
         this.parentId = parentId;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Integer getType() {
@@ -86,6 +88,14 @@ public class BranchDO extends BaseDO {
         this.state = state;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public static Builder builder() {
         return new BranchDO().new Builder();
     }
@@ -106,8 +116,8 @@ public class BranchDO extends BaseDO {
             return this;
         }
 
-        public Builder code(String code) {
-            BranchDO.this.code = code;
+        public Builder path(String path) {
+            BranchDO.this.path = path;
             return this;
         }
 
@@ -133,6 +143,11 @@ public class BranchDO extends BaseDO {
 
         public Builder state(Integer state) {
             BranchDO.this.state = state;
+            return this;
+        }
+
+        public Builder description(String description) {
+            BranchDO.this.description = description;
             return this;
         }
 

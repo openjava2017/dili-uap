@@ -7,6 +7,8 @@ public class RoleDTO {
     private Long id;
     // 角色名称
     private String name;
+    // 归属市场
+    private Long mchId;
     // 角色描述
     private String description;
     // 创建时间
@@ -28,6 +30,14 @@ public class RoleDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getMchId() {
+        return mchId;
+    }
+
+    public void setMchId(Long mchId) {
+        this.mchId = mchId;
     }
 
     public String getDescription() {

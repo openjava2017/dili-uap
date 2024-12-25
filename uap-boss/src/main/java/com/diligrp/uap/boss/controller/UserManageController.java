@@ -1,5 +1,6 @@
 package com.diligrp.uap.boss.controller;
 
+import com.diligrp.uap.boss.converter.UserDoDtoConverter;
 import com.diligrp.uap.boss.domain.UserDTO;
 import com.diligrp.uap.boss.domain.UserQuery;
 import com.diligrp.uap.boss.exception.UserManageException;
@@ -67,6 +68,10 @@ public class UserManageController {
         AssertUtils.notNull(request.getPageSize(), "pageSize missed");
         AssertUtils.isTrue(request.getPageNo() > 0, "invalid pageNo");
         AssertUtils.isTrue(request.getPageSize() > 0, "invalid pageSize");
+        Optional.ofNullable(request.getGender()).ifPresent(code -> Gender.getGender(code)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid gender")));
+        Optional.ofNullable(request.getPosition()).ifPresent(code -> Position.getPosition(code)
+            .orElseThrow(() -> new IllegalArgumentException(("Invalid position"))));
 
         Subject subject = SecuritySessionHolder.getSession().getSubject();
         UserDO user = userManageService.findUserById(subject.getId());
@@ -83,9 +88,9 @@ public class UserManageController {
     }
 
     @RequestMapping(value = "/findById.do")
-    public Message<UserDO> findById(@RequestParam("userId") Long userId) {
-        UserDO user = userManageService.findUserById(userId);
-        return Message.success(user);
+    public Message<UserDTO> findById(@RequestParam("id") Long id) {
+        UserDO user = userManageService.findUserById(id);
+        return Message.success(UserDoDtoConverter.INSTANCE.convert(user));
     }
 
     @RequestMapping(value = "/update.do")
