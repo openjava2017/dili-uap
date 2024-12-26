@@ -44,7 +44,7 @@
         INNER JOIN uap_role_authority ur ON um.menu_id = ur.resource_id AND ur.type = 1
         WHERE
             ur.role_id = #{roleId}
-            <![CDATA[AND (ur.bitmap && (1 << um.offset)) > 0]]>
+            <![CDATA[AND (ur.bitmap & (1 << um.offset)) > 0]]>
     </select>
 
     <delete id="deleteRoleAuthorities" parameterType="long">

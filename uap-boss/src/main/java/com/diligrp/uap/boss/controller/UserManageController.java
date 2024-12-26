@@ -120,9 +120,9 @@ public class UserManageController {
     @RequestMapping(value = "/delete.do")
     public Message<?> deleteUser(@RequestParam("id") Long id) {
         Subject subject = SecuritySessionHolder.getSession().getSubject();
-        if (subject.getId().equals(id)) {
-            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除当前登录用户");
-        }
+//        if (subject.getId().equals(id)) {
+//            throw new UserManageException(ErrorCode.OPERATION_NOT_ALLOWED, "不能删除当前登录用户");
+//        }
 
         userManageService.deleteUser(id);
         return Message.success();

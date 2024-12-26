@@ -4,6 +4,7 @@ import com.diligrp.uap.auth.domain.RoleAuthority;
 import com.diligrp.uap.auth.domain.StateMenuTreeNode;
 import com.diligrp.uap.auth.service.IResourceTreeService;
 import com.diligrp.uap.auth.service.IRoleAuthorityService;
+import com.diligrp.uap.auth.type.MenuNodeType;
 import com.diligrp.uap.boss.type.ResourceType;
 import com.diligrp.uap.shared.domain.Message;
 import com.diligrp.uap.shared.util.AssertUtils;
@@ -44,7 +45,7 @@ public class RoleAuthorityController {
         request.getAuthorities().stream().forEach(authority -> {
             AssertUtils.notNull(authority.getResourceId(), "resourceId missed");
             AssertUtils.notNull(authority.getType(), "type missed");
-            AssertUtils.isTrue(ResourceType.MENU.equalTo(authority.getType()), "invalid type");
+            MenuNodeType.getType(authority.getType()).orElseThrow(() -> new IllegalArgumentException("invalid type"));
         });
 
         roleAuthorityService.assignMenuAuthorities(request.getRoleId(), request.getAuthorities());

@@ -95,7 +95,7 @@ public class UserAuthorityServiceImpl implements IUserAuthorityService {
                 }
             });
             // 获取叶子菜单及其所有父级菜单目录
-            menus = menuResourceDao.listByIds(new ArrayList<>(menuIds));
+            menus = menuIds.size() > 0 ? menuResourceDao.listByIds(new ArrayList<>(menuIds)) : Collections.emptyList();
         }
 
         // 构建菜单树形结构
@@ -158,6 +158,7 @@ public class UserAuthorityServiceImpl implements IUserAuthorityService {
         Optional<UserDO> userOpt = userManageDao.findById(userId);
         userOpt.orElseThrow(() -> new UserManageException(ErrorCode.OBJECT_NOT_FOUND, "用户账号不存在"));
         final int NO_PERMISSION = Constants.NO_PERMISSION;
+        LocalDateTime when = LocalDateTime.now();
 
         // 获取所有分配的菜单
         List<Long> menuIds = authorities.stream().filter(resource -> resource.getType() ==
@@ -179,7 +180,7 @@ public class UserAuthorityServiceImpl implements IUserAuthorityService {
         List<UserAuthorityDO> authorityList = menus.stream().filter(menu -> menu.getChildren() == 0).map(menu -> {
             Integer bitmap = menuBitmap.get(menu.getId());
             return UserAuthorityDO.builder().userId(userId).resourceId(menu.getId()).code(menu.getCode())
-                .type(ResourceType.MENU.getCode()).bitmap(bitmap == null ? NO_PERMISSION : bitmap).build();
+                .type(ResourceType.MENU.getCode()).bitmap(bitmap == null ? NO_PERMISSION : bitmap).createdTime(when).build();
         }).collect(Collectors.toList());
 
         userAuthorityDao.deleteUserAuthorities(userId);

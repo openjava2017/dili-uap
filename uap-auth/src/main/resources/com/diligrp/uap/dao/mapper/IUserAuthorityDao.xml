@@ -59,7 +59,7 @@
             FROM uap_menu_resource um
             INNER JOIN uap_user_authority uu ON um.id = uu.resource_id AND uu.type = 1
             WHERE
-                uu.user_id = 1
+                uu.user_id = #{userId}
             UNION
             SELECT
                 um.module_id
@@ -67,7 +67,7 @@
             INNER JOIN uap_role_authority ur ON um.id = ur.resource_id AND ur.type = 1
             INNER JOIN uap_user_role uur ON ur.role_id = uur.role_id
             WHERE
-                uur.user_id = 1
+                uur.user_id = #{userId}
             )
         ORDER BY sequence
     </select>
@@ -83,7 +83,7 @@
             WHERE
                 uu.user_id = #{userId}
                 <if test="moduleId != null">
-                    AND um.module_id = 1
+                    AND um.module_id = #{moduleId}
                 </if>
             UNION ALL
             SELECT
@@ -94,7 +94,7 @@
             WHERE
                 uu.user_id = #{userId}
                 <if test="moduleId != null">
-                    AND um.module_id = 1
+                    AND um.module_id = #{moduleId}
                 </if>
             ) menu_authority
         INNER JOIN uap_module um ON menu_authority.module_id = um.module_id
@@ -127,7 +127,7 @@
         INNER JOIN uap_user_authority uu ON um.menu_id = uu.resource_id AND uu.type = 1
         WHERE
             uu.user_id = #{userId}
-            <![CDATA[AND (uu.bitmap && (1 << um.offset)) > 0]]>
+            <![CDATA[AND (uu.bitmap & (1 << um.offset)) > 0]]>
     </select>
 
     <select id="listResourceAuthorities" parameterType="long" resultType="com.diligrp.uap.auth.domain.ResourceAuthority">

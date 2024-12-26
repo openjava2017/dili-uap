@@ -5,10 +5,10 @@ import com.diligrp.uap.auth.domain.UserAuthority;
 import com.diligrp.uap.auth.domain.UserRoleDTO;
 import com.diligrp.uap.auth.service.IResourceTreeService;
 import com.diligrp.uap.auth.service.IUserAuthorityService;
+import com.diligrp.uap.auth.type.MenuNodeType;
 import com.diligrp.uap.boss.domain.MenuTreeNode;
 import com.diligrp.uap.boss.domain.ModuleDTO;
 import com.diligrp.uap.boss.domain.RoleDTO;
-import com.diligrp.uap.boss.type.ResourceType;
 import com.diligrp.uap.security.core.Subject;
 import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.shared.domain.Message;
@@ -35,8 +35,9 @@ public class UserAuthorityController {
      * 获取用户拥有的模块权限（分配了该模块下的菜单，便拥有了模块的权限）
      */
     @RequestMapping(value = "/module/list.do")
-    public Message<?> listUserModules(@RequestParam("userId") Long userId) {
-        List<ModuleDTO> modules = userAuthorityService.listUserModules(userId);
+    public Message<?> listUserModules() {
+        Subject subject = SecuritySessionHolder.getSession().getSubject();
+        List<ModuleDTO> modules = userAuthorityService.listUserModules(subject.getId());
         return Message.success(modules);
     }
 
@@ -44,7 +45,7 @@ public class UserAuthorityController {
      * 获取用户拥有权限的菜单树，用于主页面展现菜单目录；如提供模块ID参数，则加载指定模块下的菜单树
      */
     @RequestMapping(value = "/dashboard/tree.do")
-    public Message<?> userMenuTree(@RequestParam(name = "moduleId", required = false) Long moduleId) {
+    public Message<?> dashboard(@RequestParam(name = "moduleId", required = false) Long moduleId) {
         Subject subject = SecuritySessionHolder.getSession().getSubject();
         MenuTreeNode treeNode = userAuthorityService.listUserMenuTree(subject.getId(), moduleId);
 
@@ -89,7 +90,7 @@ public class UserAuthorityController {
         request.getAuthorities().stream().forEach(authority -> {
             AssertUtils.notNull(authority.getResourceId(), "resourceId missed");
             AssertUtils.notNull(authority.getType(), "type missed");
-            AssertUtils.isTrue(ResourceType.MENU.equalTo(authority.getType()), "invalid type");
+            MenuNodeType.getType(authority.getType()).orElseThrow(() -> new IllegalArgumentException("invalid type"));
         });
 
         userAuthorityService.assignMenuAuthorities(request.getUserId(), request.getAuthorities());

@@ -89,8 +89,8 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
         var parents = buildEmptyMenuTree(root);
 
         // 加载用户拥有的菜单，并设置为选中状态
-        List<MenuResourceDO> roleMenus = userAuthorityDao.listUserMenus(userId);
-        roleMenus.forEach(menu -> {
+        List<MenuResourceDO> userMenus = userAuthorityDao.listUserMenus(userId);
+        userMenus.forEach(menu -> {
             StateMenuTreeNode node = parents.get(menu.getId());
             if (node != null) {
                 node.setState(Constants.STATE_NODE_SELECTED);
@@ -98,8 +98,8 @@ public class ResourceTreeServiceImpl implements IResourceTreeService {
         });
 
         // 加载用户拥有的菜单元素，并设置为选中状态
-        List<MenuElementDO> roleElements = userAuthorityDao.listUserMenuElements(userId);
-        roleElements.forEach(element -> {
+        List<MenuElementDO> userElements = userAuthorityDao.listUserMenuElements(userId);
+        userElements.forEach(element -> {
             StateMenuTreeNode node = parents.get(element.getId());
             if (node != null) {
                 node.setState(Constants.STATE_NODE_SELECTED);
