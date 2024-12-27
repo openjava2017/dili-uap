@@ -2,7 +2,7 @@
 archivesBaseName = 'uap-shared'
 
 dependencies {
-    api 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2'
+    api 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
     api 'org.springframework.boot:spring-boot-starter-data-redis'
     //api 'org.redisson:redisson-spring-boot-starter:3.23.1'
     api 'org.springframework.boot:spring-boot-starter-amqp'

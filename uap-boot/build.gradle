@@ -11,6 +11,6 @@ dependencies {
     implementation project(':uap-rpc')
     implementation project(':uap-auth')
     implementation project(':uap-boss')
-    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2022.0.0.0-RC2'
-    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2022.0.0.0-RC2'
+//    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2023.0.3.2'
+//    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2023.0.3.2'
 }
