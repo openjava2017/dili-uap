@@ -36,8 +36,8 @@ CREATE TABLE `uap_branch` (
   `id` BIGINT NOT NULL COMMENT '非自增主键ID',
   `mch_id` BIGINT NOT NULL COMMENT '商户号',
   `parent_id` BIGINT NOT NULL COMMENT '父级机构ID',
-  `code` VARCHAR(40) NOT NULL COMMENT '编码', -- 格式: id1,id2,id3,id4
   `name` VARCHAR(80) NOT NULL COMMENT '名称',
+  `path` VARCHAR(40) NOT NULL COMMENT '机构路径', -- 格式: id1,id2,id3,id4
   `type` TINYINT UNSIGNED NOT NULL COMMENT '类型', -- 业务部门，行政部门等
   `level` TINYINT UNSIGNED NOT NULL COMMENT '层级', -- 分支机构树层级
   `children` SMALLINT UNSIGNED NOT NULL COMMENT '子节点数量', -- 是否为叶子节点

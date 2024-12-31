@@ -54,6 +54,19 @@ public class UserAuthenticationService extends AuthenticationService {
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    /**
+     *  获取登录信息，这里可以自定义实现验证码登录或用户密码登录
+     *  不同的登录方式返回不同的AuthenticationToken子类，doAuthentication认证时根据AuthenticationToken子类实现不同的认证逻辑
+     */
+    @Override
+    public AuthenticationToken obtainAuthentication(HttpServletRequest request) throws AuthenticationException {
+        // 默认application/x-www-form-urlencoded方式提交登录信息
+        return super.obtainAuthentication(request);
+    }
+
+    /**
+     *  用户认证逻辑处理，可根据AuthenticationToken不同的子类实现不同的认证逻辑，以实现验证码登录等
+     */
     @Override
     public Subject doAuthentication(AuthenticationToken authentication) throws AuthenticationException {
         UserDO user = userManageDao.findByName((String)authentication.getPrincipal())
@@ -99,6 +112,10 @@ public class UserAuthenticationService extends AuthenticationService {
         return Subject.of(user.getId(), user.getName(), user.getUserName(), authorities, organization, user.getType());
     }
 
+    /**
+     * 认证成功时执行的处理逻辑
+     */
+    @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
         // 异步更新用户在线信息
         Session session = SecuritySessionHolder.getSession();
@@ -111,6 +128,14 @@ public class UserAuthenticationService extends AuthenticationService {
         });
 
         super.onAuthenticationSuccess(request, response);
+    }
+
+    /**
+     * 认证失败时的处理逻辑
+     */
+    @Override
+    public void onAuthenticationFailed(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+        super.onAuthenticationFailed(request, response, ex);
     }
 
     private static class ResourceKey {
