@@ -1,7 +1,5 @@
 package com.diligrp.uap.security.codec;
 
-import com.diligrp.uap.security.session.Session;
-
 import java.io.*;
 
 public class ObjectCodec {
@@ -33,9 +31,9 @@ public class ObjectCodec {
         static final ByteDecoder<Object> INSTANCE = new ObjectDecoder();
 
         @Override
-        public Session decode(byte[] payload) throws IOException {
+        public Object decode(byte[] payload) throws IOException {
             try (ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(payload))) {
-                return (Session) is.readObject();
+                return is.readObject();
             } catch (Exception ex) {
                 throw new IOException(ex);
             }
