@@ -23,6 +23,8 @@ public class PreferenceServiceImpl implements IPreferenceService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceServiceImpl.class);
 
+    private static final int CACHE_EXPIRE_TIME = 2 * 60 * 60; // 缓存过期时间
+
     @Resource
     private IMerchantDao merchantDao;
 
@@ -44,7 +46,8 @@ public class PreferenceServiceImpl implements IPreferenceService {
 
         try {
             // 缓存偏好设置
-            lettuceTemplate.hset(Constants.PREFERENCE_KEY_PREFIX, String.valueOf(mchId), payload);
+            String cachedKey = String.format(Constants.PREFERENCE_REDIS_KEY, mchId);
+            lettuceTemplate.setAndExpire(cachedKey, payload, CACHE_EXPIRE_TIME);
         } catch (Exception ex) {
             LOG.error("Failed to remove merchant preference cache", ex);
         }
@@ -58,12 +61,13 @@ public class PreferenceServiceImpl implements IPreferenceService {
         Preference preference = new Preference();
 
         try {
-            String payload = lettuceTemplate.hget(Constants.PREFERENCE_KEY_PREFIX, String.valueOf(mchId));
+            String cachedKey = String.format(Constants.PREFERENCE_REDIS_KEY, mchId);
+            String payload = lettuceTemplate.getAndExpire(cachedKey, CACHE_EXPIRE_TIME);
             if (ObjectUtils.isEmpty(payload)) {
                 MerchantDO merchant = merchantDao.findByMchId(mchId)
                     .orElseThrow(() -> new BossManageException(ErrorCode.OBJECT_NOT_FOUND, "商户不存在"));
                 payload = merchant.getParams() == null ? "{}" : merchant.getParams();
-                lettuceTemplate.hset(Constants.PREFERENCE_KEY_PREFIX, String.valueOf(mchId), payload);
+                lettuceTemplate.setAndExpire(cachedKey, payload, CACHE_EXPIRE_TIME);
             }
 
             preference = JsonUtils.fromJsonString(payload, Preference.class);
