@@ -49,7 +49,7 @@ public class PreferenceServiceImpl implements IPreferenceService {
             String cachedKey = String.format(Constants.PREFERENCE_REDIS_KEY, mchId);
             lettuceTemplate.setAndExpire(cachedKey, payload, CACHE_EXPIRE_TIME);
         } catch (Exception ex) {
-            LOG.error("Failed to remove merchant preference cache", ex);
+            LOG.error("Failed to set merchant preference cache", ex);
         }
     }
 
