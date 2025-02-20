@@ -10,7 +10,6 @@ import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.security.session.Session;
 import com.diligrp.uap.security.util.HttpUtils;
 import com.diligrp.uap.shared.domain.Message;
-import com.diligrp.uap.shared.service.ThreadPollService;
 import com.diligrp.uap.shared.util.JsonUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;

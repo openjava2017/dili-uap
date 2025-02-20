@@ -13,7 +13,7 @@ import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.redis.LettuceTemplate;
 import com.diligrp.uap.shared.ErrorCode;
 import com.diligrp.uap.shared.security.PasswordUtils;
-import com.diligrp.uap.shared.service.ThreadPollService;
+import com.diligrp.uap.shared.service.ThreadPoolService;
 import com.diligrp.uap.shared.util.DateUtils;
 import com.diligrp.uap.shared.util.ObjectUtils;
 import jakarta.annotation.Resource;
@@ -109,7 +109,7 @@ public class UserPasswordServiceImpl implements IUserPasswordService {
                 long errors = incPasswordErrors(userDailyKey);
                 if (errors >= maxPwdErrors) {
                     // 异步执行，以防止抛出异常后数据库事务回滚导致无法锁定用户账号
-                    ThreadPollService.getIoThreadPoll().submit(() -> {
+                    ThreadPoolService.getIoThreadPoll().submit(() -> {
                         transactionTemplate.execute(status -> { // 线程里使用编程式事务
                             UserStateDTO stateDTO = UserStateDTO.of(
                                     user.getId(), UserState.LOCKED.getCode(), when, user.getVersion());

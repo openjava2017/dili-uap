@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  * 请谨慎使用此线程池工具类，通常建议根据特定的使用场景设置线程池参数，不建议使用统一的线程池配置
  * JDK的线程池类并不能很好区分"计算密集型"和"IO密集型"任务类型，并根据不同的任务类型去配置不同的参数
  */
-public final class ThreadPollService {
+public final class ThreadPoolService {
 
     private static final int CPU_CORE_NUM = Runtime.getRuntime().availableProcessors();
 
@@ -23,7 +23,7 @@ public final class ThreadPollService {
     // IO密集型任务的线程池实例
     private static volatile ExecutorService ioThreadPoll;
 
-    private ThreadPollService() {
+    private ThreadPoolService() {
     }
 
     /**
@@ -32,7 +32,7 @@ public final class ThreadPollService {
      */
     public static ExecutorService getCpuThreadPoll() {
         if (cpuThreadPoll == null) {
-            synchronized (ThreadPollService.class) {
+            synchronized (ThreadPoolService.class) {
                 if (cpuThreadPoll == null) {
                     cpuThreadPoll = new ThreadPoolExecutor(CPU_CORE_NUM + 1, CPU_MAX_POOL_SIZE,
                         20, TimeUnit.SECONDS, new LinkedBlockingQueue(100),
@@ -49,7 +49,7 @@ public final class ThreadPollService {
      */
     public static ExecutorService getIoThreadPoll() {
         if (ioThreadPoll == null) {
-            synchronized (ThreadPollService.class) {
+            synchronized (ThreadPoolService.class) {
                 if (ioThreadPoll == null) {
                     ioThreadPoll = new ThreadPoolExecutor(CPU_CORE_NUM + 1, IO_MAX_POOL_SIZE,
                         20, TimeUnit.SECONDS, new LinkedBlockingQueue(1000),

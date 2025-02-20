@@ -19,7 +19,7 @@ import com.diligrp.uap.security.exception.AuthenticationException;
 import com.diligrp.uap.security.session.SecuritySessionHolder;
 import com.diligrp.uap.security.session.Session;
 import com.diligrp.uap.shared.ErrorCode;
-import com.diligrp.uap.shared.service.ThreadPollService;
+import com.diligrp.uap.shared.service.ThreadPoolService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -119,7 +119,7 @@ public class UserAuthenticationService extends AuthenticationService {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response) {
         // 异步更新用户在线信息
         Session session = SecuritySessionHolder.getSession();
-        ThreadPollService.getIoThreadPoll().submit(() -> {
+        ThreadPoolService.getIoThreadPoll().submit(() -> {
             transactionTemplate.execute(status -> {
                 Subject subject = session.getSubject();
                 userManageDao.updateUserLogin(UserOnline.of(subject.getId(), session.getSessionId(), LocalDateTime.now()));
